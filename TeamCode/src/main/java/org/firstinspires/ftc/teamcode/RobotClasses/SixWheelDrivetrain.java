@@ -42,6 +42,7 @@ public class SixWheelDrivetrain {
     private double lastheading = 0;
     private double deltaheading = 0;
     public double currentheading = 0;
+    private double initialheading = 0;
 
     //Tracking x y coordinate position
     public double x=0;
@@ -50,10 +51,19 @@ public class SixWheelDrivetrain {
     private double prevrightinches=0;
 
     //Constructor
-    public SixWheelDrivetrain(HardwareMap hardwareMap, LinearOpMode opMode){
+    public SixWheelDrivetrain(HardwareMap hardwareMap, LinearOpMode opMode, double initialX,
+                              double initialY, double initialtheta){
 
         this.opMode = opMode;
         this.hardwareMap = hardwareMap;
+
+        //setting initial pose
+        x = initialX;
+        y = initialY;
+        currentheading = initialtheta;
+        lastheading = initialtheta;
+        initialheading = initialtheta;
+
         module = hardwareMap.getAll(LynxModule.class).iterator().next();
 
         motorFrontRight = hardwareMap.get(DcMotorEx.class,"motorFrontRight");
@@ -61,8 +71,14 @@ public class SixWheelDrivetrain {
         motorBackRight = hardwareMap.get(DcMotorEx.class,"motorBackRight");
         motorBackLeft = hardwareMap.get(DcMotorEx.class,"motorBackLeft");
 
-        motorBackRight.setDirection(Direction.REVERSE);
-        motorFrontRight.setDirection(Direction.REVERSE);
+        motorFrontLeft.setMode(RunMode.STOP_AND_RESET_ENCODER);
+        motorFrontRight.setMode(RunMode.STOP_AND_RESET_ENCODER);
+        motorBackLeft.setMode(RunMode.STOP_AND_RESET_ENCODER);
+        motorBackRight.setMode(RunMode.STOP_AND_RESET_ENCODER);
+
+
+        motorBackLeft.setDirection(Direction.REVERSE);
+        motorFrontLeft.setDirection(Direction.REVERSE);
 
         motorFrontRight.setMode(RunMode.RUN_USING_ENCODER);
         motorFrontLeft.setMode(RunMode.RUN_USING_ENCODER);
@@ -122,7 +138,7 @@ public class SixWheelDrivetrain {
     public double getAngle(){
 
         angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
-        deltaheading = angles.firstAngle - lastheading;
+        deltaheading = angles.firstAngle + initialheading - lastheading;
 
 
         if (deltaheading < -Math.PI)
@@ -137,11 +153,11 @@ public class SixWheelDrivetrain {
         return currentheading;
 
     }
-    public void resetAngle(){
-        angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
-        lastheading = angles.firstAngle;
-        currentheading = 0;
-    }
+//    public void resetAngle(){
+//        angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
+//        lastheading = angles.firstAngle;
+//        currentheading = 0;
+//    }
 
     public LynxGetBulkInputDataResponse RevBulkData(){
         LynxGetBulkInputDataResponse response;
@@ -162,7 +178,7 @@ public class SixWheelDrivetrain {
         double leftinches = -(response.getEncoder(3) - prevleftinches);
         double rightinches = response.getEncoder(0) - prevrightinches;
 
-        double average = (((double) (leftinches+rightinches))/2)/560.0*4*Math.PI;
+        double average = (((double) (leftinches+rightinches))/2)/537.6*4*Math.PI;
 
         x -= Math.sin(theta)*average;
         y += Math.cos(theta)*average;
@@ -170,11 +186,15 @@ public class SixWheelDrivetrain {
         prevleftinches = response.getEncoder(3);
         prevrightinches = response.getEncoder(0);
 
-
-
     }
-
-
-
+    public void setControls(double velo, double angularvelo){
+        motorFrontRight.setVelocity(inchestoticks(velo + angularvelo*15));
+        motorBackRight.setVelocity(inchestoticks(velo + angularvelo*15));
+        motorFrontLeft.setVelocity(inchestoticks(velo - angularvelo*15));
+        motorBackLeft.setVelocity(inchestoticks(velo - angularvelo*15));
+    }
+    public double inchestoticks(double inches){
+        return inches/12.56*560.0;
+    }
 
 }

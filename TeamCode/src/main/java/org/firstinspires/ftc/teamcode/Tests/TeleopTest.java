@@ -12,12 +12,13 @@ public class TeleopTest extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        drivetrain = new SixWheelDrivetrain(hardwareMap,this);
+        drivetrain = new SixWheelDrivetrain(hardwareMap,this, 0,0, 0);
         waitForStart();
 
         while(opModeIsActive()){
             drivetrain.setLeftPower(gamepad1.left_stick_y);
             drivetrain.setRightPower(gamepad1.right_stick_y);
+//            drivetrain.setControls(5,0.2);
             drivetrain.updatePose();
             telemetry.addData("x: ", drivetrain.x);
             telemetry.addData("y: ", drivetrain.y);
