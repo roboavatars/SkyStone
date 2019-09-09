@@ -13,3 +13,11 @@
 
 // Include common definitions from above.
 apply from: '../build.common.gradle'
+
+android {
+    buildToolsVersion = '29.0.2'
+}
+
+dependencies {
+    implementation project(path: ':OpenCV')
+}
