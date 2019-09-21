@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;
+import static org.opencv.core.CvType.CV_8UC1;
 
 @TeleOp(name="OpenCV HSV Test")
 public class OpenCVTest2 extends LinearOpMode {
@@ -86,7 +87,7 @@ public class OpenCVTest2 extends LinearOpMode {
                             Mat INPUT = new Mat(rgb.getHeight(), rgb.getWidth(), CvType.CV_8UC3);
                             Utils.bitmapToMat(bm, INPUT);
 
-                            //String input = "/sdcard/FIRST/vuforiaTesting/input.jpg";
+                            //String input = "/sdcard/FIRST/vuforiaTesting/blackInput.jpg";
                             //Mat INPUT = Imgcodecs.imread(input, Imgcodecs.IMREAD_COLOR);
                             telemetry.addData("1", "Image Loaded");
                             telemetry.update();
@@ -105,13 +106,13 @@ public class OpenCVTest2 extends LinearOpMode {
                             telemetry.update();
 
                             //String hsvh = "/sdcard/FIRST/vuforiaTesting/hhsv.jpg";
-                            String hsvs = "/sdcard/FIRST/vuforiaTesting/shsv.jpg";
+                            //String hsvs = "/sdcard/FIRST/vuforiaTesting/shsv.jpg";
                             //String hsvv = "/sdcard/FIRST/vuforiaTesting/vhsv.jpg";
                             //imageCodecs.imwrite(hsvh, HSVH);
-                            imageCodecs.imwrite(hsvs, HSVS);
+                            //imageCodecs.imwrite(hsvs, HSVS);
                             //imageCodecs.imwrite(hsvv, HSVV);
-                            telemetry.addData("4", "Image Types Saved");
-                            telemetry.update();
+                            //telemetry.addData("4", "Image Types Saved");
+                            //telemetry.update();
 
                             //Mat H = new Mat();
                             Mat S = new Mat();
@@ -136,7 +137,32 @@ public class OpenCVTest2 extends LinearOpMode {
                             telemetry.addData("6", "Image Saved");
                             telemetry.update();
 
+                            /*double[] Intensity = S.get(0,0);
+                            System.out.println(Intensity[0] + " " + Intensity[1] + " " + Intensity[2]);
+                            telemetry.addData("7", "Image Data");
+                            telemetry.update();*/
+
+                            double[] Intensity;
+                            double sum;
+                            ArrayList list = new ArrayList();
+                            Mat newImage = new Mat(100, S.cols(), CV_8UC1);
+                            for (int col = 0; col < S.cols(); col++) {
+                                sum = 0;
+                                for (int row = 0; row < S.rows(); row++) {
+                                    sum += S.get(row,col)[0];
+                                }
+                                sum *= 2;
+                                System.out.println(sum);
+                                list.add(sum);
+                                newImage.col(col).setTo(new Scalar(sum/S.rows()));
+                            }
+                            System.out.println(newImage.row(0));
+                            String newImageName = "/sdcard/FIRST/vuforiaTesting/newImage.jpg";
+                            imageCodecs.imwrite(newImageName, newImage);
+                            System.out.println(list);
+
                             count++;
+                            sleep(1000);
                         }
                         break;
                     }
