@@ -18,6 +18,7 @@ import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.Scalar;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
@@ -26,7 +27,7 @@ import java.util.List;
 
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;
 
-@TeleOp(name="OpenCV HHH")
+@TeleOp(name="OpenCV HSV Test")
 public class OpenCVTest2 extends LinearOpMode {
 
     private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
@@ -43,7 +44,7 @@ public class OpenCVTest2 extends LinearOpMode {
 
     @Override public void runOpMode() {
 
-        boolean writeFileOnce = false; int count = 0;
+        int count = 0;
         telemetry.addData("Initializing OpenCV", "");
         telemetry.update();
         if (!OpenCVLoader.initDebug()) {
@@ -82,11 +83,11 @@ public class OpenCVTest2 extends LinearOpMode {
                         if (rgb != null) {
                             Bitmap bm = Bitmap.createBitmap(rgb.getWidth(), rgb.getHeight(), Bitmap.Config.RGB_565);
                             bm.copyPixelsFromBuffer(rgb.getPixels());
-                            Mat img = new Mat(rgb.getHeight(), rgb.getWidth(), CvType.CV_8UC3);
-                            Utils.bitmapToMat(bm, img);
+                            Mat INPUT = new Mat(rgb.getHeight(), rgb.getWidth(), CvType.CV_8UC3);
+                            Utils.bitmapToMat(bm, INPUT);
 
-                            String input = "/sdcard/FIRST/vuforiaTesting/input.jpg";
-                            Mat INPUT = Imgcodecs.imread(input, Imgcodecs.IMREAD_COLOR);
+                            //String input = "/sdcard/FIRST/vuforiaTesting/input.jpg";
+                            //Mat INPUT = Imgcodecs.imread(input, Imgcodecs.IMREAD_COLOR);
                             telemetry.addData("1", "Image Loaded");
                             telemetry.update();
 
@@ -97,26 +98,45 @@ public class OpenCVTest2 extends LinearOpMode {
 
                             List<Mat> hsvTypes = new ArrayList<Mat>(3);
                             Core.split(HSV, hsvTypes);
-                            Mat HSVH = hsvTypes.get(0);
+                            //Mat HSVH = hsvTypes.get(0);
                             Mat HSVS = hsvTypes.get(1);
-                            Mat HSVV = hsvTypes.get(2);
+                            //Mat HSVV = hsvTypes.get(2);
                             telemetry.addData("3", "Image Types Converted");
                             telemetry.update();
 
-                            String hsvh = "/sdcard/FIRST/vuforiaTesting/hsvh.jpg";
-                            imageCodecs.imwrite(hsvh, HSVH);
-                            String hsvs = "/sdcard/FIRST/vuforiaTesting/hsvs.jpg";
+                            //String hsvh = "/sdcard/FIRST/vuforiaTesting/hhsv.jpg";
+                            String hsvs = "/sdcard/FIRST/vuforiaTesting/shsv.jpg";
+                            //String hsvv = "/sdcard/FIRST/vuforiaTesting/vhsv.jpg";
+                            //imageCodecs.imwrite(hsvh, HSVH);
                             imageCodecs.imwrite(hsvs, HSVS);
-                            String hsvv = "/sdcard/FIRST/vuforiaTesting/hsvv.jpg";
-                            imageCodecs.imwrite(hsvv, HSVV);
+                            //imageCodecs.imwrite(hsvv, HSVV);
                             telemetry.addData("4", "Image Types Saved");
                             telemetry.update();
-                            String output = "/sdcard/FIRST/vuforiaTesting/output.jpg";
-                            imageCodecs.imwrite(output, HSV);
-                            telemetry.addData("5", "Image Saved");
+
+                            //Mat H = new Mat();
+                            Mat S = new Mat();
+                            //Mat V = new Mat();
+                            /*Core.inRange(HSVH, new Scalar(50,10,10), new Scalar(65,100,100), H);
+                            Core.inRange(HSVS, new Scalar(50,10,10), new Scalar(65,100,100), S);
+                            Core.inRange(HSVV, new Scalar(50,10,10), new Scalar(65,100,100), V);*/
+                            //Core.inRange(HSVH, new Scalar(180,180,0), new Scalar(255,255,10), H);
+                            Core.inRange(HSVS, new Scalar(180,180,0), new Scalar(255,255,10), S);
+                            //Core.inRange(HSVV, new Scalar(180,180,0), new Scalar(255,255,10), V);
+                            //String HNew = "/sdcard/FIRST/vuforiaTesting/hsvh.jpg";
+                            String SNew = "/sdcard/FIRST/vuforiaTesting/hsvs.jpg";
+                            //String VNew = "/sdcard/FIRST/vuforiaTesting/hsvv.jpg";
+                            //imageCodecs.imwrite(HNew, H);
+                            imageCodecs.imwrite(SNew, S);
+                            //imageCodecs.imwrite(VNew, V);
+                            telemetry.addData("5", "Image Types Filtered and Saved");
                             telemetry.update();
 
-                            writeFileOnce = true; count++;
+                            String output = "/sdcard/FIRST/vuforiaTesting/output.jpg";
+                            imageCodecs.imwrite(output, HSV);
+                            telemetry.addData("6", "Image Saved");
+                            telemetry.update();
+
+                            count++;
                         }
                         break;
                     }
