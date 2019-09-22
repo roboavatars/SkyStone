@@ -19,11 +19,13 @@ import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
+import java.net.SecureCacheResponse;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -102,68 +104,78 @@ public class OpenCV extends LinearOpMode {
                         Imgproc.cvtColor(INPUT, HSV, Imgproc.COLOR_BGR2HSV);
                         String output = basePath + "hsv.jpg";
                         Imgcodecs.imwrite(output, HSV);
-                        telemetry.addData("2", "Image HSV Saved");
+                        telemetry.addData("2", "HSV Image Saved");
                         telemetry.update();
 
                         List<Mat> hsvTypes = new ArrayList<>(3);
                         Core.split(HSV, hsvTypes);
-                        //Mat hue = hsvTypes.get(0);
-                        Mat saturation = hsvTypes.get(1);
-                        //Mat value = hsvTypes.get(2);
-                        telemetry.addData("3", "Image Types Converted");
+                        Mat saturationUnfiltered = hsvTypes.get(1);
+                        telemetry.addData("3", "Saturation Converted");
                         telemetry.update();
 
-                        //String huePath = basePath + "hue.jpg";
-                        //String saturationPath = basePath + "saturation.jpg";
-                        //String valuePath = basePath + "value.jpg";
-                        //Imgcodecs.imwrite(huePath, hue);
-                        //Imgcodecs.imwrite(saturationPath, saturation);
-                        //Imgcodecs.imwrite(valuePath, value);
-                        //telemetry.addData("4", "Image Types Saved");
-                        //telemetry.update();
-
-                        //Mat H = new Mat();
                         Mat S = new Mat();
-                        //Mat V = new Mat();
-                        /*Core.inRange(hue, new Scalar(50,10,10), new Scalar(65,100,100), H);
-                        Core.inRange(saturation, new Scalar(50,10,10), new Scalar(65,100,100), S);
-                        Core.inRange(value, new Scalar(50,10,10), new Scalar(65,100,100), V);*/
-                        //Core.inRange(hue, new Scalar(180,180,0), new Scalar(255,255,10), H);
-                        Core.inRange(saturation, new Scalar(180,180,0), new Scalar(255,255,10), S);
-                        //Core.inRange(value, new Scalar(180,180,0), new Scalar(255,255,10), V);
-
-                        //String hueNew = basePath + "hue.jpg";
-                        String satNew = basePath + "saturation.jpg";
-                        //String valNew = basePath + "value.jpg";
-                        //Imgcodecs.imwrite(hueNew, H);
+                        Core.inRange(saturationUnfiltered, new Scalar(180,180,0), new Scalar(255,255,10), S);
+                        String satNew = basePath + "saturationFiltered.jpg";
                         Imgcodecs.imwrite(satNew, S);
-                        //Imgcodecs.imwrite(valNew, V);
-                        telemetry.addData("4", "Image Types Filtered and Saved");
+                        telemetry.addData("4", "Saturation Filtered and Saved");
                         telemetry.update();
 
-                        double sum;
-                        ArrayList<Double> sumList = new ArrayList<>();
-                        Mat newImage = new Mat(S.rows(), S.cols(), CV_8UC1);
-                        for (int col = 0; col < S.cols(); col++) {
-                            sum = 0;
-                            for (int row = 0; row < S.rows(); row++) {
-                                sum += S.get(row,col)[0];
+                        double horSum;
+                        ArrayList<Double> horList = new ArrayList<>();
+                        Mat horView = new Mat(S.rows(), 1, CV_8UC1);
+                        for (int row = 0; row < S.rows(); row++) {
+                            horSum = 0;
+                            for (int col = 0; col < S.cols(); col++) {
+                                horSum += S.get(row,col)[0];
                             }
-                            sum *= 2;
-                            sumList.add(sum);
-                            newImage.col(col).setTo(new Scalar(sum / S.rows()));
+                            horList.add(horSum);
+                            horView.row(row).setTo(new Scalar(horSum / S.rows()));
                         }
-                        log("Vertical Row0: " + newImage.row(0).toString());
-                        String newImageName = basePath + "verticalAvg.jpg";
-                        Imgcodecs.imwrite(newImageName, newImage);
-                        log("Vertical: " + sumList.toString());
+                        log("Horizontal Col0: " + horView.col(0).toString());
+                        String horViewName = basePath + "horizontalAvg.jpg";
+                        Imgcodecs.imwrite(horViewName, horView);
+                        log("Horizontal: " + horList.toString());
+                        telemetry.addData("5", "Horizontal Image Data Saved");
 
-                        log("Size: " + sumList.size());
+                        Mat tempMat1;
+                        Mat tempMat2;
+                        Mat SCropped = S.clone();
+                        for (int c = 0; c < horList.size(); c++) {
+                            double rowIntensity = horList.get(c);
+                            if (rowIntensity < 10000) {
+                                Rect beforeC = new Rect(0, 0, SCropped.cols(), c);
+                                tempMat1 = new Mat(SCropped, beforeC);
+                                Rect afterC = new Rect(0, 0, SCropped.cols(), SCropped.rows()-c);
+                                tempMat2 = new Mat(SCropped, afterC);
+                                SCropped = tempMat1;
+                                SCropped.push_back(tempMat2);
+                            }
+                        }
+                        telemetry.addData("6", "Saturation Image Cropped");
+
+                        double verSum;
+                        ArrayList<Double> verList = new ArrayList<>();
+                        Mat verImage = new Mat(SCropped.rows(), SCropped.cols(), CV_8UC1);
+                        for (int col = 0; col < SCropped.cols(); col++) {
+                            verSum = 0;
+                            for (int row = 0; row < SCropped.rows(); row++) {
+                                verSum += SCropped.get(row,col)[0];
+                            }
+                            verSum *= 2;
+                            verList.add(verSum);
+                            verImage.col(col).setTo(new Scalar(verSum / SCropped.rows()));
+                        }
+                        log("Vertical Row0: " + verImage.row(0).toString());
+                        String verImageName = basePath + "verticalAvg.jpg";
+                        Imgcodecs.imwrite(verImageName, verImage);
+                        log("Vertical: " + verList.toString());
+
+                        log("Size: " + verList.size());
                         String darkCols = "", darkAreas = "";
                         int skyStones = 0;
                         double prevIntensity = 0;
-                        for (int c = 0; c < sumList.size(); c++) {
-                            double curIntensity = sumList.get(c);
+                        for (int c = 0; c < verList.size(); c++) {
+                            double curIntensity = verList.get(c);
 
                             if (curIntensity < 10000) {
                                 darkCols += c + "(" + curIntensity + "), ";
@@ -182,29 +194,13 @@ public class OpenCV extends LinearOpMode {
 
                         //10000-61000
 
-                        telemetry.addData("5", "Image Data Vertical Saved");
+                        telemetry.addData("7", "Vertical Image Data Saved");
                         telemetry.update();
 
-                        /*double sum2;
-                        ArrayList sumList2 = new ArrayList();
-                        Mat newImage2 = new Mat(S.rows(), S.cols(), CV_8UC1);
-                        for (int row = 0; row < S.rows(); row++) {
-                            sum2 = 0;
-                            for (int col = 0; col < S.cols(); col++) {
-                                sum2 += S.get(row,col)[0];
-                            }
-                            sumList2.add(sum2);
-                            newImage2.row(row).setTo(new Scalar(sum2 / S.rows()));
-                        }
-                        log("Horizontal Col0: " + newImage2.col(0).toString());
-                        String newImageName2 = basePath + "horizontalAvg.jpg";
-                        Imgcodecs.imwrite(newImageName2, newImage2);
-                        log("Horizontal: " + sumList2.toString());
-                        telemetry.addData("6", "Image Data Horizontal Saved");*/
                         telemetry.addData("Done", "");
                         telemetry.update();
 
-                        sleep(30000);
+                        sleep(10000);
                         stop();
                     }
                     break;
