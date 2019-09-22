@@ -1,9 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
 import android.graphics.Bitmap;
+import android.util.Log;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.vuforia.Image;
 import com.vuforia.PIXEL_FORMAT;
 import com.vuforia.Vuforia;
@@ -29,7 +30,7 @@ import java.util.List;
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;
 import static org.opencv.core.CvType.CV_8UC1;
 
-@Autonomous(name="OpenCV HSV Test")
+@TeleOp(name="OpenCV HSV Test")
 public class OpenCV extends LinearOpMode {
 
     private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
@@ -54,7 +55,7 @@ public class OpenCV extends LinearOpMode {
             loaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
         }
 
-        String basePath = "/sdcard/FIRST/vuforiaTesting/";
+        String basePath = "/sdcard/FIRST/openCV/";
         /*File dir = new File(basePath);
         String[] children = dir.list();
         for (String child : children) {
@@ -92,7 +93,7 @@ public class OpenCV extends LinearOpMode {
                         //Mat INPUT = new Mat(rgb.getHeight(), rgb.getWidth(), CvType.CV_8UC3);
                         //Utils.bitmapToMat(bm, INPUT);
 
-                        String inputPath = basePath + "row.jpg";
+                        String inputPath = basePath + "quarryRow.jpg";
                         Mat INPUT = Imgcodecs.imread(inputPath, Imgcodecs.IMREAD_COLOR);
                         telemetry.addData("1", "Image Loaded");
                         telemetry.update();
@@ -104,7 +105,7 @@ public class OpenCV extends LinearOpMode {
                         telemetry.addData("2", "Image HSV Saved");
                         telemetry.update();
 
-                        List<Mat> hsvTypes = new ArrayList<Mat>(3);
+                        List<Mat> hsvTypes = new ArrayList<>(3);
                         Core.split(HSV, hsvTypes);
                         //Mat hue = hsvTypes.get(0);
                         Mat saturation = hsvTypes.get(1);
@@ -141,7 +142,7 @@ public class OpenCV extends LinearOpMode {
                         telemetry.update();
 
                         double sum;
-                        ArrayList sumList = new ArrayList();
+                        ArrayList<Double> sumList = new ArrayList<>();
                         Mat newImage = new Mat(S.rows(), S.cols(), CV_8UC1);
                         for (int col = 0; col < S.cols(); col++) {
                             sum = 0;
@@ -152,14 +153,39 @@ public class OpenCV extends LinearOpMode {
                             sumList.add(sum);
                             newImage.col(col).setTo(new Scalar(sum / S.rows()));
                         }
-                        System.out.println(newImage.row(0));
+                        log("Vertical Row0: " + newImage.row(0).toString());
                         String newImageName = basePath + "verticalAvg.jpg";
                         Imgcodecs.imwrite(newImageName, newImage);
-                        System.out.println(sumList);
+                        log("Vertical: " + sumList.toString());
+
+                        log("Size: " + sumList.size());
+                        String darkCols = "", darkAreas = "";
+                        int skyStones = 0;
+                        double prevIntensity = 0;
+                        for (int c = 0; c < sumList.size(); c++) {
+                            double curIntensity = sumList.get(c);
+
+                            if (curIntensity < 10000) {
+                                darkCols += c + "(" + curIntensity + "), ";
+
+                                double intensityDiff = Math.abs(curIntensity - prevIntensity);
+                                if (intensityDiff > 20000) {
+                                    darkAreas += c + "(" + curIntensity + " " + intensityDiff + "), ";
+                                    skyStones++;
+                                }
+                            }
+                            prevIntensity = curIntensity;
+                        }
+                        log("Dark Columns: " + darkCols);
+                        log("Dark Areas: " + darkAreas);
+                        log("SkyStones: " + (skyStones-1));
+
+                        //10000-61000
+
                         telemetry.addData("5", "Image Data Vertical Saved");
                         telemetry.update();
 
-                        double sum2;
+                        /*double sum2;
                         ArrayList sumList2 = new ArrayList();
                         Mat newImage2 = new Mat(S.rows(), S.cols(), CV_8UC1);
                         for (int row = 0; row < S.rows(); row++) {
@@ -170,19 +196,25 @@ public class OpenCV extends LinearOpMode {
                             sumList2.add(sum2);
                             newImage2.row(row).setTo(new Scalar(sum2 / S.rows()));
                         }
-                        System.out.println(newImage2.col(0));
+                        log("Horizontal Col0: " + newImage2.col(0).toString());
                         String newImageName2 = basePath + "horizontalAvg.jpg";
                         Imgcodecs.imwrite(newImageName2, newImage2);
-                        System.out.println(sumList2);
-                        telemetry.addData("6", "Image Data Horizontal Saved");
+                        log("Horizontal: " + sumList2.toString());
+                        telemetry.addData("6", "Image Data Horizontal Saved");*/
+                        telemetry.addData("Done", "");
                         telemetry.update();
 
-                        sleep(10000);
+                        sleep(30000);
+                        stop();
                     }
                     break;
                 }
             }
             frame.close();
         }
+    }
+
+    public void log(String message) {
+        Log.w("opencv", message);
     }
 }
