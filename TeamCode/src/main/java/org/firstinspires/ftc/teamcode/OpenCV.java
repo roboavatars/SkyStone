@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import android.graphics.Bitmap;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.vuforia.Image;
 import com.vuforia.PIXEL_FORMAT;
 import com.vuforia.Vuforia;
@@ -29,7 +29,7 @@ import java.util.List;
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;
 import static org.opencv.core.CvType.CV_8UC1;
 
-@TeleOp(name="OpenCV HSV Test")
+@Autonomous(name="OpenCV HSV Test")
 public class OpenCV extends LinearOpMode {
 
     private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
@@ -89,17 +89,19 @@ public class OpenCV extends LinearOpMode {
                     if (rgb != null) {
                         Bitmap bm = Bitmap.createBitmap(rgb.getWidth(), rgb.getHeight(), Bitmap.Config.RGB_565);
                         bm.copyPixelsFromBuffer(rgb.getPixels());
-                        Mat INPUT = new Mat(rgb.getHeight(), rgb.getWidth(), CvType.CV_8UC3);
-                        Utils.bitmapToMat(bm, INPUT);
+                        //Mat INPUT = new Mat(rgb.getHeight(), rgb.getWidth(), CvType.CV_8UC3);
+                        //Utils.bitmapToMat(bm, INPUT);
 
-                        //String inputPath = basePath + "blackInput.jpg";
-                        //Mat INPUT = Imgcodecs.imread(inputPath, Imgcodecs.IMREAD_COLOR);
+                        String inputPath = basePath + "row.jpg";
+                        Mat INPUT = Imgcodecs.imread(inputPath, Imgcodecs.IMREAD_COLOR);
                         telemetry.addData("1", "Image Loaded");
                         telemetry.update();
 
                         Mat HSV = new Mat();
                         Imgproc.cvtColor(INPUT, HSV, Imgproc.COLOR_BGR2HSV);
-                        telemetry.addData("2", "Image Converted");
+                        String output = basePath + "hsv.jpg";
+                        Imgcodecs.imwrite(output, HSV);
+                        telemetry.addData("2", "Image HSV Saved");
                         telemetry.update();
 
                         List<Mat> hsvTypes = new ArrayList<Mat>(3);
@@ -135,23 +137,12 @@ public class OpenCV extends LinearOpMode {
                         //Imgcodecs.imwrite(hueNew, H);
                         Imgcodecs.imwrite(satNew, S);
                         //Imgcodecs.imwrite(valNew, V);
-                        telemetry.addData("5", "Image Types Filtered and Saved");
+                        telemetry.addData("4", "Image Types Filtered and Saved");
                         telemetry.update();
 
-                        String output = basePath + "output.jpg";
-                        Imgcodecs.imwrite(output, HSV);
-                        telemetry.addData("6", "Image Saved");
-                        telemetry.update();
-
-                        /*double[] Intensity = S.get(0,0);
-                        System.out.println(Intensity[0] + " " + Intensity[1] + " " + Intensity[2]);
-                        telemetry.addData("7", "Image Data");
-                        telemetry.update();*/
-
-                        double[] Intensity;
                         double sum;
                         ArrayList sumList = new ArrayList();
-                        Mat newImage = new Mat(100, S.cols(), CV_8UC1);
+                        Mat newImage = new Mat(S.rows(), S.cols(), CV_8UC1);
                         for (int col = 0; col < S.cols(); col++) {
                             sum = 0;
                             for (int row = 0; row < S.rows(); row++) {
@@ -162,13 +153,31 @@ public class OpenCV extends LinearOpMode {
                             newImage.col(col).setTo(new Scalar(sum / S.rows()));
                         }
                         System.out.println(newImage.row(0));
-                        String newImageName = basePath + "newImage.jpg";
+                        String newImageName = basePath + "verticalAvg.jpg";
                         Imgcodecs.imwrite(newImageName, newImage);
                         System.out.println(sumList);
-                        telemetry.addData("7", "Image Data");
+                        telemetry.addData("5", "Image Data Vertical Saved");
                         telemetry.update();
 
-                        sleep(1000);
+                        double sum2;
+                        ArrayList sumList2 = new ArrayList();
+                        Mat newImage2 = new Mat(S.rows(), S.cols(), CV_8UC1);
+                        for (int row = 0; row < S.rows(); row++) {
+                            sum2 = 0;
+                            for (int col = 0; col < S.cols(); col++) {
+                                sum2 += S.get(row,col)[0];
+                            }
+                            sumList2.add(sum2);
+                            newImage2.row(row).setTo(new Scalar(sum2 / S.rows()));
+                        }
+                        System.out.println(newImage2.col(0));
+                        String newImageName2 = basePath + "horizontalAvg.jpg";
+                        Imgcodecs.imwrite(newImageName2, newImage2);
+                        System.out.println(sumList2);
+                        telemetry.addData("6", "Image Data Horizontal Saved");
+                        telemetry.update();
+
+                        sleep(10000);
                     }
                     break;
                 }
