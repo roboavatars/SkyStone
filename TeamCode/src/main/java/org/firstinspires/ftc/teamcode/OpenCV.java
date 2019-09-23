@@ -21,6 +21,7 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
@@ -92,13 +93,16 @@ public class OpenCV extends LinearOpMode {
                         bm.copyPixelsFromBuffer(rgb.getPixels());
                         Mat INPUT = new Mat(rgb.getHeight(), rgb.getWidth(), CvType.CV_8UC3);
                         Utils.bitmapToMat(bm, INPUT);
+                        Mat newINPUT = new Mat();
+                        Size size = new Size(640,360);
+                        Imgproc.resize(INPUT, newINPUT, size);
 
                         //String inputPath = basePath + "quarryRow" + series + ".jpg";
                         //Mat INPUT = Imgcodecs.imread(inputPath, Imgcodecs.IMREAD_COLOR);
                         telemetry2("1", "Image Loaded");
 
                         Mat HSV = new Mat();
-                        Imgproc.cvtColor(INPUT, HSV, Imgproc.COLOR_BGR2HSV);
+                        Imgproc.cvtColor(newINPUT, HSV, Imgproc.COLOR_BGR2HSV);
                         String output = basePath + "hsv" + series + ".jpg";
                         Imgcodecs.imwrite(output, HSV);
                         telemetry2("2", "HSV Image Saved");
@@ -131,18 +135,11 @@ public class OpenCV extends LinearOpMode {
                         log("Horizontal: " + horList.toString());
                         telemetry2("5", "Horizontal Image Data Saved");
 
-                        Mat tempMat1;
-                        Mat tempMat2;
-                        Mat SCropped = S.clone();
+                        Mat SCropped = new Mat();
                         for (int c = 0; c < horList.size(); c++) {
                             double rowIntensity = horList.get(c);
-                            if (rowIntensity < 10000) {
-                                Rect beforeC = new Rect(0, 0, SCropped.cols(), c);
-                                tempMat1 = new Mat(SCropped, beforeC);
-                                Rect afterC = new Rect(0, 0, SCropped.cols(), SCropped.rows()-c);
-                                tempMat2 = new Mat(SCropped, afterC);
-                                SCropped = tempMat1;
-                                SCropped.push_back(tempMat2);
+                            if (rowIntensity > 10000) {
+                                SCropped.push_back(S.row(c));
                             }
                         }
                         telemetry2("6", "Saturation Image Cropped");
