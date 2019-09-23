@@ -24,15 +24,12 @@ import org.opencv.core.Scalar;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
-import java.io.File;
-import java.net.SecureCacheResponse;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;
-import static org.opencv.core.CvType.CV_8UC1;
 
-@TeleOp(name="OpenCV HSV Test")
+@TeleOp(name="OpenCV Test")
 public class OpenCV extends LinearOpMode {
 
     private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
@@ -47,10 +44,12 @@ public class OpenCV extends LinearOpMode {
         }
     };
 
+    private String series = "B";
+
     @Override public void runOpMode() {
 
-        telemetry.addData("Initializing OpenCV", "");
-        telemetry.update();
+        telemetry2("Initializing OpenCV v" + OpenCVLoader.OPENCV_VERSION, "");
+        telemetry2("Using Image Series " + series, "");
         if (!OpenCVLoader.initDebug()) {
             OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION, appUtil.getActivity(), loaderCallback);
         } else {
@@ -72,16 +71,15 @@ public class OpenCV extends LinearOpMode {
 
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
         Vuforia.setFrameFormat(PIXEL_FORMAT.RGB565, true);
-        this.vuforia.setFrameQueueCapacity(1);
+        vuforia.setFrameQueueCapacity(1);
 
         while (!isStopRequested()) {
 
             VuforiaLocalizer.CloseableFrame frame;
             try {
-                frame = this.vuforia.getFrameQueue().take();
+                frame = vuforia.getFrameQueue().take();
             } catch (InterruptedException ex) {
-                telemetry.addData("Error", "");
-                telemetry.update();
+                telemetry2("Frame Error", "");
                 break;
             }
 
@@ -92,37 +90,33 @@ public class OpenCV extends LinearOpMode {
                     if (rgb != null) {
                         Bitmap bm = Bitmap.createBitmap(rgb.getWidth(), rgb.getHeight(), Bitmap.Config.RGB_565);
                         bm.copyPixelsFromBuffer(rgb.getPixels());
-                        //Mat INPUT = new Mat(rgb.getHeight(), rgb.getWidth(), CvType.CV_8UC3);
-                        //Utils.bitmapToMat(bm, INPUT);
+                        Mat INPUT = new Mat(rgb.getHeight(), rgb.getWidth(), CvType.CV_8UC3);
+                        Utils.bitmapToMat(bm, INPUT);
 
-                        String inputPath = basePath + "quarryRow.jpg";
-                        Mat INPUT = Imgcodecs.imread(inputPath, Imgcodecs.IMREAD_COLOR);
-                        telemetry.addData("1", "Image Loaded");
-                        telemetry.update();
+                        //String inputPath = basePath + "quarryRow" + series + ".jpg";
+                        //Mat INPUT = Imgcodecs.imread(inputPath, Imgcodecs.IMREAD_COLOR);
+                        telemetry2("1", "Image Loaded");
 
                         Mat HSV = new Mat();
                         Imgproc.cvtColor(INPUT, HSV, Imgproc.COLOR_BGR2HSV);
-                        String output = basePath + "hsv.jpg";
+                        String output = basePath + "hsv" + series + ".jpg";
                         Imgcodecs.imwrite(output, HSV);
-                        telemetry.addData("2", "HSV Image Saved");
-                        telemetry.update();
+                        telemetry2("2", "HSV Image Saved");
 
                         List<Mat> hsvTypes = new ArrayList<>(3);
                         Core.split(HSV, hsvTypes);
                         Mat saturationUnfiltered = hsvTypes.get(1);
-                        telemetry.addData("3", "Saturation Converted");
-                        telemetry.update();
+                        telemetry2("3", "Saturation Converted");
 
                         Mat S = new Mat();
                         Core.inRange(saturationUnfiltered, new Scalar(180,180,0), new Scalar(255,255,10), S);
-                        String satNew = basePath + "saturationFiltered.jpg";
+                        String satNew = basePath + "saturationFiltered" + series + ".jpg";
                         Imgcodecs.imwrite(satNew, S);
-                        telemetry.addData("4", "Saturation Filtered and Saved");
-                        telemetry.update();
+                        telemetry2("4", "Saturation Filtered and Saved");
 
                         double horSum;
                         ArrayList<Double> horList = new ArrayList<>();
-                        Mat horView = new Mat(S.rows(), 1, CV_8UC1);
+                        Mat horView = new Mat(S.rows(), 1, CvType.CV_8UC1);
                         for (int row = 0; row < S.rows(); row++) {
                             horSum = 0;
                             for (int col = 0; col < S.cols(); col++) {
@@ -132,10 +126,10 @@ public class OpenCV extends LinearOpMode {
                             horView.row(row).setTo(new Scalar(horSum / S.rows()));
                         }
                         log("Horizontal Col0: " + horView.col(0).toString());
-                        String horViewName = basePath + "horizontalAvg.jpg";
+                        String horViewName = basePath + "horizontalAvg" + series + ".jpg";
                         Imgcodecs.imwrite(horViewName, horView);
                         log("Horizontal: " + horList.toString());
-                        telemetry.addData("5", "Horizontal Image Data Saved");
+                        telemetry2("5", "Horizontal Image Data Saved");
 
                         Mat tempMat1;
                         Mat tempMat2;
@@ -151,11 +145,11 @@ public class OpenCV extends LinearOpMode {
                                 SCropped.push_back(tempMat2);
                             }
                         }
-                        telemetry.addData("6", "Saturation Image Cropped");
+                        telemetry2("6", "Saturation Image Cropped");
 
                         double verSum;
                         ArrayList<Double> verList = new ArrayList<>();
-                        Mat verImage = new Mat(SCropped.rows(), SCropped.cols(), CV_8UC1);
+                        Mat verImage = new Mat(SCropped.rows(), SCropped.cols(), CvType.CV_8UC1);
                         for (int col = 0; col < SCropped.cols(); col++) {
                             verSum = 0;
                             for (int row = 0; row < SCropped.rows(); row++) {
@@ -166,9 +160,10 @@ public class OpenCV extends LinearOpMode {
                             verImage.col(col).setTo(new Scalar(verSum / SCropped.rows()));
                         }
                         log("Vertical Row0: " + verImage.row(0).toString());
-                        String verImageName = basePath + "verticalAvg.jpg";
+                        String verImageName = basePath + "verticalAvg" + series + ".jpg";
                         Imgcodecs.imwrite(verImageName, verImage);
                         log("Vertical: " + verList.toString());
+                        telemetry2("7", "Vertical Image Data Saved");
 
                         log("Size: " + verList.size());
                         String darkCols = "", darkAreas = "";
@@ -190,15 +185,14 @@ public class OpenCV extends LinearOpMode {
                         }
                         log("Dark Columns: " + darkCols);
                         log("Dark Areas: " + darkAreas);
-                        log("SkyStones: " + (skyStones-1));
+                        log("SkyStones: " + (skyStones));
+                        telemetry2("SkyStones", skyStones + "");
 
-                        //10000-61000
+                        telemetry2("8", "Image Analyzed");
 
-                        telemetry.addData("7", "Vertical Image Data Saved");
-                        telemetry.update();
-
-                        telemetry.addData("Done", "");
-                        telemetry.update();
+                        String inputPath = basePath + "quarryRow" + series + ".jpg";
+                        Imgcodecs.imwrite(inputPath, INPUT);
+                        telemetry2("Done", "");
 
                         sleep(10000);
                         stop();
@@ -208,6 +202,11 @@ public class OpenCV extends LinearOpMode {
             }
             frame.close();
         }
+    }
+
+    public void telemetry2(String caption, String value) {
+        telemetry.addData(caption, value);
+        telemetry.update();
     }
 
     public void log(String message) {
