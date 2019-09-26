@@ -38,7 +38,6 @@ public class OpenCV extends LinearOpMode {
         telemetry2("Initializing OpenCV v" + OpenCVLoader.OPENCV_VERSION, "");
         telemetry2("Using Image Series " + series, "");
         FtcRobotControllerActivity.enableCameraView();
-
         FrameGrabber frameGrabber = FtcRobotControllerActivity.frameGrabber;
 
         while (!isStopRequested()) {

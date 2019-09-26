@@ -44,6 +44,7 @@ import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -142,6 +143,7 @@ public class FtcRobotControllerActivity extends Activity {
 
     public static CameraBridgeViewBase cameraBridgeViewBase;
     public static FrameGrabber frameGrabber = null;
+    private static boolean cameraViewVisible = false;
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override public void onManagerConnected(int status) {
@@ -158,18 +160,37 @@ public class FtcRobotControllerActivity extends Activity {
         frameGrabber = new FrameGrabber();
         cameraBridgeViewBase.setCvCameraViewListener(frameGrabber);
         cameraBridgeViewBase.setCameraPermissionGranted();
+        cameraViewVisible = true;
+        cameraBridgeViewBase.enableView();
+        Log.w("opencv", "camera view enabled");
     }
 
     public static void disableCameraView() {
         cameraBridgeViewBase.disableView();
         frameGrabber = null;
+        cameraViewVisible = false;
+        Log.w("opencv", "camera view disabled");
     }
 
     private void CVOnCreate(){
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         cameraBridgeViewBase = (JavaCameraView) findViewById(R.id.openCvView);
-        cameraBridgeViewBase.setVisibility(SurfaceView.VISIBLE);
+
+        Handler cameraViewHandler = new Handler();
+        cameraViewHandler.post(new Runnable() {
+            @Override public void run() {
+                if (cameraViewVisible) {
+                    Log.w("opencv", "camera view visible");
+                    cameraBridgeViewBase.setVisibility(SurfaceView.VISIBLE);
+                }
+                else {
+                    Log.w("opencv", "camera view invisible");
+                    cameraBridgeViewBase.setVisibility(SurfaceView.INVISIBLE);
+                }
+                cameraViewHandler.postDelayed(this, 500);
+            }
+        });
     }
 
     private void CVOnPause(){
