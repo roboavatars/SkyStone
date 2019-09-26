@@ -29,7 +29,7 @@ import java.util.List;
 
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;
 
-@TeleOp(name="OpenCV Test  l")
+@TeleOp(name="OpenCV Test Ansh")
 public class OpenCVHorizontalCrop extends LinearOpMode {
 
     private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
