@@ -35,7 +35,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
               xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              xmlns:style="http://schemas.android.com/apk/res-auto"
+              xmlns:opencv="http://schemas.android.com/apk/res-auto"
               tools:context="org.firstinspires.ftc.robotcontroller.internal.FtcRobotControllerActivity"
               android:focusable="true"
               android:id="@+id/entire_screen"
@@ -192,6 +192,22 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       android:textStyle="bold"
       android:visibility="invisible"
       android:text="" />
+
+    <FrameLayout
+        android:layout_width="fill_parent"
+        android:layout_height="425dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/frameLayout">
+      <org.opencv.android.JavaCameraView
+          android:layout_width="fill_parent"
+          android:layout_height="fill_parent"
+          android:visibility="gone"
+          android:id="@+id/openCvView"
+          opencv:show_fps="true"
+          opencv:camera_id="any" />
+
+    </FrameLayout>
 
   </RelativeLayout>
 

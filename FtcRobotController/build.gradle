@@ -19,6 +19,10 @@ android {
     buildToolsVersion = '29.0.2'
 }
 
+dependencies {
+    implementation project(path: ':OpenCV')
+}
+
 repositories {
     flatDir {
         dirs '../libs'
