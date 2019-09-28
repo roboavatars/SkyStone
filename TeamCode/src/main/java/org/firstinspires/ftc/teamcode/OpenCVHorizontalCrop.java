@@ -85,26 +85,22 @@ public class OpenCVHorizontalCrop extends LinearOpMode {
                     if (rgb != null) {
                         Bitmap bm = Bitmap.createBitmap(rgb.getWidth(), rgb.getHeight(), Bitmap.Config.RGB_565);
                         bm.copyPixelsFromBuffer(rgb.getPixels());
-                        Mat INPUT = new Mat(rgb.getHeight(), rgb.getWidth(), CvType.CV_8UC3);
-                        /*Utils.bitmapToMat(bm, INPUT);
-                        Mat newINPUT = new Mat();
-                        Size size = new Size(640,360);
-                        Imgproc.resize(INPUT, newINPUT, size);
+                        /*Mat INPUT = new Mat(rgb.getHeight(), rgb.getWidth(), CvType.CV_8UC3);
+                        Utils.bitmapToMat(bm, INPUT);
+                        Imgproc.resize(INPUT, INPUT, new Size(640,360));
 
                         String inputPath = basePath + "input" + series + ".jpg";
                         Imgcodecs.imwrite(inputPath, newINPUT);
                         telemetry2("1", "Image Input Loaded");*/
                         //String inputPath = basePath + "quarryRow.jpg";
                         String inputPath = "/sdcard/DCIM/Camera/IMG_20190922_180721469.jpg";
-                        Mat newINPUT = Imgcodecs.imread(inputPath, Imgcodecs.IMREAD_COLOR);
-                        Size size = new Size(640,360);
-                        Mat anotherINPUT = new Mat();
-                        Imgproc.resize(newINPUT, anotherINPUT, size);
-                        Imgcodecs.imwrite(inputPath, anotherINPUT);
+                        Mat INPUT = Imgcodecs.imread(inputPath, Imgcodecs.IMREAD_COLOR);
+                        Imgproc.resize(INPUT, INPUT, new Size(640,360));
+                        Imgcodecs.imwrite(inputPath, INPUT);
                         telemetry2("1", "Image Input Loaded");
 
                         Mat HSV = new Mat();
-                        Imgproc.cvtColor(newINPUT, HSV, Imgproc.COLOR_BGR2HSV);
+                        Imgproc.cvtColor(INPUT, HSV, Imgproc.COLOR_BGR2HSV);
                         String output = basePath + "hsv" + series + ".jpg";
                         Imgcodecs.imwrite(output, HSV);
                         telemetry2("2", "HSV Image Saved");
