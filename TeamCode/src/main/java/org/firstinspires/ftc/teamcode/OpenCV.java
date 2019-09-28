@@ -81,7 +81,6 @@ public class OpenCV extends LinearOpMode {
                 double horAvg;
                 ArrayList<Double> horList = new ArrayList<>();
                 Mat horView = new Mat(opened.rows(), 1, CvType.CV_8UC1);
-                Core.mean(opened.row(0));
                 for (int row = 0; row < opened.rows(); row++) {
                     horAvg = Core.mean(opened.row(row)).val[0];
                     horList.add(horAvg);
