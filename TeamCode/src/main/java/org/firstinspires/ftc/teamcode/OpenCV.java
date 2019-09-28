@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcontroller.FrameGrabber;
 import org.firstinspires.ftc.robotcontroller.internal.FtcRobotControllerActivity;
@@ -27,18 +28,21 @@ public class OpenCV extends LinearOpMode {
 
     private final String series = "C";
     private final String basePath = "/sdcard/FIRST/openCV/";
-    //private final String inputPath = basePath + "/cameraFrames/input.jpg";
+    //private final String inputPath = "/sdcard/FIRST/openCV/cameraFrames/input.jpg";
     private final String inputPath = basePath + "quarryRowC.jpg";
-    private final String hsvPath = basePath + "hsv" + series + ".jpg";
-    private final String satNewPath = basePath + "saturationFiltered" + series + ".jpg";
-    private final String horViewPath = basePath + "horizontalAvg" + series + ".jpg";
-    private final String verImagePath = basePath + "verticalAvg" + series + ".jpg";
+    private final String satNew = basePath + "saturationFiltered" + series + ".jpg";
+    private final String open = basePath + "opened" + series + ".jpg";
+    private final String horViewName = basePath + "horizontalAvg" + series + ".jpg";
+    private final String verViewName = basePath + "verticalAvg" + series + ".jpg";
+    private final String croppedName = basePath + "croppedImage" + series + ".jpg";
 
     private FrameGrabber frameGrabber;
     private final boolean usingCamera = false;
+    private ElapsedTime time = new ElapsedTime();
 
     @Override public void runOpMode() {
 
+        time.startTime();
         telemetry2("Initializing OpenCV v" + OpenCVLoader.OPENCV_VERSION, "");
         telemetry2("Using Image Series " + series, "");
         if (usingCamera) {
@@ -48,51 +52,64 @@ public class OpenCV extends LinearOpMode {
 
         while (!isStopRequested()) {
             if (!usingCamera || frameGrabber.isImageReady()) {
+                // Input Image
                 Mat input = Imgcodecs.imread(inputPath, Imgcodecs.IMREAD_COLOR);
-                Imgproc.resize(input, input, new Size(640,480));
-                telemetry2("1", "Image Loaded");
+                Imgproc.resize(input, input, new Size(400,300));
 
+                // Convert to HSV (Saturation) and Save
                 Mat HSV = new Mat();
-                Imgproc.cvtColor(input, HSV, Imgproc.COLOR_RGB2HSV);
-
-                Imgcodecs.imwrite(hsvPath, HSV);
-                telemetry2("2", "HSV Image Saved");
-
+                Imgproc.cvtColor(input, HSV, Imgproc.COLOR_BGR2HSV);
                 List<Mat> hsvTypes = new ArrayList<>(3);
                 Core.split(HSV, hsvTypes);
                 Mat saturationUnfiltered = hsvTypes.get(1);
-                telemetry2("3", "Saturation Converted");
+                Mat S = new Mat();
+                Core.inRange(saturationUnfiltered, new Scalar(180,180,0), new Scalar(255,255,10), S);
+                Imgcodecs.imwrite(satNew, S);
+                telemetry2("1", "Saturation Saved");
 
-                Mat satFiltered = new Mat();
-                Scalar minValue = new Scalar(180, 180, 0);
-                Scalar maxValue = new Scalar(250, 250, 10);
-                Core.inRange(saturationUnfiltered, minValue, maxValue, satFiltered);
-                Imgcodecs.imwrite(satNewPath, satFiltered);
-                telemetry2("4", "Saturation Filtered and Saved");
+                // Filter Saturation Image
+                Mat opened = new Mat();
+                Imgproc.morphologyEx(S, opened, Imgproc.MORPH_OPEN, new Mat());
+                Imgproc.morphologyEx(opened, opened, Imgproc.MORPH_CLOSE, new Mat());
+                Imgcodecs.imwrite(open, opened);
+                telemetry2("2", "Filtered Image Saved");
 
+                telemetry2("Filter Time", time.milliseconds() + "");
+                sleep(1000);
+
+                // Average Rows
                 double horSum;
                 ArrayList<Double> horList = new ArrayList<>();
-                Mat horView = new Mat(satFiltered.rows(), 1, CvType.CV_8UC1);
-                for (int row = 0; row < satFiltered.rows(); row++) {
+                Mat horView = new Mat(opened.rows(), 100, CvType.CV_8UC1);
+                for (int row = 0; row < opened.rows(); row++) {
                     horSum = 0;
-                    for (int col = 0; col < satFiltered.cols(); col++) {
-                        horSum += satFiltered.get(row, col)[0];
+                    for (int col = 0; col < opened.cols(); col++) {
+                        horSum += opened.get(row,col)[0];
                     }
                     horList.add(horSum);
-                    horView.row(row).setTo(new Scalar(horSum / satFiltered.rows()));
+                    horView.row(row).setTo(new Scalar(horSum / opened.rows()));
                 }
-                Imgcodecs.imwrite(horViewPath, horView);
+                log("Horizontal Col0: " + horView.col(0).toString());
                 log("Horizontal: " + horList.toString());
-                telemetry2("5", "Horizontal Image Data Saved");
+                Imgcodecs.imwrite(horViewName, horView);
+                telemetry2("3", "Horizontal Data Saved");
 
+                telemetry2("Post-Avg Time", time.milliseconds() - 1000 + "");
+                sleep(1000);
+
+                // Crops Filtered Image
                 Mat SCropped = new Mat();
                 for (int c = 0; c < horList.size(); c++) {
                     double rowIntensity = horList.get(c);
-                    if (rowIntensity > 10000) {
-                        SCropped.push_back(satFiltered.row(c));
+                    if (rowIntensity > 40000) {
+                        SCropped.push_back(opened.row(c));
                     }
                 }
-                telemetry2("6", "Saturation Image Cropped");
+                Imgcodecs.imwrite(croppedName, SCropped);
+                telemetry2("4", "Filtered Image Cropped");
+
+                telemetry2("Finished Time", time.milliseconds() - 2000 + "");
+                sleep(1000);
 
                 double verSum;
                 ArrayList<Double> verList = new ArrayList<>();
@@ -106,9 +123,9 @@ public class OpenCV extends LinearOpMode {
                     verList.add(verSum);
                     verImage.col(col).setTo(new Scalar(verSum / SCropped.rows()));
                 }
-                Imgcodecs.imwrite(verImagePath, verImage);
+                Imgcodecs.imwrite(verViewName, verImage);
                 log("Vertical: " + verList.toString());
-                telemetry2("7", "Vertical Image Data Saved");
+                telemetry2("5", "Vertical Image Data Saved");
 
                 log("Size: " + verList.size());
                 String darkCols = "", darkAreas = "";
@@ -133,7 +150,7 @@ public class OpenCV extends LinearOpMode {
                 log("SkyStones: " + (skyStones));
                 telemetry2("SkyStones", skyStones + "");
 
-                telemetry2("8", "Image Analyzed");
+                telemetry2("6", "Image Analyzed");
                 telemetry2("Done", "");
 
                 //sleep(10000);
