@@ -25,24 +25,29 @@ import java.util.List;
 @TeleOp(name="OpenCV Test")
 public class OpenCV extends LinearOpMode {
 
-    private final String series = "A";
+    private final String series = "C";
     private final String basePath = "/sdcard/FIRST/openCV/";
-    private final String inputPath = basePath + "/cameraFrames/input.jpg";
+    //private final String inputPath = basePath + "/cameraFrames/input.jpg";
+    private final String inputPath = basePath + "quarryRowC.jpg";
     private final String hsvPath = basePath + "hsv" + series + ".jpg";
     private final String satNewPath = basePath + "saturationFiltered" + series + ".jpg";
     private final String horViewPath = basePath + "horizontalAvg" + series + ".jpg";
     private final String verImagePath = basePath + "verticalAvg" + series + ".jpg";
 
+    private FrameGrabber frameGrabber;
+    private final boolean usingCamera = false;
+
     @Override public void runOpMode() {
 
         telemetry2("Initializing OpenCV v" + OpenCVLoader.OPENCV_VERSION, "");
         telemetry2("Using Image Series " + series, "");
-        FtcRobotControllerActivity.enableCameraView();
-        FrameGrabber frameGrabber = FtcRobotControllerActivity.frameGrabber;
+        if (usingCamera) {
+            FtcRobotControllerActivity.enableCameraView();
+            frameGrabber = FtcRobotControllerActivity.frameGrabber;
+        }
 
         while (!isStopRequested()) {
-            if (frameGrabber.isImageReady()) {
-                //String inputPath = basePath + "quarryRow" + series + ".jpg";
+            if (!usingCamera || frameGrabber.isImageReady()) {
                 Mat input = Imgcodecs.imread(inputPath, Imgcodecs.IMREAD_COLOR);
                 Imgproc.resize(input, input, new Size(640,480));
                 telemetry2("1", "Image Loaded");
@@ -132,7 +137,7 @@ public class OpenCV extends LinearOpMode {
                 telemetry2("Done", "");
 
                 //sleep(10000);
-                FtcRobotControllerActivity.disableCameraView();
+                if (usingCamera) FtcRobotControllerActivity.disableCameraView();
                 stop();
             }
         }
