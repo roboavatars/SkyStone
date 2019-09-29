@@ -6,7 +6,11 @@ import android.util.Log;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
 import org.opencv.imgcodecs.Imgcodecs;
+
+import static org.opencv.imgproc.Imgproc.getRotationMatrix2D;
+import static org.opencv.imgproc.Imgproc.warpAffine;
 
 @SuppressLint("SdCardPath")
 public class FrameGrabber implements CvCameraViewListener2 {
@@ -18,12 +22,12 @@ public class FrameGrabber implements CvCameraViewListener2 {
 
     @Override
     public void onCameraViewStarted(int width, int height) {
-        Log.w("opencv", "camera start");
+        Log.w("opencv", "camera started");
     }
 
     @Override
     public void onCameraViewStopped() {
-
+        Log.w("opencv", "camera stopped");
     }
 
     @Override
@@ -39,6 +43,10 @@ public class FrameGrabber implements CvCameraViewListener2 {
             }
         }
 
+        // Rotate frame for camera view (does not affect saved image)
+        Point rawCenter = new Point(frame.cols() / 2.0F, frame.rows() / 2.0F);
+        Mat rotationMatrix = getRotationMatrix2D(rawCenter, -90, 1.0);
+        warpAffine(frame, frame, rotationMatrix, frame.size());
         return frame;
     }
 

@@ -180,12 +180,14 @@ public class FtcRobotControllerActivity extends Activity {
         Handler cameraViewHandler = new Handler();
         cameraViewHandler.post(new Runnable() {
             @Override public void run() {
-                if (cameraViewVisible) {
+                if (cameraViewVisible
+                        && cameraBridgeViewBase.getVisibility() == SurfaceView.INVISIBLE
+                        || cameraBridgeViewBase.getVisibility() == SurfaceView.GONE) {
                     Log.w("opencv", "camera view visible");
                     cameraBridgeViewBase.setVisibility(SurfaceView.VISIBLE);
                 }
-                else {
-                    Log.w("opencv", "camera view invisible");
+                else if (!cameraViewVisible && cameraBridgeViewBase.getVisibility() == SurfaceView.VISIBLE) {
+                    Log.w("opencv", "camera view hidden");
                     cameraBridgeViewBase.setVisibility(SurfaceView.INVISIBLE);
                 }
                 cameraViewHandler.postDelayed(this, 500);
@@ -201,10 +203,10 @@ public class FtcRobotControllerActivity extends Activity {
 
     private void CVOnResume(){
         if (!OpenCVLoader.initDebug()) {
-            Log.w(TAG, "Internal OpenCV library not found. Using OpenCV Manager for initialization");
+            Log.w("opencv", "Internal OpenCV library not found. Using OpenCV Manager for initialization");
             OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION, this, mLoaderCallback);
         } else {
-            Log.w(TAG, "OpenCV library found inside package. Using it!");
+            Log.w("opencv", "OpenCV library found inside package. Using it!");
             mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
         }
     }
