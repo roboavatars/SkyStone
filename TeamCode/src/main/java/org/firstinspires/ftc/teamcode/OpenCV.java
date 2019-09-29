@@ -3,8 +3,8 @@ package org.firstinspires.ftc.teamcode;
 import android.annotation.SuppressLint;
 import android.util.Log;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcontroller.FrameGrabber;
@@ -23,7 +23,7 @@ import java.util.List;
 
 @SuppressWarnings({"FieldCanBeLocal", "StringConcatenationInLoop"})
 @SuppressLint("SdCardPath")
-@TeleOp(name="OpenCV Test")
+@Autonomous(name="OpenCV Test")
 public class OpenCV extends LinearOpMode {
 
     private final String series = "C";
@@ -42,7 +42,6 @@ public class OpenCV extends LinearOpMode {
 
     @Override public void runOpMode() {
 
-        time.startTime();
         telemetry2("Initializing OpenCV v" + OpenCVLoader.OPENCV_VERSION, "");
         telemetry2("Using Image Series " + series, "");
         if (usingCamera) {
@@ -50,7 +49,8 @@ public class OpenCV extends LinearOpMode {
             frameGrabber = FtcRobotControllerActivity.frameGrabber;
         }
 
-        //waitForStart();
+        waitForStart();
+        time.startTime();
 
         while (!isStopRequested()) {
             if (!usingCamera || frameGrabber.isImageReady()) {
@@ -75,40 +75,36 @@ public class OpenCV extends LinearOpMode {
                 Imgproc.morphologyEx(opened, opened, Imgproc.MORPH_CLOSE, new Mat());
                 Imgcodecs.imwrite(open, opened);
                 telemetry2("2", "Filtered Image Saved");
-                telemetry2("Filter Time", time.milliseconds() + "");
+                logTime("Filter Time");
 
-                // Average Rows
-                double horSum;
+                // Averages Rows
+                double horAvg;
                 ArrayList<Double> horList = new ArrayList<>();
                 Mat horView = new Mat(opened.rows(), 1, CvType.CV_8UC1);
                 for (int row = 0; row < opened.rows(); row++) {
-                    horSum = 0;
-                    for (int col = 0; col < opened.cols(); col++) {
-                        horSum += opened.get(row,col)[0];
-                    }
-                    horList.add(horSum);
-                    horView.row(row).setTo(new Scalar(horSum / opened.rows()));
+                    horAvg = Core.mean(opened.row(row)).val[0];
+                    horList.add(horAvg);
+                    horView.row(row).setTo(new Scalar(horAvg));
                 }
                 //log("Horizontal: " + horList.toString());
                 //Imgcodecs.imwrite(horViewName, horView);
                 telemetry2("3", "Horizontal Data Analyzed");
-                telemetry2("Post-Horizontal Time", time.milliseconds() + "");
+                logTime("Post-Horizontal Time");
 
                 // Crops Filtered Image
                 Mat SCropped = new Mat();
                 for (int c = 0; c < horList.size(); c++) {
-                    double rowIntensity = horList.get(c);
-                    if (rowIntensity > 35000) {
+                    if (horList.get(c) > 35000) {
                         SCropped.push_back(opened.row(c));
                     }
                 }
                 Imgcodecs.imwrite(croppedName, SCropped);
                 telemetry2("4", "Filtered Image Cropped");
-                telemetry2("Post-Crop Time", time.milliseconds() + "");
+                logTime("Post-Crop Time");
 
                 double verSum;
                 ArrayList<Double> verList = new ArrayList<>();
-                Mat verImage = new Mat(SCropped.rows(), SCropped.cols(), CvType.CV_8UC1);
+                Mat verImage = new Mat(50, SCropped.cols(), CvType.CV_8UC1);
                 for (int col = 0; col < SCropped.cols(); col++) {
                     verSum = 0;
                     for (int row = 0; row < SCropped.rows(); row++) {
@@ -121,16 +117,18 @@ public class OpenCV extends LinearOpMode {
                 Imgcodecs.imwrite(verViewName, verImage);
                 log("Vertical: " + verList.toString());
                 telemetry2("5", "Vertical Image Data Saved");
-                telemetry2("Post-Vertical Time", time.milliseconds() + "");
+                logTime("Post-Vertical Time");
 
+                // Algorithm
                 log("Size: " + verList.size());
-                String darkCols = "", darkAreas = "";
+                String darkCols = "";
+                String darkAreas = "";
                 int skyStones = 0;
                 double prevIntensity = 0;
                 for (int c = 0; c < verList.size(); c++) {
                     double curIntensity = verList.get(c);
 
-                    if (curIntensity < 10000) {
+                    if (curIntensity < 33) {
                         darkCols += c + "(" + curIntensity + "), ";
 
                         double intensityDiff = Math.abs(curIntensity - prevIntensity);
@@ -147,9 +145,9 @@ public class OpenCV extends LinearOpMode {
                 telemetry2("SkyStones", skyStones + "");
                 telemetry2("6", "Image Analyzed");
                 telemetry2("Done", "");
-                telemetry2("Finish Time", time.milliseconds() + "");
+                logTime("Finish Time");
+                sleep(3000);
 
-                //sleep(10000);
                 if (usingCamera) FtcRobotControllerActivity.disableCameraView();
                 stop();
             }
@@ -163,5 +161,10 @@ public class OpenCV extends LinearOpMode {
 
     private void log(String message) {
         Log.w("opencv", message);
+    }
+
+    private void logTime(String message) {
+        log(message + ": " + time.milliseconds());
+        telemetry2(message, time.milliseconds() + "");
     }
 }
