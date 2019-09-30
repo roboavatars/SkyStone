@@ -104,19 +104,15 @@ public class OpenCV extends LinearOpMode {
         //Imgcodecs.imwrite(croppedName, SCropped);
         logTime("Crop Time");
 
-        double verSum;
+        double verAvg;
         ArrayList<Double> verList = new ArrayList<>();
         Mat verImage = new Mat(10, SCropped.cols(), CvType.CV_8UC1);
         for (int col = 0; col < SCropped.cols(); col++) {
-            verSum = 0;
-            for (int row = 0; row < SCropped.rows(); row++) {
-                verSum += SCropped.get(row, col)[0];
-            }
-            verSum *= 2;
-            verList.add(verSum);
-            verImage.col(col).setTo(new Scalar(verSum / SCropped.rows()));
+            verAvg = Core.mean(openClose.col(col)).val[0]*2;
+            verList.add(verAvg);
+            verImage.col(col).setTo(new Scalar(verAvg));
         }
-        //Imgcodecs.imwrite(verViewName, verImage);
+        Imgcodecs.imwrite(verViewName, verImage);
         //log("Vertical: " + verList.toString());
         logTime("Vertical Time");
 
