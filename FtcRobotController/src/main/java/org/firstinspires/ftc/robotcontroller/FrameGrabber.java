@@ -16,9 +16,15 @@ import static org.opencv.imgproc.Imgproc.warpAffine;
 public class FrameGrabber implements CvCameraViewListener2 {
 
     private boolean imageReady = false;
+    private final String outputPath = "/sdcard/FIRST/openCV/cameraFrames/input.jpg";
     private boolean saveImg = true;
     private int count;
-    private final String output = "/sdcard/FIRST/openCV/cameraFrames/input.jpg";
+    private boolean preview;
+    private Mat inputMat;
+
+    public FrameGrabber(boolean preview) {
+        this.preview = preview;
+    }
 
     @Override
     public void onCameraViewStarted(int width, int height) {
@@ -33,21 +39,32 @@ public class FrameGrabber implements CvCameraViewListener2 {
     @Override
     public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
         Mat frame = inputFrame.rgba();
-        if (saveImg) {
-            count++;
-            if (count == 15) {
-                Imgcodecs.imwrite(output, frame);
+        if (saveImg && !preview) {
+            //count++;
+            //if (count == 1) {
+                inputMat = frame;
+                //Imgcodecs.imwrite(outputPath, frame);
                 Log.w("opencv", "Input Image Ready");
                 saveImg = false;
                 imageReady = true;
-            }
+            //}
         }
 
-        // Rotate frame for camera view (does not affect saved image)
-        Point rawCenter = new Point(frame.cols() / 2.0F, frame.rows() / 2.0F);
-        Mat rotationMatrix = getRotationMatrix2D(rawCenter, -90, 1.0);
-        warpAffine(frame, frame, rotationMatrix, frame.size());
+        // Rotate frame for camera preview
+        if (preview) {
+            Point rawCenter = new Point(frame.cols() / 2.0, frame.rows() / 2.0);
+            Mat rotationMatrix = getRotationMatrix2D(rawCenter, -90, 1.0);
+            warpAffine(frame, frame, rotationMatrix, frame.size());
+        }
         return frame;
+    }
+
+    public void setPreview(boolean preview) {
+        this.preview = preview;
+    }
+
+    public Mat getInputMat() {
+        return inputMat;
     }
 
     public boolean isImageReady() {

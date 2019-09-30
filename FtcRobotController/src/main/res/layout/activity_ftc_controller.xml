@@ -195,7 +195,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
     <FrameLayout
         android:layout_width="fill_parent"
-        android:layout_height="425dp"
+        android:layout_height="350dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
         android:id="@+id/frameLayout">
@@ -204,7 +204,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
           android:layout_height="fill_parent"
           android:visibility="gone"
           android:id="@+id/openCvView"
-          opencv:show_fps="true"
+          opencv:show_fps="false"
           opencv:camera_id="any" />
 
     </FrameLayout>

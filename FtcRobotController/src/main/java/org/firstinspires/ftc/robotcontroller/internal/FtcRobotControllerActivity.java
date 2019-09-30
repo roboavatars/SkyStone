@@ -156,13 +156,17 @@ public class FtcRobotControllerActivity extends Activity {
         }
     };
 
-    public static void enableCameraView() {
-        frameGrabber = new FrameGrabber();
+    public static void showView() {
+        frameGrabber = new FrameGrabber(true);
         cameraBridgeViewBase.setCvCameraViewListener(frameGrabber);
-        cameraBridgeViewBase.setCameraPermissionGranted();
         cameraViewVisible = true;
         cameraBridgeViewBase.enableView();
-        Log.w("opencv", "camera view enabled");
+        Log.w("opencv", "camera preview started");
+    }
+
+    public static void enableCameraView() {
+        frameGrabber.setPreview(false);
+        Log.w("opencv", "camera preview stopped, hiding view");
     }
 
     public static void disableCameraView() {
@@ -176,21 +180,20 @@ public class FtcRobotControllerActivity extends Activity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         cameraBridgeViewBase = (JavaCameraView) findViewById(R.id.openCvView);
+        cameraBridgeViewBase.setCameraPermissionGranted();
 
         Handler cameraViewHandler = new Handler();
         cameraViewHandler.post(new Runnable() {
             @Override public void run() {
-                if (cameraViewVisible
-                        && cameraBridgeViewBase.getVisibility() == SurfaceView.INVISIBLE
-                        || cameraBridgeViewBase.getVisibility() == SurfaceView.GONE) {
-                    Log.w("opencv", "camera view visible");
+                if (cameraViewVisible) {
+                    //Log.w("opencv", "camera view visible");
                     cameraBridgeViewBase.setVisibility(SurfaceView.VISIBLE);
                 }
-                else if (!cameraViewVisible && cameraBridgeViewBase.getVisibility() == SurfaceView.VISIBLE) {
-                    Log.w("opencv", "camera view hidden");
+                else {
+                    //Log.w("opencv", "camera view hidden");
                     cameraBridgeViewBase.setVisibility(SurfaceView.INVISIBLE);
                 }
-                cameraViewHandler.postDelayed(this, 500);
+                cameraViewHandler.postDelayed(this, 1);
             }
         });
     }
