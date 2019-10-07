@@ -23,7 +23,7 @@ import java.util.List;
 
 @SuppressWarnings("FieldCanBeLocal")
 @SuppressLint("SdCardPath")
-@Autonomous(name="OpenCV")
+@Autonomous(name="z OpenCV")
 public class OpenCV extends LinearOpMode {
 
     private final String series = "A";
@@ -31,14 +31,16 @@ public class OpenCV extends LinearOpMode {
     private final String satNewPath = basePath + "saturationFiltered" + series + ".jpg";
     private final String openClosePath = basePath + "openClose" + series + ".jpg";
     //private final String horViewName = basePath + "horizontalAvg" + series + ".jpg";
-    private final String verViewName = basePath + "verticalAvg" + series + ".jpg";
-    private final String croppedName = basePath + "croppedImage" + series + ".jpg";
+    private final String verViewName = basePath + "verticalAvg" + series;
+    private final String croppedName = basePath + "croppedImage" + series;
 
-    private final String inputPath = basePath + "/testFiles/test1.jpg";
     private Mat input;
+    private final String inputPath = basePath + "/testFiles/test";
 
     private FrameGrabber frameGrabber;
-    private final boolean usingCamera = true;
+    private final boolean usingCamera = false;
+
+    private final int binaryThreshold = 250;
 
     private ElapsedTime timer = new ElapsedTime();
 
@@ -50,7 +52,7 @@ public class OpenCV extends LinearOpMode {
         waitForStart();
         timer.reset();
 
-        if (usingCamera) {
+        /*if (usingCamera) {
             FtcRobotControllerActivity.enableCameraView();
             frameGrabber = FtcRobotControllerActivity.frameGrabber;
             logTime("Init Time");
@@ -59,105 +61,105 @@ public class OpenCV extends LinearOpMode {
             input = frameGrabber.getInputMat();
         } else {
             input = Imgcodecs.imread(inputPath, Imgcodecs.IMREAD_COLOR);
-        }
+        }*/
 
-        Imgproc.resize(input, input, new Size(400,300));
-        logTime("Input Get Time");
+        for (int xyz = 1; xyz <= 5; xyz++) {
+            input = Imgcodecs.imread(inputPath+xyz+".jpg", Imgcodecs.IMREAD_COLOR);
+            Imgproc.resize(input, input, new Size(300, 225));
+            logTime("Input Get Time");
 
-        // Convert to HSV (Saturation) and Save
-        Mat HSV = new Mat();
-        Imgproc.cvtColor(input, HSV, Imgproc.COLOR_BGR2HSV);
-        List<Mat> hsvTypes = new ArrayList<>(3);
-        Core.split(HSV, hsvTypes);
-        Mat satUnfiltered = hsvTypes.get(1);
-        Mat satFiltered = new Mat();
-        Core.inRange(satUnfiltered, new Scalar(190,120,0), new Scalar(255,150,10), satFiltered);
-        //Imgcodecs.imwrite(satNewPath, satFiltered);
+            // Convert to HSV (Saturation) and Save
+            Mat HSV = new Mat();
+            Imgproc.cvtColor(input, HSV, Imgproc.COLOR_BGR2HSV);
+            List<Mat> hsvTypes = new ArrayList<>(3);
+            Core.split(HSV, hsvTypes);
+            Mat satUnfiltered = hsvTypes.get(1);
+            Mat satFiltered = new Mat();
+            Core.inRange(satUnfiltered, new Scalar(190, 120, 0), new Scalar(255, 150, 10), satFiltered);
+            //Imgcodecs.imwrite(satNewPath, satFiltered);
 
-        // Filter Saturation Image
-        Mat openClose = new Mat();
-        Imgproc.morphologyEx(satFiltered, openClose, Imgproc.MORPH_OPEN, new Mat());
-        Imgproc.morphologyEx(openClose, openClose, Imgproc.MORPH_CLOSE, new Mat());
-        //Imgcodecs.imwrite(openClosePath, openClose);
-        logTime("Filter Time");
+            // Filter Saturation Image
+            Mat openClose = new Mat();
+            Imgproc.morphologyEx(satFiltered, openClose, Imgproc.MORPH_OPEN, new Mat());
+            Imgproc.morphologyEx(openClose, openClose, Imgproc.MORPH_CLOSE, new Mat());
+            //Imgcodecs.imwrite(openClosePath, openClose);
+            logTime("Filter Time");
 
-        // Averages Rows
-        double horAvg;
-        ArrayList<Double> horList = new ArrayList<>();
-        Mat horView = new Mat(openClose.rows(), 1, CvType.CV_8UC1);
-        for (int row = 0; row < openClose.rows(); row++) {
-            horAvg = Core.mean(openClose.row(row)).val[0];
-            horList.add(horAvg);
-            horView.row(row).setTo(new Scalar(horAvg));
-        }
-        //log("Horizontal: " + horList.toString());
-        //Imgcodecs.imwrite(horViewName, horView);
-        logTime("Horizontal Time");
-
-        // Crops Filtered Image
-        Mat SCropped = new Mat();
-        for (int c = 0; c < horList.size(); c++) {
-            if (horList.get(c) > 90) {
-                SCropped.push_back(openClose.row(c));
-            }
-        }
-        //Imgcodecs.imwrite(croppedName, SCropped);
-        logTime("Crop Time");
-
-        double verAvg;
-        ArrayList<Double> verList = new ArrayList<>();
-        Mat verImage = new Mat(10, SCropped.cols(), CvType.CV_8UC1);
-        for (int col = 0; col < SCropped.cols(); col++) {
-            verAvg = Core.mean(openClose.col(col)).val[0]*2;
-            verList.add(verAvg);
-            verImage.col(col).setTo(new Scalar(verAvg));
-        }
-        Imgcodecs.imwrite(verViewName, verImage);
-        //log("Vertical: " + verList.toString());
-        logTime("Vertical Time");
-
-
-        ArrayList<Integer> /*darkCols = new ArrayList<>(),*/ darkAreas = new ArrayList<>();
-        double prevIntensity = 0;
-        int columnsBack = 10;
-        for (int c = 0; c < verList.size(); c++) {
-            double curIntensity = verList.get(c);
-
-            if (curIntensity < 5000) {
-                //darkCols.add(c);
-
-                double intensityDiff;
-                if (c < columnsBack) intensityDiff = Math.abs(curIntensity - prevIntensity);
-                else intensityDiff = Math.abs(curIntensity - verList.get(c-columnsBack));
-
-                if (intensityDiff > 5000) {
-                    darkAreas.add(c);
+            // Crop Image to where stone row is
+            double horAvg;
+            Mat SCropped = new Mat();
+            for (int row = 0; row < openClose.rows(); row++) {
+                horAvg = Core.mean(openClose.row(row)).val[0];
+                if (horAvg > 150) {
+                    SCropped.push_back(openClose.row(row));
                 }
             }
-            prevIntensity = curIntensity;
-        }
-        //log("Dark Columns: " + darkCols);
-        //log(darkAreas.size() + " Dark Areas: " + darkAreas);
+            Imgcodecs.imwrite(croppedName+xyz+".jpg", SCropped);
+            logTime("Crop Time");
 
-        double prevArea = 0;
-        boolean firstStone = true;
-        for (int i = 0; i < darkAreas.size(); i++) {
-            double curArea = darkAreas.get(i);
-
-            double areaDiff = Math.abs(curArea - prevArea);
-            if (areaDiff < 75 && !firstStone) {
-                darkAreas.remove(i);
-                i--;
+            double verAvg;
+            ArrayList<Double> verList = new ArrayList<>();
+            Mat verImage = new Mat(25, SCropped.cols(), CvType.CV_8UC1);
+            for (int col = 0; col < SCropped.cols(); col++) {
+                verAvg = Core.mean(openClose.col(col)).val[0] * 10;
+                   verList.add(verAvg);
+                if (verAvg <= 225) verAvg = 0;
+                else verAvg = binaryThreshold;
+                verImage.col(col).setTo(new Scalar(verAvg));
             }
-            firstStone = false;
+            log("Vertical1: " + verList.toString());
+            verList.clear();
 
-            prevArea = curArea;
+            Imgproc.morphologyEx(verImage, verImage, Imgproc.MORPH_OPEN, new Mat());
+            for (int col = 0; col < verImage.cols(); col++) {
+                verList.add(new Scalar(verImage.get(0, col)).val[0]);
+            }
+            //log("Vertical2: " + verList.toString());
+            logTime("Vertical Time");
+            Imgcodecs.imwrite(verViewName+xyz+".jpg", verImage);
+
+            ArrayList<Integer> darkCols = new ArrayList<>(), darkAreas = new ArrayList<>();
+            double prevIntensity = 0;
+            int columnsBack = 10;
+            for (int c = 0; c < verList.size(); c++) {
+                double curIntensity = verList.get(c);
+
+                if (curIntensity == 0) {
+                    darkCols.add(c);
+
+                    double intensityDiff;
+                    if (c < columnsBack) intensityDiff = Math.abs(curIntensity - prevIntensity);
+                    else intensityDiff = Math.abs(curIntensity - verList.get(c - columnsBack));
+
+                    if (intensityDiff == binaryThreshold) {
+                        darkAreas.add(c);
+                    }
+                }
+                prevIntensity = curIntensity;
+            }
+            //log("Dark Columns: " + darkCols);
+            //log(darkAreas.size() + " Dark Areas: " + darkAreas);
+
+            double prevArea = 0;
+            boolean firstStone = true;
+            for (int a = 0; a < darkAreas.size(); a++) {
+                double curArea = darkAreas.get(a);
+
+                double areaDiff = Math.abs(curArea - prevArea);
+                if (areaDiff < 75 && !firstStone) {
+                    darkAreas.remove(a);
+                    a--;
+                }
+                firstStone = false;
+
+                prevArea = curArea;
+            }
+            log("Updated Dark Areas: " + darkAreas);
+            log("SkyStones: " + darkAreas.size());
+
+            logTime("Analysis Time");
+            telemetry2("SkyStones", darkAreas.size() + "");
         }
-        log("Updated Dark Areas: " + darkAreas);
-        log("SkyStones: " + darkAreas.size());
-
-        logTime("Analysis Time");
-        telemetry2("SkyStones", darkAreas.size() + "");
 
         if (usingCamera) FtcRobotControllerActivity.disableCameraView();
         log(" ");
@@ -173,7 +175,6 @@ public class OpenCV extends LinearOpMode {
     }
 
     private void logTime(String message) {
-        log(message + ": " + timer.milliseconds());
-        telemetry2(message, timer.milliseconds() + "");
+        //log(message + ": " + timer.milliseconds());
     }
 }
