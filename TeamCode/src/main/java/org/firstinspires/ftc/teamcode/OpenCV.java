@@ -98,22 +98,20 @@ public class OpenCV extends LinearOpMode {
             logTime("Crop Time");
 
             double verAvg;
-            ArrayList<Double> verList = new ArrayList<>();
             Mat verImage = new Mat(25, SCropped.cols(), CvType.CV_8UC1);
             for (int col = 0; col < SCropped.cols(); col++) {
                 verAvg = Core.mean(openClose.col(col)).val[0] * 10;
-                   verList.add(verAvg);
                 if (verAvg <= 225) verAvg = 0;
                 else verAvg = binaryThreshold;
                 verImage.col(col).setTo(new Scalar(verAvg));
             }
-            log("Vertical1: " + verList.toString());
-            verList.clear();
+            String string = "";
+            for (int col = 0; col < verImage.cols(); col++) {
+                string += (new Scalar(verImage.get(0, col)).val[0]) + ", ";
+            }
+            log("Vertical1: " + string);
 
             Imgproc.morphologyEx(verImage, verImage, Imgproc.MORPH_OPEN, new Mat());
-            for (int col = 0; col < verImage.cols(); col++) {
-                verList.add(new Scalar(verImage.get(0, col)).val[0]);
-            }
             //log("Vertical2: " + verList.toString());
             logTime("Vertical Time");
             Imgcodecs.imwrite(verViewName+xyz+".jpg", verImage);
@@ -121,15 +119,15 @@ public class OpenCV extends LinearOpMode {
             ArrayList<Integer> darkCols = new ArrayList<>(), darkAreas = new ArrayList<>();
             double prevIntensity = 0;
             int columnsBack = 10;
-            for (int c = 0; c < verList.size(); c++) {
-                double curIntensity = verList.get(c);
+            for (int c = 0; c < verImage.cols(); c++) {
+                double curIntensity = new Scalar(verImage.get(0,c)).val[0];
 
                 if (curIntensity == 0) {
                     darkCols.add(c);
 
                     double intensityDiff;
                     if (c < columnsBack) intensityDiff = Math.abs(curIntensity - prevIntensity);
-                    else intensityDiff = Math.abs(curIntensity - verList.get(c - columnsBack));
+                    else intensityDiff = Math.abs(curIntensity - new Scalar(verImage.get(0,c-columnsBack)).val[0]);
 
                     if (intensityDiff == binaryThreshold) {
                         darkAreas.add(c);
