@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcontroller.FrameGrabber;
 import org.firstinspires.ftc.robotcontroller.internal.FtcRobotControllerActivity;
+
 import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
@@ -21,80 +22,88 @@ import org.opencv.imgproc.Imgproc;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings("FieldCanBeLocal")
-@SuppressLint("SdCardPath")
-@Autonomous(name="z OpenCV")
+@SuppressWarnings("FieldCanBeLocal") @SuppressLint("SdCardPath")
+@Autonomous(name=":-) OpenCV")
 public class OpenCV extends LinearOpMode {
 
     private final String series = "A";
     private final String basePath = "/sdcard/FIRST/openCV/";
     private final String satNewPath = basePath + "saturationFiltered" + series + ".jpg";
     private final String openClosePath = basePath + "openClose" + series + ".jpg";
-    //private final String horViewName = basePath + "horizontalAvg" + series + ".jpg";
-    private final String verViewName = basePath + "verticalAvg" + series;
     private final String croppedName = basePath + "croppedImage" + series;
-
-    private Mat input;
-    private final String inputPath = basePath + "/testFiles/test";
+    private final String verViewName = basePath + "verticalAvg" + series;
+    private final String testPath = basePath + "/testFiles/test";
 
     private FrameGrabber frameGrabber;
-    private final boolean usingCamera = false;
-
-    private final int binaryThreshold = 250;
+    private final boolean usingCamera = true; // <<<----------------------
 
     private ElapsedTime timer = new ElapsedTime();
 
+    private final int binaryThreshold = 250;
+    private int count = 1;
+
     @Override public void runOpMode() {
 
-        telemetry2("Initializing OpenCV v" + OpenCVLoader.OPENCV_VERSION, "Using Image Series " + series);
-        if (usingCamera) FtcRobotControllerActivity.showView();
+        telemetry2("Initializing OpenCV v" + OpenCVLoader.OPENCV_VERSION, "usingCamera=" + usingCamera);
+        if (usingCamera) FtcRobotControllerActivity.showCameraPreview();
 
         waitForStart();
         timer.reset();
 
-        /*if (usingCamera) {
-            FtcRobotControllerActivity.enableCameraView();
+        if (usingCamera) {
+            FtcRobotControllerActivity.hidePreview();
             frameGrabber = FtcRobotControllerActivity.frameGrabber;
             logTime("Init Time");
             while (!frameGrabber.isImageReady()) {}
             logTime("Input Ready Time");
-            input = frameGrabber.getInputMat();
+            detectSkyStone(frameGrabber.getInputMat());
         } else {
-            input = Imgcodecs.imread(inputPath, Imgcodecs.IMREAD_COLOR);
-        }*/
-
-        for (int xyz = 1; xyz <= 5; xyz++) {
-            input = Imgcodecs.imread(inputPath+xyz+".jpg", Imgcodecs.IMREAD_COLOR);
-            Imgproc.resize(input, input, new Size(300, 225));
-            logTime("Input Get Time");
-
-            // Convert to HSV (Saturation) and Save
-            Mat HSV = new Mat();
-            Imgproc.cvtColor(input, HSV, Imgproc.COLOR_BGR2HSV);
-            List<Mat> hsvTypes = new ArrayList<>(3);
-            Core.split(HSV, hsvTypes);
-            Mat satUnfiltered = hsvTypes.get(1);
-            Mat satFiltered = new Mat();
-            Core.inRange(satUnfiltered, new Scalar(190, 120, 0), new Scalar(255, 150, 10), satFiltered);
-            //Imgcodecs.imwrite(satNewPath, satFiltered);
-
-            // Filter Saturation Image
-            Mat openClose = new Mat();
-            Imgproc.morphologyEx(satFiltered, openClose, Imgproc.MORPH_OPEN, new Mat());
-            Imgproc.morphologyEx(openClose, openClose, Imgproc.MORPH_CLOSE, new Mat());
-            //Imgcodecs.imwrite(openClosePath, openClose);
-            logTime("Filter Time");
-
-            // Crop Image to where stone row is
-            double horAvg;
-            Mat SCropped = new Mat();
-            for (int row = 0; row < openClose.rows(); row++) {
-                horAvg = Core.mean(openClose.row(row)).val[0];
-                if (horAvg > 150) {
-                    SCropped.push_back(openClose.row(row));
-                }
+            for (; count <= 4; count++) {
+                detectSkyStone(Imgcodecs.imread(testPath + count + ".jpg", Imgcodecs.IMREAD_COLOR));
             }
-            Imgcodecs.imwrite(croppedName+xyz+".jpg", SCropped);
+        }
+
+        sleep(2000);
+        if (usingCamera) FtcRobotControllerActivity.disableCameraView();
+        log(" ");
+    }
+
+    public void detectSkyStone (Mat input) {
+        Imgproc.resize(input, input, new Size(300, 225));
+        logTime("Input Get Time");
+
+        // Convert to HSV (Saturation)
+        Mat HSV = new Mat();
+        Imgproc.cvtColor(input, HSV, Imgproc.COLOR_BGR2HSV);
+        List<Mat> hsvTypes = new ArrayList<>(3);
+        Core.split(HSV, hsvTypes);
+        Mat satUnfiltered = hsvTypes.get(1);
+
+        // Filter Saturation Image
+        Mat satFiltered = new Mat();
+        Core.inRange(satUnfiltered, new Scalar(190, 120, 0), new Scalar(255, 150, 10), satFiltered);
+        //Imgcodecs.imwrite(satNewPath, satFiltered);
+
+        Mat openClose = new Mat();
+        Imgproc.morphologyEx(satFiltered, openClose, Imgproc.MORPH_OPEN, new Mat());
+        Imgproc.morphologyEx(openClose, openClose, Imgproc.MORPH_CLOSE, new Mat());
+        //Imgcodecs.imwrite(openClosePath, openClose);
+        logTime("Filter Time");
+
+        // Crop Image to where stone row is
+        double horAvg;
+        Mat SCropped = new Mat();
+        for (int row = 0; row < openClose.rows(); row++) {
+            horAvg = Core.mean(openClose.row(row)).val[0];
+            if (horAvg > 150) {
+                SCropped.push_back(openClose.row(row));
+            }
+        }
+
+        if (!(SCropped.cols() == 0)) {
+            log("Quarry Row Detected :-)");
+            //Imgcodecs.imwrite(croppedName + ".jpg", SCropped);
+            Imgcodecs.imwrite(croppedName + count + ".jpg", SCropped);
             logTime("Crop Time");
 
             double verAvg;
@@ -105,29 +114,31 @@ public class OpenCV extends LinearOpMode {
                 else verAvg = binaryThreshold;
                 verImage.col(col).setTo(new Scalar(verAvg));
             }
-            String string = "";
+            /*String verCols = "";
             for (int col = 0; col < verImage.cols(); col++) {
-                string += (new Scalar(verImage.get(0, col)).val[0]) + ", ";
+                verCols += (new Scalar(verImage.get(0, col)).val[0]) + ", ";
             }
-            log("Vertical1: " + string);
+            log("Vertical1: " + verCols);*/
 
             Imgproc.morphologyEx(verImage, verImage, Imgproc.MORPH_OPEN, new Mat());
-            //log("Vertical2: " + verList.toString());
+            //Imgcodecs.imwrite(verViewName + ".jpg", verImage);
+            Imgcodecs.imwrite(verViewName + count + ".jpg", verImage);
+            //log("Vertical2: " + verCols);
             logTime("Vertical Time");
-            Imgcodecs.imwrite(verViewName+xyz+".jpg", verImage);
 
-            ArrayList<Integer> darkCols = new ArrayList<>(), darkAreas = new ArrayList<>();
+            ArrayList<Integer> /*darkCols = new ArrayList<>(),*/ darkAreas = new ArrayList<>();
             double prevIntensity = 0;
-            int columnsBack = 10;
+            int columnsBack = 15;
             for (int c = 0; c < verImage.cols(); c++) {
-                double curIntensity = new Scalar(verImage.get(0,c)).val[0];
+                double curIntensity = new Scalar(verImage.get(0, c)).val[0];
 
                 if (curIntensity == 0) {
-                    darkCols.add(c);
+                    //darkCols.add(c);
 
                     double intensityDiff;
                     if (c < columnsBack) intensityDiff = Math.abs(curIntensity - prevIntensity);
-                    else intensityDiff = Math.abs(curIntensity - new Scalar(verImage.get(0,c-columnsBack)).val[0]);
+                    else intensityDiff = Math.abs(curIntensity
+                            - new Scalar(verImage.get(0, c - columnsBack)).val[0]);
 
                     if (intensityDiff == binaryThreshold) {
                         darkAreas.add(c);
@@ -152,15 +163,36 @@ public class OpenCV extends LinearOpMode {
 
                 prevArea = curArea;
             }
-            log("Updated Dark Areas: " + darkAreas);
-            log("SkyStones: " + darkAreas.size());
+            //log("Rev1 Dark Areas: " + darkAreas);
+
+            if (darkAreas.size() == 3) {
+                darkAreas.remove(darkAreas.size() - 1);
+            }
+            //log("Rev2 Dark Areas: " + darkAreas);
+            log("# of SkyStones: " + darkAreas.size());
+
+            String leftSkyStonePos; // 3, 3, 1, 2
+            if (!(darkAreas.size() == 0)) {
+                if (darkAreas.get(0) <= 50) {
+                    leftSkyStonePos = "1st left";
+                } else if (darkAreas.get(0) > 50 && darkAreas.get(0) <= 100) {
+                    leftSkyStonePos = "2nd left";
+                } else {
+                    leftSkyStonePos = "3rd left";
+                }
+                log("Location: " + leftSkyStonePos);
+            } else {
+                log("Unable to Determine Left SkyStone Position :-(");
+                leftSkyStonePos = "n/a";
+            }
 
             logTime("Analysis Time");
-            telemetry2("SkyStones", darkAreas.size() + "");
+            telemetry2("End Info",
+                    darkAreas.size() + " " + leftSkyStonePos + " " + timer.milliseconds());
+        } else {
+            log("Quarry Row Not Detected, Terminating :-(");
+            telemetry2("End Info", "Row Not Detected " + timer.milliseconds());
         }
-
-        if (usingCamera) FtcRobotControllerActivity.disableCameraView();
-        log(" ");
     }
 
     private void telemetry2(String caption, String value) {
@@ -173,6 +205,6 @@ public class OpenCV extends LinearOpMode {
     }
 
     private void logTime(String message) {
-        //log(message + ": " + timer.milliseconds());
+        log(message + ": " + timer.milliseconds());
     }
 }

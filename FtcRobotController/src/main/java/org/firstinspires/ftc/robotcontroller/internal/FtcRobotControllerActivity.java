@@ -156,7 +156,7 @@ public class FtcRobotControllerActivity extends Activity {
         }
     };
 
-    public static void showView() {
+    public static void showCameraPreview() {
         frameGrabber = new FrameGrabber(true);
         cameraBridgeViewBase.setCvCameraViewListener(frameGrabber);
         cameraViewVisible = true;
@@ -164,7 +164,7 @@ public class FtcRobotControllerActivity extends Activity {
         Log.w("opencv", "camera preview started");
     }
 
-    public static void enableCameraView() {
+    public static void hidePreview() {
         frameGrabber.setPreview(false);
         Log.w("opencv", "camera preview stopped, hiding view");
     }
@@ -185,14 +185,8 @@ public class FtcRobotControllerActivity extends Activity {
         Handler cameraViewHandler = new Handler();
         cameraViewHandler.post(new Runnable() {
             @Override public void run() {
-                if (cameraViewVisible) {
-                    //Log.w("opencv", "camera view visible");
-                    cameraBridgeViewBase.setVisibility(SurfaceView.VISIBLE);
-                }
-                else {
-                    //Log.w("opencv", "camera view hidden");
-                    cameraBridgeViewBase.setVisibility(SurfaceView.INVISIBLE);
-                }
+                if (cameraViewVisible) cameraBridgeViewBase.setVisibility(SurfaceView.VISIBLE);
+                else cameraBridgeViewBase.setVisibility(SurfaceView.INVISIBLE);
                 cameraViewHandler.postDelayed(this, 1);
             }
         });

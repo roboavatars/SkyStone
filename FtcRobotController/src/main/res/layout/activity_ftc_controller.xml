@@ -196,9 +196,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <FrameLayout
         android:id="@+id/frameLayout"
         android:layout_width="fill_parent"
-        android:layout_height="250dp"
-        android:layout_centerHorizontal="false"
-        android:layout_centerVertical="true">
+        android:layout_height="350dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="20dp">
 
       <org.opencv.android.JavaCameraView
           android:id="@+id/openCvView"
