@@ -161,19 +161,19 @@ public class FtcRobotControllerActivity extends Activity {
         cameraBridgeViewBase.setCvCameraViewListener(frameGrabber);
         cameraViewVisible = true;
         cameraBridgeViewBase.enableView();
-        Log.w("opencv", "camera preview started");
+        Log.w("opencv-activity", "camera preview started");
     }
 
     public static void hidePreview() {
         frameGrabber.setPreview(false);
-        Log.w("opencv", "camera preview stopped, hiding view");
+        Log.w("opencv-activity", "camera preview stopped, hiding view");
     }
 
     public static void disableCameraView() {
         cameraBridgeViewBase.disableView();
         frameGrabber = null;
         cameraViewVisible = false;
-        Log.w("opencv", "camera view disabled");
+        Log.w("opencv-activity", "camera view disabled");
     }
 
     private void CVOnCreate(){
@@ -200,10 +200,10 @@ public class FtcRobotControllerActivity extends Activity {
 
     private void CVOnResume(){
         if (!OpenCVLoader.initDebug()) {
-            Log.w("opencv", "Internal OpenCV library not found. Using OpenCV Manager for initialization");
+            Log.i(TAG, "Internal OpenCV library not found. Using OpenCV Manager for initialization");
             OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION, this, mLoaderCallback);
         } else {
-            Log.w("opencv", "OpenCV library found inside package. Using it!");
+            Log.i(TAG, "OpenCV library found inside package. Using it!");
             mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
         }
     }

@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @SuppressWarnings("FieldCanBeLocal") @SuppressLint("SdCardPath")
-@Autonomous(name=":-) OpenCV")
+@Autonomous(name="👁 OpenCV")
 public class OpenCV extends LinearOpMode {
 
     private final String series = "A";
@@ -42,9 +42,11 @@ public class OpenCV extends LinearOpMode {
     private final int binaryThreshold = 250;
     private int count = 1;
 
+    private enum skyStonePosition {Not_Found, First_Left, Second_Left, Third_Left}
+
     @Override public void runOpMode() {
 
-        telemetry2("Initializing OpenCV v" + OpenCVLoader.OPENCV_VERSION, "usingCamera=" + usingCamera);
+        telemetry2("Initializing OpenCV", "v" + OpenCVLoader.OPENCV_VERSION);
         if (usingCamera) FtcRobotControllerActivity.showCameraPreview();
 
         waitForStart();
@@ -54,22 +56,41 @@ public class OpenCV extends LinearOpMode {
             FtcRobotControllerActivity.hidePreview();
             frameGrabber = FtcRobotControllerActivity.frameGrabber;
             logTime("Init Time");
-            while (!frameGrabber.isImageReady()) {}
-            logTime("Input Ready Time");
-            detectSkyStone(frameGrabber.getInputMat());
+
+            skyStonePosition prePosition = null;
+            boolean firstFrame = true;
+            for (int frame = 0; frame < 5; frame++) {
+
+                log("Frame " + frame + " ----------------------------------------");
+                while (!frameGrabber.isNextFrameReady());
+                logTime("Input Ready Time");
+                skyStonePosition curPosition = detectSkyStone(frameGrabber.getNextMat());
+
+                if (!(curPosition == prePosition) && !firstFrame) {
+                    //curPosition.ordinal(); average ordinals?
+                    log("Frame Disagree, Terminating :-(");
+                    break;
+                }
+                log("Left SkyStone Position: " + curPosition);
+                firstFrame = false;
+
+                prePosition = curPosition;
+            }
+            log("Done");
+
         } else {
             for (; count <= 4; count++) {
                 detectSkyStone(Imgcodecs.imread(testPath + count + ".jpg", Imgcodecs.IMREAD_COLOR));
             }
         }
 
-        sleep(2000);
+        //sleep(2000);
         if (usingCamera) FtcRobotControllerActivity.disableCameraView();
         log(" ");
     }
 
-    public void detectSkyStone (Mat input) {
-        Imgproc.resize(input, input, new Size(300, 225));
+    public skyStonePosition detectSkyStone (Mat input) {
+        skyStonePosition leftSkyStonePos; // 3, 3, 1, 2
         logTime("Input Get Time");
 
         // Convert to HSV (Saturation)
@@ -103,7 +124,7 @@ public class OpenCV extends LinearOpMode {
         if (!(SCropped.cols() == 0)) {
             log("Quarry Row Detected :-)");
             //Imgcodecs.imwrite(croppedName + ".jpg", SCropped);
-            Imgcodecs.imwrite(croppedName + count + ".jpg", SCropped);
+            //Imgcodecs.imwrite(croppedName + count + ".jpg", SCropped);
             logTime("Crop Time");
 
             double verAvg;
@@ -114,16 +135,15 @@ public class OpenCV extends LinearOpMode {
                 else verAvg = binaryThreshold;
                 verImage.col(col).setTo(new Scalar(verAvg));
             }
+            Imgproc.morphologyEx(verImage, verImage, Imgproc.MORPH_OPEN, new Mat());
+            //Imgcodecs.imwrite(verViewName + ".jpg", verImage);
+            //Imgcodecs.imwrite(verViewName + count + ".jpg", verImage);
+
             /*String verCols = "";
             for (int col = 0; col < verImage.cols(); col++) {
                 verCols += (new Scalar(verImage.get(0, col)).val[0]) + ", ";
             }
-            log("Vertical1: " + verCols);*/
-
-            Imgproc.morphologyEx(verImage, verImage, Imgproc.MORPH_OPEN, new Mat());
-            //Imgcodecs.imwrite(verViewName + ".jpg", verImage);
-            Imgcodecs.imwrite(verViewName + count + ".jpg", verImage);
-            //log("Vertical2: " + verCols);
+            log("Vertical: " + verCols);*/
             logTime("Vertical Time");
 
             ArrayList<Integer> /*darkCols = new ArrayList<>(),*/ darkAreas = new ArrayList<>();
@@ -169,30 +189,30 @@ public class OpenCV extends LinearOpMode {
                 darkAreas.remove(darkAreas.size() - 1);
             }
             //log("Rev2 Dark Areas: " + darkAreas);
-            log("# of SkyStones: " + darkAreas.size());
+            log("SkyStones Detected: " + darkAreas.size());
 
-            String leftSkyStonePos; // 3, 3, 1, 2
             if (!(darkAreas.size() == 0)) {
                 if (darkAreas.get(0) <= 50) {
-                    leftSkyStonePos = "1st left";
+                    leftSkyStonePos = skyStonePosition.First_Left;
                 } else if (darkAreas.get(0) > 50 && darkAreas.get(0) <= 100) {
-                    leftSkyStonePos = "2nd left";
+                    leftSkyStonePos = skyStonePosition.Second_Left;
                 } else {
-                    leftSkyStonePos = "3rd left";
+                    leftSkyStonePos = skyStonePosition.Third_Left;
                 }
                 log("Location: " + leftSkyStonePos);
             } else {
-                log("Unable to Determine Left SkyStone Position :-(");
-                leftSkyStonePos = "n/a";
+                leftSkyStonePos = skyStonePosition.Not_Found;
+                log("Cannot Determine Left SkyStone Position :-(");
             }
-
             logTime("Analysis Time");
-            telemetry2("End Info",
-                    darkAreas.size() + " " + leftSkyStonePos + " " + timer.milliseconds());
+            telemetry2("End Info", darkAreas.size() + " " + leftSkyStonePos + " " + timer.milliseconds());
         } else {
+            leftSkyStonePos = skyStonePosition.Not_Found;
             log("Quarry Row Not Detected, Terminating :-(");
             telemetry2("End Info", "Row Not Detected " + timer.milliseconds());
         }
+
+        return leftSkyStonePos;
     }
 
     private void telemetry2(String caption, String value) {
@@ -201,7 +221,7 @@ public class OpenCV extends LinearOpMode {
     }
 
     private void log(String message) {
-        Log.w("opencv", message);
+        Log.w("opencv-main", message);
     }
 
     private void logTime(String message) {
