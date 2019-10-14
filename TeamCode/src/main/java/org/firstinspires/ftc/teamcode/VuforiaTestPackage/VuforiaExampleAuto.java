@@ -1,8 +1,10 @@
 package org.firstinspires.ftc.teamcode.VuforiaTestPackage;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+@Disabled
 @Autonomous(name = "Vuforia Example Auto")
 public class VuforiaExampleAuto extends LinearOpMode {
 

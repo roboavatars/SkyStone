@@ -3,14 +3,11 @@ package org.firstinspires.ftc.teamcode;
 import android.annotation.SuppressLint;
 import android.util.Log;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcontroller.FrameGrabber;
 import org.firstinspires.ftc.robotcontroller.internal.FtcRobotControllerActivity;
-
 import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
@@ -24,9 +21,9 @@ import java.util.List;
 
 @SuppressWarnings({"FieldCanBeLocal","StatementWithEmptyBody"})
 @SuppressLint("SdCardPath")
-@Disabled
-@Autonomous(name="👁 OpenCV")
-public class OpenCV extends LinearOpMode {
+public class OpenCVBase extends Thread {
+    private LinearOpMode op;
+    OpenCVBase(LinearOpMode opMode) {op = opMode;}
 
     //private final String series = "A";
     private final String basePath = "/sdcard/FIRST/openCV/";
@@ -46,11 +43,18 @@ public class OpenCV extends LinearOpMode {
 
     private enum skyStonePosition {Not_Found, First_Left, Second_Left, Third_Left}
 
-    @Override public void runOpMode() {
-        telemetry2("Initializing OpenCV", "v" + OpenCVLoader.OPENCV_VERSION);
-        if (usingCamera) FtcRobotControllerActivity.showCameraPreview();
+    private boolean ready = false;
+    private int dataSum = 0;
+    private int dataCount = 0;
+    private int verdict = -1;
 
-        waitForStart();
+    void initializeCamera() {
+        telemetry2("Initializing OpenCV", "v" + OpenCVLoader.OPENCV_VERSION);
+        if (usingCamera) {FtcRobotControllerActivity.showCameraPreview();}
+    }
+
+    @Override
+    public void run() {
         timer.reset();
 
         if (usingCamera) {
@@ -58,8 +62,6 @@ public class OpenCV extends LinearOpMode {
             frameGrabber = FtcRobotControllerActivity.frameGrabber;
             logTime("Init Time");
 
-            skyStonePosition prePosition = null;
-            boolean firstFrame = true;
             for (int frame = 0; frame < 5; frame++) {
 
                 log("Frame " + frame + " ----------------------------------------");
@@ -67,32 +69,26 @@ public class OpenCV extends LinearOpMode {
                 logTime("Input Ready Time");
                 skyStonePosition curPosition = detectSkyStone(frameGrabber.getNextMat());
 
-                if (!(curPosition == prePosition) && !firstFrame) {
-                    //curPosition.ordinal(); average ordinals?
-                    log("Frame Disagree, Terminating :-(");
-                    break;
-                }
-                log("Left SkyStone Position: " + curPosition);
-                firstFrame = false;
+                dataSum += curPosition.ordinal();
+                if (curPosition.ordinal() != 0) {dataCount++;}
 
-                prePosition = curPosition;
+                log("Left SkyStone Position: " + curPosition);
             }
+            logTime("Before Calc");
+            ready = true;
+            if (dataCount == 0) {verdict = 0;}
+            else {verdict = Math.round(dataSum/dataCount);}
             log("Done");
 
-        } else {
-            for (; count <= 4; count++) {
-                detectSkyStone(Imgcodecs.imread(testPath + count + ".jpg", Imgcodecs.IMREAD_COLOR));
-            }
-        }
+        } else {for (; count <= 4; count++) {detectSkyStone(Imgcodecs.imread(testPath + count + ".jpg", Imgcodecs.IMREAD_COLOR));}}
 
         //sleep(2000);
-        if (usingCamera) {FtcRobotControllerActivity.disableCameraView();}
+        if (usingCamera) FtcRobotControllerActivity.disableCameraView();
         log(" ");
     }
 
     private skyStonePosition detectSkyStone (Mat input) {
         skyStonePosition leftSkyStonePos; // 3, 3, 1, 2
-        logTime("Input Get Time");
 
         // Convert to HSV (Saturation)
         Mat HSV = new Mat();
@@ -117,9 +113,7 @@ public class OpenCV extends LinearOpMode {
         Mat SCropped = new Mat();
         for (int row = 0; row < openClose.rows(); row++) {
             horAvg = Core.mean(openClose.row(row)).val[0];
-            if (horAvg > 150) {
-                SCropped.push_back(openClose.row(row));
-            }
+            if (horAvg > 150) {SCropped.push_back(openClose.row(row));}
         }
 
         if (!(SCropped.cols() == 0)) {
@@ -132,8 +126,8 @@ public class OpenCV extends LinearOpMode {
             Mat verImage = new Mat(25, SCropped.cols(), CvType.CV_8UC1);
             for (int col = 0; col < SCropped.cols(); col++) {
                 verAvg = Core.mean(openClose.col(col)).val[0] * 10;
-                if (verAvg <= 225) verAvg = 0;
-                else verAvg = binaryThreshold;
+                if (verAvg <= 225) {verAvg = 0;}
+                else {verAvg = binaryThreshold;}
                 verImage.col(col).setTo(new Scalar(verAvg));
             }
             Imgproc.morphologyEx(verImage, verImage, Imgproc.MORPH_OPEN, new Mat());
@@ -206,16 +200,19 @@ public class OpenCV extends LinearOpMode {
             log("Quarry Row Not Detected, Terminating :-(");
             telemetry2("End Info", "Row Not Detected " + timer.milliseconds());
         }
-
         return leftSkyStonePos;
     }
 
     private void telemetry2(String caption, String value) {
-        telemetry.addData(caption, value);
-        telemetry.update();
+        op.telemetry.addData(caption, value);
+        op.telemetry.update();
     }
 
     private void log(String message) {Log.w("opencv-main", message);}
 
     private void logTime(String message) {log(message + ": " + timer.milliseconds());}
+
+    boolean ready() {return ready;}
+
+    int position() {return verdict;}
 }
