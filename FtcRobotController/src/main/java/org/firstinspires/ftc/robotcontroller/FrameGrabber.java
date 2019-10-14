@@ -20,7 +20,7 @@ import static org.opencv.imgproc.Imgproc.warpAffine;
 public class FrameGrabber implements CvCameraViewListener2 {
 
     private final String outputPath = "/sdcard/FIRST/openCV/cameraFrames/input"; //.jpg";
-    private int saveCount = 0;
+    private int saveCount = 1;
     private int getCount = 0;
     private boolean preview;
 
@@ -33,6 +33,7 @@ public class FrameGrabber implements CvCameraViewListener2 {
 
     @Override public void onCameraViewStarted(int width, int height) {
         log("camera started");
+        inputFrameList.add(new Mat()); // placeholder
     }
 
     @Override public void onCameraViewStopped() {
@@ -40,23 +41,17 @@ public class FrameGrabber implements CvCameraViewListener2 {
     }
 
     // remember to wait a few seconds for camera aperture to open, otherwise image will be black :-)
+    // also, it may hang the program and crash the app with SocketTimeoutException
     @Override public Mat onCameraFrame(CvCameraViewFrame cameraFrame) {
-        Mat inputFrame = cameraFrame.rgba(); //always have 1 frame buffered
-        if (!preview && saveCount < 5) {
-            //Imgcodecs.imwrite(outputPath + saveCount + ".jpg", inputFrame);
-            Mat resizedFrame = new Mat();
-            Imgproc.resize(inputFrame, resizedFrame, new Size(300, 225));
+        Mat inputFrame = cameraFrame.rgba();
+        Mat resizedFrame = new Mat();
+        Imgproc.resize(inputFrame, resizedFrame, new Size(300, 225));
 
-            inputFrameList.add(resizedFrame);
-            log("Frame " + saveCount + " Ready");
-            frameReadyList[saveCount] = true;
-            saveCount++;
-
-            //try { Thread.sleep(10); } catch (InterruptedException ex) {log("you dared to interrupt me!!!!");}
-        }
-
-        // Rotate inputFrame for camera preview
         if (preview) {
+            inputFrameList.set(0, resizedFrame);
+            frameReadyList[0] = true;
+
+            // Rotate inputFrame for camera preview
             Point rawCenter = new Point(inputFrame.cols() / 2.0, inputFrame.rows() / 2.0);
             Mat rotationMatrix = getRotationMatrix2D(rawCenter, -90, 1.35);
             warpAffine(inputFrame, inputFrame, rotationMatrix, inputFrame.size());
@@ -67,6 +62,16 @@ public class FrameGrabber implements CvCameraViewListener2 {
             Mat debug = new Mat();
             Core.inRange(hsvTypes.get(1), new Scalar(190, 120, 0), new Scalar(255, 150, 10), debug);
             return debug;*/
+        }
+        else if (saveCount < 5) { // !preview && saveCount < 5
+            //Imgcodecs.imwrite(outputPath + saveCount + ".jpg", inputFrame);
+
+            inputFrameList.add(resizedFrame);
+            log("Frame " + saveCount + " Ready");
+            frameReadyList[saveCount] = true;
+            saveCount++;
+
+            //try { Thread.sleep(10); } catch (InterruptedException ex) {log("you dared to interrupt me!!!!");}
         }
         return inputFrame;
     }
