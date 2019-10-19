@@ -144,7 +144,7 @@ public class OpenCVBase extends Thread {
             log("Vertical: " + verCols);*/
             logTime("Vertical Time");
 
-            ArrayList<Integer> /*darkCols = new ArrayList<>(),*/ darkAreas = new ArrayList<>();
+            ArrayList<Double> /*darkCols = new ArrayList<>(),*/ darkAreas = new ArrayList<>();
             double prevIntensity = 0;
             int columnsBack = 15;
             for (int c = 0; c < verImage.cols(); c++) {
@@ -155,17 +155,14 @@ public class OpenCVBase extends Thread {
 
                     double intensityDiff;
                     if (c < columnsBack) intensityDiff = Math.abs(curIntensity - prevIntensity);
-                    else intensityDiff = Math.abs(curIntensity
-                            - new Scalar(verImage.get(0, c - columnsBack)).val[0]);
+                    else intensityDiff = Math.abs(curIntensity - new Scalar(verImage.get(0, c - columnsBack)).val[0]);
 
-                    if (intensityDiff == binaryThreshold) {
-                        darkAreas.add(c);
-                    }
+                    if (intensityDiff == binaryThreshold) {darkAreas.add(c + 27.5);}
                 }
                 prevIntensity = curIntensity;
             }
             //log("Dark Columns: " + darkCols);
-            //log(darkAreas.size() + " Dark Areas: " + darkAreas);
+            log(darkAreas.size() + " Dark Areas: " + darkAreas);
 
             double prevArea = 0;
             boolean firstStone = true;
@@ -181,10 +178,6 @@ public class OpenCVBase extends Thread {
 
                 prevArea = curArea;
             }
-            //log("Rev1 Dark Areas: " + darkAreas);
-
-            if (darkAreas.size() == 3) darkAreas.remove(darkAreas.size() - 1);
-            //log("Rev2 Dark Areas: " + darkAreas);
             log("SkyStones Detected: " + darkAreas.size());
 
             if (!(darkAreas.size() == 0)) {
