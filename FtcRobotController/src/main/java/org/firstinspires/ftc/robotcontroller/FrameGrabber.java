@@ -64,7 +64,7 @@ public class FrameGrabber implements CvCameraViewListener2 {
             return debug;*/
         }
         else if (saveCount < 5) { // !preview && saveCount < 5
-            //Imgcodecs.imwrite(outputPath + saveCount + ".jpg", inputFrame);
+            //Imgcodecs.imwrite(outputPath + saveCount + ".jpg", resizedFrame);
 
             inputFrameList.add(resizedFrame);
             log("Frame " + saveCount + " Ready");
