@@ -45,7 +45,7 @@ public class FrameGrabber implements CvCameraViewListener2 {
     @Override public Mat onCameraFrame(CvCameraViewFrame cameraFrame) {
         Mat inputFrame = cameraFrame.rgba();
         Mat resizedFrame = new Mat();
-        Imgproc.resize(inputFrame, resizedFrame, new Size(300, 225));
+        Imgproc.resize(inputFrame, resizedFrame, new Size(240, 180));
 
         if (preview) {
             inputFrameList.set(0, resizedFrame);
@@ -71,7 +71,7 @@ public class FrameGrabber implements CvCameraViewListener2 {
             frameReadyList[saveCount] = true;
             saveCount++;
 
-            //try { Thread.sleep(10); } catch (InterruptedException ex) {log("you dared to interrupt me!!!!");}
+            try {Thread.sleep(5);} catch (InterruptedException ex) {log("interrupted !!!");}
         }
         return inputFrame;
     }
