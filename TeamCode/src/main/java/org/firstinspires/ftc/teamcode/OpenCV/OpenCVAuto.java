@@ -14,13 +14,15 @@ public class OpenCVAuto extends LinearOpMode {
 
         skyStoneDetector.start();
 
-        while (opModeIsActive() && !isStopRequested()) {
+        if (opModeIsActive() && !isStopRequested()) {
             //noinspection StatementWithEmptyBody
-            while (!skyStoneDetector.ready());
+            while (!skyStoneDetector.isReady());
+            telemetry.addData("SkyStonePosition", skyStoneDetector.getPosition());
+            telemetry.addData("OpenCV FPS", skyStoneDetector.getFps());
             skyStoneDetector.interrupt();
-            telemetry.addData("SkyStonePosition", skyStoneDetector.position());
+            telemetry.addData("Status", "Done");
             telemetry.update();
         }
-
+        sleep(2000);
     }
 }

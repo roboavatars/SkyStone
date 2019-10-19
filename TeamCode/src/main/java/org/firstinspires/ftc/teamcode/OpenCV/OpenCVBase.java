@@ -24,12 +24,13 @@ public class OpenCVBase extends Thread {
     private LinearOpMode op;
     OpenCVBase(LinearOpMode opMode) {op = opMode;}
 
-    //private final String series = "A";
+    // File Paths
+    private final String series = "A";
     private final String basePath = "/sdcard/FIRST/openCV/";
-    /*private final String satNewPath = basePath + "saturationFiltered" + series + ".jpg";
+    private final String satNewPath = basePath + "saturationFiltered" + series + ".jpg";
     private final String openClosePath = basePath + "openClose" + series + ".jpg";
     private final String croppedName = basePath + "croppedImage" + series;
-    private final String verViewName = basePath + "verticalAvg" + series;*/
+    private final String verViewName = basePath + "verticalAvg" + series;
     private final String testPath = basePath + "/testFiles/test";
 
     private FrameGrabber frameGrabber;
@@ -214,7 +215,9 @@ public class OpenCVBase extends Thread {
 
     private void logTime(String message) {log(message + ": " + timer.milliseconds());}
 
-    boolean ready() {return ready;}
+    boolean isReady() {return ready;}
 
-    int position() {return verdict;}
+    int getPosition() {return verdict;}
+
+    double getFps() {return 5000.0 / timer.milliseconds();}
 }
