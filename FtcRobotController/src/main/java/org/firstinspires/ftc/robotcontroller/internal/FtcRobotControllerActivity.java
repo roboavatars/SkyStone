@@ -44,15 +44,19 @@ import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.SurfaceView;
 import android.view.View;
+import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -88,6 +92,8 @@ import com.qualcomm.robotcore.eventloop.opmode.FtcRobotControllerServiceState;
 import com.qualcomm.robotcore.eventloop.opmode.OpModeRegister;
 import com.qualcomm.robotcore.hardware.configuration.LynxConstants;
 import com.qualcomm.robotcore.hardware.configuration.Utility;
+import com.qualcomm.robotcore.robot.Robot;
+import com.qualcomm.robotcore.robot.RobotState;
 import com.qualcomm.robotcore.util.Device;
 import com.qualcomm.robotcore.util.Dimmer;
 import com.qualcomm.robotcore.util.ImmersiveMode;
@@ -100,9 +106,9 @@ import com.qualcomm.robotcore.wifi.NetworkType;
 import org.firstinspires.ftc.ftccommon.external.SoundPlayingRobotMonitor;
 import org.firstinspires.ftc.ftccommon.internal.FtcRobotControllerWatchdogService;
 import org.firstinspires.ftc.ftccommon.internal.ProgramAndManageActivity;
-import org.firstinspires.ftc.onbotjava.OnBotJavaClassLoader;
 import org.firstinspires.ftc.onbotjava.OnBotJavaHelperImpl;
 import org.firstinspires.ftc.onbotjava.OnBotJavaProgrammingMode;
+import org.firstinspires.ftc.robotcontroller.FrameGrabber;
 import org.firstinspires.ftc.robotcore.external.navigation.MotionDetection;
 import org.firstinspires.ftc.robotcore.internal.hardware.android.AndroidBoard;
 import org.firstinspires.ftc.robotcore.internal.network.DeviceNameManagerFactory;
@@ -123,12 +129,91 @@ import org.firstinspires.ftc.robotcore.internal.webserver.RobotControllerWebInfo
 import org.firstinspires.ftc.robotserver.internal.programmingmode.ProgrammingModeManager;
 import org.firstinspires.inspection.RcInspectionActivity;
 
+import org.opencv.android.BaseLoaderCallback;
+import org.opencv.android.CameraBridgeViewBase;
+import org.opencv.android.JavaCameraView;
+import org.opencv.android.LoaderCallbackInterface;
+import org.opencv.android.OpenCVLoader;
+
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 @SuppressWarnings("WeakerAccess")
-public class FtcRobotControllerActivity extends Activity
-  {
+public class FtcRobotControllerActivity extends Activity {
+
+    public static CameraBridgeViewBase cameraBridgeViewBase;
+    public static FrameGrabber frameGrabber = null;
+    private static boolean cameraViewVisible = false;
+
+    private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
+        @Override public void onManagerConnected(int status) {
+            if (status == LoaderCallbackInterface.SUCCESS) {
+                Log.i(TAG, "OpenCV loaded successfully");
+                cameraBridgeViewBase.enableView();
+            } else {
+                super.onManagerConnected(status);
+            }
+        }
+    };
+
+    public static void showCameraPreview() {
+        frameGrabber = new FrameGrabber(true);
+        cameraBridgeViewBase.setCvCameraViewListener(frameGrabber);
+        cameraViewVisible = true;
+        cameraBridgeViewBase.enableView();
+        Log.w("opencv-activity", "camera preview started");
+    }
+
+    public static void hidePreview() {
+        frameGrabber.setPreview(false);
+        Log.w("opencv-activity", "camera preview stopped, hiding view");
+    }
+
+    public static void disableCameraView() {
+        cameraBridgeViewBase.disableView();
+        frameGrabber = null;
+        cameraViewVisible = false;
+        Log.w("opencv-activity", "camera view disabled");
+    }
+
+    private void CVOnCreate(){
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        cameraBridgeViewBase = (JavaCameraView) findViewById(R.id.openCvView);
+        cameraBridgeViewBase.setCameraPermissionGranted();
+
+        Handler cameraViewHandler = new Handler();
+        cameraViewHandler.post(new Runnable() {
+            @Override public void run() {
+                if (cameraViewVisible) cameraBridgeViewBase.setVisibility(SurfaceView.VISIBLE);
+                else cameraBridgeViewBase.setVisibility(SurfaceView.INVISIBLE);
+                cameraViewHandler.postDelayed(this, 1);
+            }
+        });
+    }
+
+    private void CVOnPause(){
+        if (cameraBridgeViewBase != null) {
+            cameraBridgeViewBase.disableView();
+        }
+    }
+
+    private void CVOnResume(){
+        if (!OpenCVLoader.initDebug()) {
+            Log.i(TAG, "Internal OpenCV library not found. Using OpenCV Manager for initialization");
+            OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION, this, mLoaderCallback);
+        } else {
+            Log.i(TAG, "OpenCV library found inside package. Using it!");
+            mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
+        }
+    }
+
+    private void CVOnDestroy() {
+        if (cameraBridgeViewBase != null) {
+            cameraBridgeViewBase.disableView();
+        }
+    }
+
   public static final String TAG = "RCActivity";
   public String getTag() { return TAG; }
 
@@ -300,6 +385,7 @@ public class FtcRobotControllerActivity extends Activity
     eventLoop = null;
 
     setContentView(R.layout.activity_ftc_controller);
+    CVOnCreate();
 
     preferencesHelper = new PreferencesHelper(TAG, context);
     preferencesHelper.writeBooleanPrefIfDifferent(context.getString(R.string.pref_rc_connected), true);
@@ -431,12 +517,14 @@ public class FtcRobotControllerActivity extends Activity
   @Override
   protected void onResume() {
     super.onResume();
+    CVOnResume();
     RobotLog.vv(TAG, "onResume()");
   }
 
   @Override
   protected void onPause() {
     super.onPause();
+    CVOnPause();
     RobotLog.vv(TAG, "onPause()");
     if (programmingModeController.isActive()) {
       programmingModeController.stopProgrammingMode();
@@ -455,6 +543,7 @@ public class FtcRobotControllerActivity extends Activity
   protected void onDestroy() {
     super.onDestroy();
     RobotLog.vv(TAG, "onDestroy()");
+    CVOnDestroy();
 
     shutdownRobot();  // Ensure the robot is put away to bed
     if (callback != null) callback.close();
@@ -544,6 +633,26 @@ public class FtcRobotControllerActivity extends Activity
     return true;
   }
 
+  private boolean isRobotRunning() {
+    if (controllerService == null) {
+      return false;
+    }
+
+    Robot robot = controllerService.getRobot();
+
+    if ((robot == null) || (robot.eventLoopManager == null)) {
+      return false;
+    }
+
+    RobotState robotState = robot.eventLoopManager.state;
+
+    if (robotState != RobotState.RUNNING) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     int id = item.getItemId();
@@ -562,10 +671,14 @@ public class FtcRobotControllerActivity extends Activity
       }
       return true;
     } else if (id == R.id.action_program_and_manage) {
-      Intent programmingModeIntent = new Intent(AppUtil.getDefContext(), ProgramAndManageActivity.class);
-      RobotControllerWebInfo webInfo = programmingModeManager.getWebServer().getConnectionInformation();
-      programmingModeIntent.putExtra(LaunchActivityConstantsList.RC_WEB_INFO, webInfo.toJson());
-      startActivity(programmingModeIntent);
+      if (isRobotRunning()) {
+        Intent programmingModeIntent = new Intent(AppUtil.getDefContext(), ProgramAndManageActivity.class);
+        RobotControllerWebInfo webInfo = programmingModeManager.getWebServer().getConnectionInformation();
+        programmingModeIntent.putExtra(LaunchActivityConstantsList.RC_WEB_INFO, webInfo.toJson());
+        startActivity(programmingModeIntent);
+      } else {
+        AppUtil.getInstance().showToast(UILocation.ONLY_LOCAL, context.getString(R.string.toastWifiUpBeforeProgrammingMode));
+      }
     } else if (id == R.id.action_inspection_mode) {
       Intent inspectionModeIntent = new Intent(AppUtil.getDefContext(), RcInspectionActivity.class);
       startActivity(inspectionModeIntent);
