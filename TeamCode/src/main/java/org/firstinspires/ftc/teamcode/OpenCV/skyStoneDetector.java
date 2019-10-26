@@ -52,12 +52,12 @@ public class skyStoneDetector extends Thread {
     private double leftSSCenter = -1;
 
     private LinearOpMode op;
-    skyStoneDetector(LinearOpMode opMode) {op = opMode;}
+    public skyStoneDetector(LinearOpMode opMode) {op = opMode;}
 
     private double stoneSum = 0;
     private double curStoneCount;
 
-    void initializeCamera() {
+    public void initializeCamera() {
         telemetry2("Initializing OpenCV", "v" + OpenCVLoader.OPENCV_VERSION);
         if (usingCamera) FtcRobotControllerActivity.showCameraPreview();
         telemetry2("Status", "Ready");
@@ -204,11 +204,11 @@ public class skyStoneDetector extends Thread {
 
     private void logTime(String message) {/*log(message + ": " + timer.milliseconds());*/}
 
-    double getPosition() {return leftSSCenter;}
+    public double getPosition() {return leftSSCenter;}
 
-    double getNumberOfStones() {return curStoneCount;}
+    public double getNumberOfStones() {return curStoneCount;}
 
-    String getFps() {
+    public String getFps() {
         @SuppressLint("DefaultLocale")
         String fps = String.format("%.2f", frameNum * 1000.0 / timer.milliseconds());
         return fps;
