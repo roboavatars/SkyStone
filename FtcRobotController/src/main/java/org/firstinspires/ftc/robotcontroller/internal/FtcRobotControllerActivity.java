@@ -164,22 +164,23 @@ public class FtcRobotControllerActivity extends Activity {
         Log.w("opencv-activity", "camera preview started");
     }
 
-    public static void hidePreview() {
+    public static void endPreview() {
         frameGrabber.setPreview(false);
+        //cameraViewVisible = false;
         Log.w("opencv-activity", "camera preview stopped, hiding view");
     }
 
     public static void disableCameraView() {
         cameraBridgeViewBase.disableView();
-        frameGrabber = null;
         cameraViewVisible = false;
+        frameGrabber = null;
         Log.w("opencv-activity", "camera view disabled");
     }
 
     private void CVOnCreate(){
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        cameraBridgeViewBase = (JavaCameraView) findViewById(R.id.openCvView);
+        cameraBridgeViewBase = (JavaCameraView) findViewById(R.id.openCV_View);
         cameraBridgeViewBase.setCameraPermissionGranted();
 
         Handler cameraViewHandler = new Handler();

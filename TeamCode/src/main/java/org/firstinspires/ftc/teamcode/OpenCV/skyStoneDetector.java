@@ -20,18 +20,16 @@ import org.opencv.imgproc.Imgproc;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings({"FieldCanBeLocal"}) @SuppressLint("SdCardPath")
-public class OpenCVBase extends Thread {
-    private LinearOpMode op;
-    OpenCVBase(LinearOpMode opMode) {op = opMode;}
+@SuppressWarnings({"FieldCanBeLocal"})
+public class skyStoneDetector extends Thread {
 
     // File Paths
-    private final String series = "A";
+    @SuppressLint("SdCardPath")
     private final String basePath = "/sdcard/FIRST/openCV/";
-    private final String satNewPath = basePath + "saturationFiltered" + series + ".jpg";
-    private final String openClosePath = basePath + "openClose" + series + ".jpg";
-    private final String croppedName = basePath + "croppedImage" + series + ".jpg";
-    private final String verViewName = basePath + "verticalAvg" + series + ".jpg";
+    private final String satNewPath = basePath + "satFiltered";
+    private final String openClosePath = basePath + "openClose";
+    private final String croppedPath = basePath + "croppedImage";
+    private final String verViewPath = basePath + "verticalAvg";
     private final String testPath = basePath + "/testFiles/test";
 
     private FrameGrabber frameGrabber;
@@ -39,82 +37,78 @@ public class OpenCVBase extends Thread {
 
     private ElapsedTime timer = new ElapsedTime();
 
-    private final int binaryThreshold = 250;
+    private final int horThreshold = 100;
+    private final int verThreshold = 225;
+    private final int magnificationFactor = 10;
+    private final int binaryValue = 255;
+    private final int columnsBack = 10;
+    private final int columnDiff = 75;
 
     // quarry row 48in from wall, robot is 18in, phone 30in away...
     // stone width ~55px, half of stone width ~27.5px, adjust to 20
     private final double stoneWidth = 20;
 
-    //private int count = 1;
-    private boolean ready = false;
-    private double dataSum = 0;
-    private int dataCount = 0;
+    private int frameNum = 1;
     private double leftSSCenter = -1;
+
+    private LinearOpMode op;
+    skyStoneDetector(LinearOpMode opMode) {op = opMode;}
+
+    private double stoneSum = 0;
+    private double curStoneCount;
 
     void initializeCamera() {
         telemetry2("Initializing OpenCV", "v" + OpenCVLoader.OPENCV_VERSION);
-        if (usingCamera) {FtcRobotControllerActivity.showCameraPreview();}
+        if (usingCamera) FtcRobotControllerActivity.showCameraPreview();
+        telemetry2("Status", "Ready");
     }
 
     @Override public void run() {
-        timer.reset();
-        setName("OpenCV");
+        setName("OpenCV"); timer.reset();
 
         if (usingCamera) {
-            FtcRobotControllerActivity.hidePreview();
+            FtcRobotControllerActivity.endPreview();
             frameGrabber = FtcRobotControllerActivity.frameGrabber;
             logTime("Init Time");
 
-            for (int frame = 0; frame < 5; frame++) {
-
-                log("Frame " + frame + " ----------------------------------------");
-                while (!frameGrabber.isNextFrameReady()) {log("Waiting for frame " + frame);}
-                logTime("Input Ready Time");
-                double curPosition = detectSkyStone(frameGrabber.getNextMat());
-
-                dataSum += curPosition;
-                if (curPosition != -1) dataCount++;
-
-                log("Left SkyStone Position: " + curPosition);
+            while (op.opModeIsActive() && !op.isStopRequested()) {
+                log("Frame " + frameNum + " ----------------------------------------");
+                leftSSCenter = detectSkyStone(frameGrabber.getNextMat());
+                log("Left SkyStone Position: " + leftSSCenter);
+                frameNum++;
             }
-            ready = true;
-            if (dataCount == 0) leftSSCenter = -1;
-            else leftSSCenter = Math.round(dataSum / dataCount);
-            log("Done");
-
+            log("Avg stone is view: " + stoneSum /frameNum);
+            FtcRobotControllerActivity.disableCameraView();
         } else {
-            //for (; count <= 4; count++) {
-                Mat in = Imgcodecs.imread(testPath + /*count +*/ "5.jpg", Imgcodecs.IMREAD_COLOR);
-                Imgproc.resize(in, in, new Size(240, 180));
-                leftSSCenter = detectSkyStone(in);
-            //}
-            ready = true;
+            Mat in = Imgcodecs.imread(testPath + "5.jpg", Imgcodecs.IMREAD_COLOR);
+            Imgproc.resize(in, in, new Size(240, 180));
+            leftSSCenter = detectSkyStone(in);
         }
 
-        if (usingCamera) FtcRobotControllerActivity.disableCameraView();
         log(" ");
     }
 
     private double detectSkyStone (Mat input) {
-        double leftSSPos = -1;
+        double leftSSPos = 0;
 
         // Convert to HSV (Saturation)
         Mat HSV = new Mat();
         Imgproc.cvtColor(input, HSV, Imgproc.COLOR_BGR2HSV);
+
         List<Mat> hsvTypes = new ArrayList<>(3);
         Core.split(HSV, hsvTypes);
         Mat satUnfiltered = hsvTypes.get(1);
 
         // Filter Saturation Image
         Mat satFiltered = new Mat();
-        Core.inRange(satUnfiltered, new Scalar(190, 120, 0), new Scalar(255, 150, 10), satFiltered);
-        //Imgcodecs.imwrite(satNewPath, satFiltered);
+        Core.inRange(satUnfiltered, new Scalar(190, 120, 0), new Scalar(255, 135, 10), satFiltered);
+        //if (frameNum<200) Imgcodecs.imwrite(satNewPath + frameNum + ".jpg", satFiltered);
 
         // Remove extraneous data
         Mat openClose = new Mat();
         Imgproc.morphologyEx(satFiltered, openClose, Imgproc.MORPH_OPEN, new Mat());
         Imgproc.morphologyEx(openClose, openClose, Imgproc.MORPH_CLOSE, new Mat());
-        //Imgcodecs.imwrite(openClosePath, openClose);
+        //if (frameNum<200) Imgcodecs.imwrite(openClosePath + frameNum + ".jpg", openClose);
         logTime("Filter Time");
 
         // Crop Image to where quarry row is
@@ -122,25 +116,25 @@ public class OpenCVBase extends Thread {
         Mat SCropped = new Mat();
         for (int row = 0; row < openClose.rows(); row++) {
             horAvg = Core.mean(openClose.row(row)).val[0];
-            if (horAvg > 150) SCropped.push_back(openClose.row(row));
+            if (horAvg > horThreshold) SCropped.push_back(openClose.row(row));
         }
 
         if (!(SCropped.cols() == 0)) {
             log("Quarry Row Detected :-)");
-            //Imgcodecs.imwrite(croppedName, SCropped);
+            if (frameNum<200) Imgcodecs.imwrite(croppedPath + frameNum + ".jpg", SCropped);
             logTime("Crop Time");
 
             // Makes image black(stone) and white(skyStone)
             double verAvg;
-            Mat verImage = new Mat(1, SCropped.cols(), CvType.CV_8UC1);
+            /**/     Mat verImage = new Mat(10, SCropped.cols(), CvType.CV_8UC1);
             for (int col = 0; col < SCropped.cols(); col++) {
-                verAvg = Core.mean(openClose.col(col)).val[0] * 10;
-                if (verAvg <= 225) {verAvg = 0;}
-                else {verAvg = binaryThreshold;}
+                verAvg = Core.mean(openClose.col(col)).val[0]*magnificationFactor;
+                if (verAvg <= verThreshold) verAvg = 0;
+                else verAvg = binaryValue;
                 verImage.col(col).setTo(new Scalar(verAvg));
             }
             Imgproc.morphologyEx(verImage, verImage, Imgproc.MORPH_OPEN, new Mat());
-            //Imgcodecs.imwrite(verViewName, verImage);
+            if (frameNum<200) Imgcodecs.imwrite(verViewPath + frameNum + ".jpg", verImage);
 
             /*String verCols = "";
             for (int col = 0; col < verImage.cols(); col++) {
@@ -152,7 +146,7 @@ public class OpenCVBase extends Thread {
             // Image Analyzing
             //ArrayList<Integer> darkCols = new ArrayList<>();
             ArrayList<Double> darkAreas = new ArrayList<>();
-            double prevIntensity = 0; int columnsBack = 5;
+            double prevIntensity = 0;
             for (int c = 0; c < verImage.cols(); c++) {
                 double curIntensity = new Scalar(verImage.get(0, c)).val[0];
 
@@ -164,12 +158,12 @@ public class OpenCVBase extends Thread {
                     else intensityDiff =
                             Math.abs(curIntensity - new Scalar(verImage.get(0, c - columnsBack)).val[0]);
 
-                    if (intensityDiff == binaryThreshold) darkAreas.add(c + stoneWidth);
+                    if (intensityDiff == binaryValue) darkAreas.add(c + stoneWidth);
                 }
                 prevIntensity = curIntensity;
             }
             //log("Dark Columns: " + darkCols);
-            log(darkAreas.size() + " Dark Areas: " + darkAreas);
+            //log(darkAreas.size() + " Dark Areas: " + darkAreas);
 
             double prevArea = 0;
             boolean firstStone = true;
@@ -177,7 +171,7 @@ public class OpenCVBase extends Thread {
                 double curArea = darkAreas.get(a);
 
                 double areaDiff = Math.abs(curArea - prevArea);
-                if (areaDiff < 75 && !firstStone) {
+                if (areaDiff < columnDiff && !firstStone) {
                     darkAreas.remove(a);
                     a--;
                 }
@@ -185,19 +179,18 @@ public class OpenCVBase extends Thread {
 
                 prevArea = curArea;
             }
-            log(darkAreas.size() + " New Dark Areas: " + darkAreas);
+            //log(darkAreas.size() + " Revised Dark Areas: " + darkAreas);
             log("SkyStones Detected: " + darkAreas.size());
+            curStoneCount = darkAreas.size();
+            stoneSum += curStoneCount;
 
             if (!(darkAreas.size() == 0)) {
                 leftSSPos = darkAreas.get(0);
-                log("X Location: " + leftSSPos);
             } else log("Cannot Determine Left SkyStone Position :-(");
 
             logTime("Analysis Time");
-            telemetry2("End Info", darkAreas.size() + " " + leftSSPos + " " + timer.milliseconds());
         } else {
             log("Quarry Row Not Detected :-(");
-            telemetry2("End Info", "Row Not Detected " + timer.milliseconds());
         }
         return leftSSPos;
     }
@@ -209,11 +202,15 @@ public class OpenCVBase extends Thread {
 
     private void log(String message) {Log.w("opencv-main", message);}
 
-    private void logTime(String message) {log(message + ": " + timer.milliseconds());}
-
-    boolean isReady() {return ready;}
+    private void logTime(String message) {/*log(message + ": " + timer.milliseconds());*/}
 
     double getPosition() {return leftSSCenter;}
 
-    double getFps() {return 5000.0 / timer.milliseconds();}
+    double getNumberOfStones() {return curStoneCount;}
+
+    String getFps() {
+        @SuppressLint("DefaultLocale")
+        String fps = String.format("%.2f", frameNum * 1000.0 / timer.milliseconds());
+        return fps;
+    }
 }
