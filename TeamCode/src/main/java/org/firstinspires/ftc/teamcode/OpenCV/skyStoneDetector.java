@@ -37,7 +37,7 @@ public class skyStoneDetector extends Thread {
 
     private ElapsedTime timer = new ElapsedTime();
 
-    private final int horThreshold = 100;
+    private final int horThreshold = 90;
     private final int verThreshold = 225;
     private final int magnificationFactor = 10;
     private final int binaryValue = 255;
@@ -91,6 +91,8 @@ public class skyStoneDetector extends Thread {
     private double detectSkyStone (Mat input) {
         double leftSSPos = 0;
 
+        Core.rotate(input, input, Core.ROTATE_180);
+
         // Convert to HSV (Saturation)
         Mat HSV = new Mat();
         Imgproc.cvtColor(input, HSV, Imgproc.COLOR_BGR2HSV);
@@ -102,7 +104,7 @@ public class skyStoneDetector extends Thread {
         // Filter Saturation Image
         Mat satFiltered = new Mat();
         Core.inRange(satUnfiltered, new Scalar(190, 120, 0), new Scalar(255, 135, 10), satFiltered);
-        //if (frameNum<200) Imgcodecs.imwrite(satNewPath + frameNum + ".jpg", satFiltered);
+        if (frameNum<200) Imgcodecs.imwrite(satNewPath + frameNum + ".jpg", satFiltered);
 
         // Remove extraneous data
         Mat openClose = new Mat();
