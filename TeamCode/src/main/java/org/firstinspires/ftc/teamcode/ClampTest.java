@@ -2,37 +2,34 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.RobotClasses.Clamp;
 
-@SuppressWarnings("FieldCanBeLocal")
-@TeleOp(name="Clamp Test")
+@TeleOp(name="Clamp Test") @SuppressWarnings("FieldCanBeLocal")
 public class ClampTest extends LinearOpMode {
 
     private Clamp clamp;
-
-    private double clampPosition = 0;
     private double clampPower = 0;
+    private double spControl = 0.375;
 
     @Override
     public void runOpMode() {
         clamp = new Clamp(hardwareMap,this);
+        clamp.openClamp();
 
         waitForStart();
-        clamp.setClampPosition(0);
 
         while(opModeIsActive()){
 
-            if (gamepad1.dpad_right){clampPosition += 0.05;}
-            if (gamepad1.dpad_left){clampPosition -= 0.05;}
-            clampPosition = Range.clip(clampPosition, 0, 1);
-            clampPower = gamepad1.right_trigger*0.25 - gamepad1.left_trigger*0.25;
+            if (gamepad1.a) clamp.openClamp();
+            else if (gamepad1.b) clamp.closeClamp();
+            clampPower = gamepad1.right_trigger*spControl - gamepad1.left_trigger*spControl;
 
-            clamp.setControls(clampPosition, clampPower);
+            clamp.setControls(clampPower);
 
-            telemetry.addData("Clamp Position", clampPosition);
             telemetry.addData("Clamp Lift Power", clampPower);
+            telemetry.addData("L Clamp Position", clamp.getLPosition());
+            telemetry.addData("R Clamp Position", clamp.getRPosition());
             telemetry.update();
         }
     }

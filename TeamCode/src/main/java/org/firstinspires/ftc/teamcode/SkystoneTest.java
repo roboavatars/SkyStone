@@ -12,7 +12,8 @@ import org.firstinspires.ftc.teamcode.OpenCV.skyStoneDetector;
 
 @SuppressWarnings("FieldCanBeLocal")
 @Autonomous(name = "Auto Test")
-public class AutoTest extends LinearOpMode {
+public class SkystoneTest extends LinearOpMode {
+
     private MecanumDrivetrain drivetrain;
     private Intake intake;
     private Clamp clamp;
@@ -29,7 +30,7 @@ public class AutoTest extends LinearOpMode {
         waitForStart();
         detector.start();
         drivetrain.resetAngle();
-        clamp.setClampPosition(0);
+        clamp.openClamp();
 
         while (opModeIsActive() && !isStopRequested()) {
             drivetrain.setControls(-0.005*(70-detector.getPosition()),0,0);
