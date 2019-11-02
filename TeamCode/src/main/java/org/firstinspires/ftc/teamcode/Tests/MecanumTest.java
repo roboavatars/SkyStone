@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.Tests;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.RobotClasses.MecanumDrivetrain;
 
 @TeleOp
+@Disabled
 public class MecanumTest extends LinearOpMode {
 
     MecanumDrivetrain drivetrain;
