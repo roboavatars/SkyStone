@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.Range;
@@ -9,7 +10,7 @@ import org.firstinspires.ftc.teamcode.RobotClasses.Intake;
 import org.firstinspires.ftc.teamcode.RobotClasses.MecanumDrivetrain;
 
 @SuppressWarnings("FieldCanBeLocal")
-@TeleOp(name="Field Centric Teleop")
+@TeleOp(name="Field Centric Teleop") @Disabled
 public class FieldTeleop extends LinearOpMode {
 
     private MecanumDrivetrain drivetrain;
@@ -25,7 +26,7 @@ public class FieldTeleop extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        drivetrain = new MecanumDrivetrain(hardwareMap,this,0,0,0);
+        /*drivetrain = new MecanumDrivetrain(hardwareMap,this,0,0,0);
         intake = new Intake(hardwareMap,this);
         clamp = new Clamp(hardwareMap,this);
 
@@ -60,6 +61,6 @@ public class FieldTeleop extends LinearOpMode {
             telemetry.addData("Clamp Position", clampPosition);
             telemetry.addData("Clamp Lift Power", clampPower);
             telemetry.update();
-        }
+        }*/
     }
 }

@@ -14,6 +14,9 @@ public class Transfer {
     private DcMotorEx transferMotor;
     private Servo transferServo;
 
+    private final double openPos = 0;
+    private final double closePos = 0.075;
+
     //OpMode Stuff
     private LinearOpMode op;
     private HardwareMap hardwareMap;
@@ -32,9 +35,16 @@ public class Transfer {
         op.telemetry.update();
     }
 
-    public void setControls(double motorPower, double servoPosition) {
+    public void setControls(double motorPower) {
         transferMotor.setPower(motorPower);
-        transferServo.setPosition(servoPosition);
+    }
+
+    public void openTransfer() {
+        transferServo.setPosition(openPos);
+    }
+
+    public void closeTransfer() {
+        transferServo.setPosition(closePos);
     }
 
     public double getTransferPos() {

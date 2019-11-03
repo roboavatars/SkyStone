@@ -15,10 +15,10 @@ public class Clamp {
     private Servo rightClamp;
 
     //left decreases outward, right increases outward
-    private final double leftPosClose = 0.72;
-    private final double rightPosClose = 0.33;
-    private final double leftPosOpen = 0.05;
-    private final double rightPosOpen = 0.9;
+    private final double leftClose = 0.72;
+    private final double rightClose = 0.33;
+    private final double leftOpen = 0.05;
+    private final double rightOpen = 0.9;
 
     //OpMode Stuff
     private LinearOpMode op;
@@ -40,18 +40,18 @@ public class Clamp {
         op.telemetry.update();
     }
 
-    public void setControls(double clampPower) {
-        clampLift.setPower(clampPower);
-    }
-
-    public void closeClamp() {
-        leftClamp.setPosition(leftPosClose);
-        rightClamp.setPosition(rightPosClose);
+    public void setControls(double liftPower) {
+        clampLift.setPower(liftPower);
     }
 
     public void openClamp() {
-        leftClamp.setPosition(leftPosOpen);
-        rightClamp.setPosition(rightPosOpen);
+        leftClamp.setPosition(leftOpen);
+        rightClamp.setPosition(rightOpen);
+    }
+
+    public void closeClamp() {
+        leftClamp.setPosition(leftClose);
+        rightClamp.setPosition(rightClose);
     }
 
     public void setLiftPower(double power){clampLift.setPower(power);}

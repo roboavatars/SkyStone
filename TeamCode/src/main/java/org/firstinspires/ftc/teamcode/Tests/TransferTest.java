@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Tests;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -12,26 +12,23 @@ import org.firstinspires.ftc.teamcode.RobotClasses.Transfer;
 public class TransferTest extends LinearOpMode {
 
     private Transfer transfer;
-
     private double transferPower = 0;
-    private double transferPosition = 0;
 
     @Override
     public void runOpMode() {
         transfer = new Transfer(hardwareMap, this);
-        transfer.setControls(0,0.88);
+        transfer.openTransfer();
 
         waitForStart();
 
         while(opModeIsActive()){
 
-            if (gamepad2.a) transferPosition = 0.91;
-            else if (gamepad2.b) transferPosition = 0.88;
+            if (gamepad2.a) transfer.openTransfer();
+            else if (gamepad2.b) transfer.closeTransfer();
             transferPower = gamepad2.right_trigger - gamepad2.left_trigger;
 
-            transfer.setControls(transferPower, transferPosition);
+            transfer.setControls(transferPower);
 
-            telemetry.addData("Transfer Servo Power", transferPosition);
             telemetry.addData("Transfer Power", transferPower);
             telemetry.addData("Position", transfer.getTransferPos());
             telemetry.update();
