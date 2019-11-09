@@ -20,7 +20,7 @@ import org.opencv.imgproc.Imgproc;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings({"FieldCanBeLocal"})
+@SuppressWarnings({"FieldCanBeLocal"}) @SuppressLint("DefaultLocale")
 public class skyStoneDetector extends Thread {
 
     // File Paths
@@ -77,7 +77,7 @@ public class skyStoneDetector extends Thread {
                 log("Left SkyStone Position: " + leftSSCenter);
                 frameNum++;
             }
-            log("Avg stone is view: " + stoneSum /frameNum);
+            log("Avg stone is view: " + String.format("%.2f", stoneSum /frameNum));
             FtcRobotControllerActivity.disableCameraView();
         } else {
             Mat in = Imgcodecs.imread(testPath + "5.jpg", Imgcodecs.IMREAD_COLOR);
@@ -181,7 +181,7 @@ public class skyStoneDetector extends Thread {
 
                 prevArea = curArea;
             }
-            //log(darkAreas.size() + " Revised Dark Areas: " + darkAreas);
+            log(darkAreas.size() + " Revised Dark Areas: " + darkAreas);
             log("SkyStones Detected: " + darkAreas.size());
             curStoneCount = darkAreas.size();
             stoneSum += curStoneCount;
@@ -210,9 +210,5 @@ public class skyStoneDetector extends Thread {
 
     public double getNumberOfStones() {return curStoneCount;}
 
-    public String getFps() {
-        @SuppressLint("DefaultLocale")
-        String fps = String.format("%.2f", frameNum * 1000.0 / timer.milliseconds());
-        return fps;
-    }
+    public String getFps() {return String.format("%.2f", frameNum * 1000.0 / timer.milliseconds());}
 }

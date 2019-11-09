@@ -17,7 +17,7 @@ public class Clamp {
     //left decreases outward, right increases outward
     private final double leftClose = 0.72;
     private final double rightClose = 0.33;
-    private final double leftOpen = 0.05;
+    private final double leftOpen = 0.15;
     private final double rightOpen = 0.9;
 
     //OpMode Stuff

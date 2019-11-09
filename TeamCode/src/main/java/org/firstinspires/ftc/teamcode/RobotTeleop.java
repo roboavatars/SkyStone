@@ -42,8 +42,8 @@ public class RobotTeleop extends LinearOpMode {
             forward = gamepad1.left_stick_y;
             right = gamepad1.left_stick_x;
 
-            //if (gamepad1.a) intakePower = 1;
-            //else intakePower = 0;
+            if (gamepad2.x) intakePower = 1;
+            else intakePower = 0;
 
             if (gamepad2.a) transfer.openTransfer();
             else if (gamepad2.b) transfer.closeTransfer();
@@ -62,8 +62,6 @@ public class RobotTeleop extends LinearOpMode {
             telemetry.addData("Y", drivetrain.y);
             telemetry.addData("Theta", drivetrain.currentheading);
             telemetry.addData("Heading", angle);
-            telemetry.addData("Transfer Lift Power", transferPower);
-            telemetry.addData("Clamp Lift Power", clampPower);
             telemetry.update();
         }
     }
