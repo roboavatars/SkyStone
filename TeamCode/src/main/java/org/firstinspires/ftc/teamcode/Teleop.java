@@ -9,8 +9,9 @@ import org.firstinspires.ftc.teamcode.RobotClasses.Intake;
 import org.firstinspires.ftc.teamcode.RobotClasses.MecanumDrivetrain;
 import org.firstinspires.ftc.teamcode.RobotClasses.Transfer;
 
-@TeleOp(name="Robot Centric Teleop") @SuppressWarnings("FieldCanBeLocal")
-public class RobotTeleop extends LinearOpMode {
+@SuppressWarnings("FieldCanBeLocal")
+@TeleOp(name="Teleop")
+public class Teleop extends LinearOpMode {
 
     private MecanumDrivetrain drivetrain;
     private Intake intake;
@@ -41,6 +42,8 @@ public class RobotTeleop extends LinearOpMode {
             angle = drivetrain.getAngle();
             forward = gamepad1.left_stick_y;
             right = gamepad1.left_stick_x;
+            //forward = gamepad1.left_stick_y * Math.sin(angle) - gamepad1.left_stick_x * Math.cos(angle);
+            //right = gamepad1.left_stick_y * Math.cos(angle) + gamepad1.left_stick_x * Math.sin(angle);
 
             if (gamepad2.x) intakePower = 1;
             else intakePower = 0;
