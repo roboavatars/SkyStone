@@ -11,13 +11,15 @@ import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
+import java.io.File;
+
 import static org.opencv.imgproc.Imgproc.getRotationMatrix2D;
 import static org.opencv.imgproc.Imgproc.warpAffine;
 
+@SuppressLint("SdCardPath")
 public class FrameGrabber implements CvCameraViewListener2 {
 
-    @SuppressLint("SdCardPath")
-    private final String outputPath = "/sdcard/FIRST/openCV/cameraFrames/input";
+    private final String outputPath = "/sdcard/FIRST/cameraFrames/input";
     private int saveCount = 1;
     private boolean preview;
 
@@ -29,6 +31,11 @@ public class FrameGrabber implements CvCameraViewListener2 {
 
     @Override public void onCameraViewStarted(int width, int height) {
         log("camera started");
+        File dir = new File("/sdcard/FIRST/cameraFrames/");
+        String[] children = dir.list();
+        if (children != null) {
+            for (String child : children) {new File(dir, child).delete();}
+        }
     }
 
     @Override public void onCameraViewStopped() {
@@ -54,7 +61,7 @@ public class FrameGrabber implements CvCameraViewListener2 {
     }
 
     public Mat getNextMat() {
-        if (saveCount<200) Imgcodecs.imwrite(outputPath + saveCount + ".jpg", curMat); saveCount++;
+        //if (saveCount<200) Imgcodecs.imwrite(outputPath + saveCount + ".jpg", curMat); saveCount++;
         return curMat;
     }
 

@@ -28,12 +28,15 @@ public class SkystoneTest extends LinearOpMode {
         clamp.openClamp();
         detector = new skyStoneDetector(this);
         detector.initializeCamera();
-
-        telemetry.addData("Status", "Ready"); telemetry.update();
-        waitForStart();
         detector.start();
-        drivetrain.resetAngle();
+        detector.setAutoActive(true);
+        telemetry.addData("Status", "Ready"); telemetry.update();
 
+        while (!opModeIsActive() && !isStopRequested()) {
+            telemetry.addData("Position", detector.getPosition()); telemetry.update();
+        }
+        waitForStart();
+        drivetrain.resetAngle();
         drivetrain.setControls(0,-0.2,0); sleep(200);
         drivetrain.setControls(0,0,0);
 
@@ -49,6 +52,7 @@ public class SkystoneTest extends LinearOpMode {
             telemetry.addData("Position", detector.getPosition()); telemetry.update();
         }
 
+        detector.setAutoActive(false);
         drivetrain.setControls(0,0,0); sleep(100);
         drivetrain.setControls(0,-1,0); sleep(5000);
         intake.setControls(1); sleep(2000);
