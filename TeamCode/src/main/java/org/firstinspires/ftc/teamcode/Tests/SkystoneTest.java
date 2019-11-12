@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.Tests;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.RobotClasses.Clamp;
 import org.firstinspires.ftc.teamcode.RobotClasses.Intake;
@@ -29,7 +28,7 @@ public class SkystoneTest extends LinearOpMode {
         detector = new skyStoneDetector(this);
         detector.initializeCamera();
         detector.start();
-        detector.setAutoActive(true);
+        detector.setActive(true);
         telemetry.addData("Status", "Ready"); telemetry.update();
 
         while (!opModeIsActive() && !isStopRequested()) {
@@ -42,17 +41,16 @@ public class SkystoneTest extends LinearOpMode {
 
         while (opModeIsActive() && !isStopRequested()) {
             double curPos = detector.getPosition();
-            if (curPos < 60) curPos = 90;
 
-            drivetrain.setControls(0.01*(curPos-70),0,0);
-            if (curPos > 65 && curPos < 75) {
+            drivetrain.setControls(0.01*(curPos-125),0,0);
+            if (curPos > 120 && curPos < 130) {
                 telemetry.addData("Status", "Robot In Position"); telemetry.update();
                 break;
             }
             telemetry.addData("Position", detector.getPosition()); telemetry.update();
         }
 
-        detector.setAutoActive(false);
+        detector.setActive(false);
         drivetrain.setControls(0,0,0); sleep(100);
         drivetrain.setControls(0,-1,0); sleep(5000);
         intake.setControls(1); sleep(2000);

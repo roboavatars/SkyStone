@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.util.Log;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcontroller.FrameGrabber;
 import org.firstinspires.ftc.robotcontroller.internal.FtcRobotControllerActivity;
@@ -25,17 +24,12 @@ import java.util.List;
 public class skyStoneDetector extends Thread {
 
     // File Paths
-    private final String basePath = "/sdcard/FIRST/openCV/";
+    private final String basePath = "/sdcard/FIRST/procFiles/";
+    private final String satFilteredPath = basePath + "sFiltered";
     private final String openClosePath = basePath + "openClose";
     private final String croppedPath = basePath + "croppedImage";
     private final String verViewPath = basePath + "verticalAvg";
     private final String testPath = "/sdcard/FIRST/testFiles/";
-
-    private final String hsvPath = basePath + "hsv";
-    private final String filPath = basePath + "satfil";
-    private final String HPath = basePath + "h";
-    private final String SPath = basePath + "s";
-    private final String VPath = basePath + "v";
 
     private FrameGrabber frameGrabber;
     private final boolean usingCamera = true; // <<<----------------------
@@ -47,40 +41,36 @@ public class skyStoneDetector extends Thread {
     private final int columnsBack = 10;
     private final int columnDiff = 75;
 
-    // quarry row 48in from wall, robot is 18in, phone 30in away...
-    // stone width ~55px, half of stone width ~27.5px, adjust to 20
-    private final double stoneWidth = 20;
-
     private int frameNum = 1;
     private double leftSSCenter = -1;
+    private boolean active = false;
+    private double stoneSum = 0;
+    private double curStoneCount;
 
     private LinearOpMode op;
     public skyStoneDetector(LinearOpMode opMode) {op = opMode;}
 
-    private double stoneSum = 0;
-    private double curStoneCount;
-    private boolean autoActive = false;
+    // Phone Position-
+    // 7in up, side closest to camera is 7.5in from left of robot (aligned to depot), slight tilt forward
 
     public void initializeCamera() {
         telemetry2("Initializing OpenCV", "v" + OpenCVLoader.OPENCV_VERSION);
-        if (usingCamera) FtcRobotControllerActivity.showCameraPreview();
+        if (usingCamera) FtcRobotControllerActivity.enableCameraView();
         telemetry2("Status", "Ready");
     }
 
     @Override public void run() {
         setName("OpenCV");
 
+        // clear folder of images
         File dir = new File(basePath);
         String[] children = dir.list();
-        if (children != null) {
-            for (String child : children) {new File(dir, child).delete();}
-        }
+        if (children != null) {for (String child : children) {new File(dir, child).delete();}}
 
         if (usingCamera) {
-            FtcRobotControllerActivity.endPreview();
             frameGrabber = FtcRobotControllerActivity.frameGrabber;
 
-            while (autoActive) {
+            while (active) {
                 Mat input = frameGrabber.getNextMat();
 
                 if (input != null) {
@@ -106,25 +96,20 @@ public class skyStoneDetector extends Thread {
         // Convert to HSV (Saturation)
         Mat HSV = new Mat();
         Imgproc.cvtColor(input, HSV, Imgproc.COLOR_BGR2HSV);
-        //if (frameNum<200) Imgcodecs.imwrite(hsvPath + frameNum + ".jpg", HSV);
-
         List<Mat> hsvTypes = new ArrayList<>(3);
         Core.split(HSV, hsvTypes);
         Mat satUnfiltered = hsvTypes.get(1);
-        /*if (frameNum<200) Imgcodecs.imwrite(HPath + frameNum + ".jpg", hsvTypes.get(0));
-        if (frameNum<200) Imgcodecs.imwrite(SPath + frameNum + ".jpg", satUnfiltered);
-        if (frameNum<200) Imgcodecs.imwrite(VPath + frameNum + ".jpg", hsvTypes.get(2));*/
 
         // Filter Saturation Image
         Mat satFiltered = new Mat();
         Core.inRange(satUnfiltered, new Scalar(190, 120, 0), new Scalar(255, 135, 10), satFiltered);
-        //if (frameNum<200) Imgcodecs.imwrite(filPath + frameNum + ".jpg", satFiltered);
+        // if (frameNum < 200) Imgcodecs.imwrite(satFilteredPath + frameNum + ".jpg", satFiltered);
 
-        // Remove extraneous data
+        // Remove extra noise in image
         Mat openClose = new Mat();
         Imgproc.morphologyEx(satFiltered, openClose, Imgproc.MORPH_OPEN, new Mat());
         Imgproc.morphologyEx(openClose, openClose, Imgproc.MORPH_CLOSE, new Mat());
-        if (frameNum < 200) Imgcodecs.imwrite(openClosePath + frameNum + ".jpg", openClose);
+        //if (frameNum < 200) Imgcodecs.imwrite(openClosePath + frameNum + ".jpg", openClose);
 
         // Crop Image to where quarry row is
         double horAvg;
@@ -135,11 +120,11 @@ public class skyStoneDetector extends Thread {
         }
 
         if (!(SCropped.cols() == 0)) {
-            //if (frameNum<200) Imgcodecs.imwrite(croppedPath + frameNum + ".jpg", SCropped);
+            if (frameNum < 200) Imgcodecs.imwrite(croppedPath + frameNum + ".jpg", SCropped);
 
             // Makes image black(stone) and white(skyStone)
             double verAvg;
-            /**/ Mat verImage = new Mat(10, SCropped.cols(), CvType.CV_8UC1);
+            Mat verImage = new Mat(10, SCropped.cols(), CvType.CV_8UC1);
             for (int col = 0; col < SCropped.cols(); col++) {
                 verAvg = Core.mean(openClose.col(col)).val[0] * magnificationFactor;
                 if (verAvg <= verThreshold) verAvg = 0;
@@ -150,31 +135,32 @@ public class skyStoneDetector extends Thread {
             if (frameNum < 200) Imgcodecs.imwrite(verViewPath + frameNum + ".jpg", verImage);
 
             /*String verCols = "";
-            for (int col = 0; col < verImage.cols(); col++) {
-                verCols += (new Scalar(verImage.get(0, col)).val[0]) + ", ";
-            }
+            for (int col = 0; col < verImage.cols(); col++) {verCols+=(new Scalar(verImage.get(0, col)).val[0])+", ";}
             log("Vertical: " + verCols);*/
 
             // Image Analyzing
-            //ArrayList<Integer> darkCols = new ArrayList<>();
             ArrayList<Double> darkAreas = new ArrayList<>();
-            double prevIntensity = 0;
-            for (int c = 0; c < verImage.cols(); c++) {
-                double curIntensity = new Scalar(verImage.get(0, c)).val[0];
+            double left = 0, right = 0, firstLeft = 0;
+            double curIntensity;
+            double nextIntensity = new Scalar(verImage.get(0, 0)).val[0];
+            for (int c = 0; c < verImage.cols()-1; c++) {
+                curIntensity = nextIntensity;
+                nextIntensity = new Scalar(verImage.get(0, c+1)).val[0];
 
-                if (curIntensity == 0) {
-                    //darkCols.add(c);
-
-                    double intensityDiff;
-                    if (c < columnsBack) intensityDiff = Math.abs(curIntensity - prevIntensity);
-                    else intensityDiff =
-                            Math.abs(curIntensity - new Scalar(verImage.get(0, c - columnsBack)).val[0]);
-
-                    if (intensityDiff == binaryValue) darkAreas.add(c + stoneWidth);
+                if (curIntensity == binaryValue && nextIntensity == 0) {
+                    left = c;
+                    firstLeft = c;
                 }
-                prevIntensity = curIntensity;
+                else if (curIntensity == 0 && nextIntensity == binaryValue) {
+                    right = c;
+                    double avg = (left + right) / 2;
+                    darkAreas.add(avg);
+                    left = 0; right = 0;
+                }
             }
-            //log("Dark Columns: " + darkCols);
+            if (darkAreas.size() == 1 && new Scalar(verImage.get(0, verImage.cols()-1)).val[0] == 0) {
+                darkAreas.add(left+darkAreas.get(0)-firstLeft);
+            }
             //log(darkAreas.size() + " Dark Areas: " + darkAreas);
 
             double prevArea = 0;
@@ -216,7 +202,5 @@ public class skyStoneDetector extends Thread {
 
     public double getNumberOfStones() {return curStoneCount;}
 
-    public void setAutoActive(boolean autoActive) {
-        this.autoActive = autoActive;
-    }
+    public void setActive(boolean active) {this.active = active;}
 }

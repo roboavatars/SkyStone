@@ -136,6 +136,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 @SuppressWarnings("WeakerAccess")
 public class FtcRobotControllerActivity extends Activity {
 
+  // --------------------------------------------------------------------------------------------------------
     public static CameraBridgeViewBase cameraBridgeViewBase;
     public static FrameGrabber frameGrabber = null;
     private static boolean cameraViewVisible = false;
@@ -151,18 +152,12 @@ public class FtcRobotControllerActivity extends Activity {
         }
     };
 
-    public static void showCameraPreview() {
-        frameGrabber = new FrameGrabber(true);
+    public static void enableCameraView() {
+        frameGrabber = new FrameGrabber();
         cameraBridgeViewBase.setCvCameraViewListener(frameGrabber);
         cameraViewVisible = true;
         cameraBridgeViewBase.enableView();
-        Log.w("opencv-activity", "camera preview started");
-    }
-
-    public static void endPreview() {
-        frameGrabber.setPreview(false);
-        //cameraViewVisible = false;
-        Log.w("opencv-activity", "camera preview stopped, hiding view");
+        Log.w("opencv-activity", "camera view enabled");
     }
 
     public static void disableCameraView() {
@@ -209,6 +204,7 @@ public class FtcRobotControllerActivity extends Activity {
             cameraBridgeViewBase.disableView();
         }
     }
+    // --------------------------------------------------------------------------------------------------------
 
   public static final String TAG = "RCActivity";
   public String getTag() { return TAG; }
