@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.RobotClasses.Clamp;
 import org.firstinspires.ftc.teamcode.RobotClasses.Intake;
@@ -20,7 +20,7 @@ public class Teleop extends LinearOpMode {
     private double forward = 0;
     private double right = 0;
     private double angle = 0;
-    private double intakePower = 0;
+    private double intakePower = 1;
     private double transferPower = 0;
     private double clampPower = 0;
 
@@ -32,12 +32,14 @@ public class Teleop extends LinearOpMode {
         intake = new Intake(hardwareMap,this);
         transfer = new Transfer(hardwareMap, this);
         clamp = new Clamp(hardwareMap,this);
+        ElapsedTime xBuffer = new ElapsedTime();
 
         transfer.openTransfer();
         clamp.openClamp();
 
         waitForStart();
         drivetrain.resetAngle();
+        intake.setControls(1);
 
         while(opModeIsActive()){
             angle = drivetrain.getAngle();
@@ -49,8 +51,18 @@ public class Teleop extends LinearOpMode {
                 right = gamepad1.left_stick_y * Math.cos(angle) + gamepad1.left_stick_x * Math.sin(angle);
             }
 
-            if (gamepad2.x) intakePower = 1;
-            else intakePower = 0;
+            if (gamepad2.dpad_up) {intakePower += 0.2;}
+            else if (gamepad2.dpad_down) {intakePower -= 0.2;}
+
+            if (gamepad2.x && xBuffer.milliseconds()>1000 && intakePower==0) {
+                intakePower = 1;
+                xBuffer.reset();
+                xBuffer.startTime();
+            } else if (gamepad2.x && xBuffer.milliseconds()>1000) {
+                intakePower = 0;
+                xBuffer.reset();
+                xBuffer.startTime();
+            }
 
             if (gamepad2.a) transfer.openTransfer();
             else if (gamepad2.b) transfer.closeTransfer();
