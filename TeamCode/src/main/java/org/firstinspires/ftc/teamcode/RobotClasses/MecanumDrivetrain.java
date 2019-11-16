@@ -88,8 +88,8 @@ public class MecanumDrivetrain {
         motorBackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
-        motorBackLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-        motorFrontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        motorFrontRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
         imu = new LynxEmbeddedIMU(new MecanumDrivetrain.BetterI2cDeviceSynchImplOnSimple(
                 new LynxI2cDeviceSynchV2(hardwareMap.appContext, module, 0), true
@@ -135,22 +135,36 @@ public class MecanumDrivetrain {
         return versionBuilder.toString();
     }
 
-
-    public void setRightDiagonal(double power){
-        motorFrontRight.setPower(power);
-        motorBackLeft.setPower(power);
-    }
-
-    public void setLeftDiagonal(double power){
-        motorFrontLeft.setPower(power);
-        motorBackRight.setPower(power);
-    }
     public void setControls(double xvelocity, double yvelocity, double w){
         motorFrontRight.setPower(xvelocity+yvelocity+w);
         motorBackLeft.setPower(xvelocity+yvelocity-w);
         motorFrontLeft.setPower(-xvelocity+yvelocity-w);
         motorBackRight.setPower(-xvelocity+yvelocity+w);
+    }
+    public void setGlobalControls(double xvelocity, double yvelocity, double w){
 
+        double xdot = xvelocity*Math.cos(-currentheading) - yvelocity*Math.sin(-currentheading);
+        double ydot =  yvelocity*Math.cos(-currentheading) + xvelocity*Math.sin(-currentheading);
+
+        double FRpower = ydot+xdot+w;
+        double BLpower = ydot+xdot-w;
+        double FLpower = -ydot+xdot-w;
+        double BRpower = -ydot+xdot+w;
+
+        double maxpower = Math.max(Math.abs(FRpower),Math.max(Math.abs(BLpower),
+                Math.max(Math.abs(FLpower),Math.abs(BRpower))));
+
+        if(Math.abs(maxpower)>1){
+            FRpower *= 1/maxpower;
+            BLpower *= 1/maxpower;
+            FLpower *= 1/maxpower;
+            BRpower *= 1/maxpower;
+        }
+
+        motorFrontRight.setPower(FRpower);
+        motorBackLeft.setPower(BLpower);
+        motorFrontLeft.setPower(FLpower);
+        motorBackRight.setPower(BRpower);
     }
     public LynxGetBulkInputDataResponse RevBulkData(){
         LynxGetBulkInputDataResponse response;
@@ -166,9 +180,9 @@ public class MecanumDrivetrain {
     }
     public void updatePose(){
         LynxGetBulkInputDataResponse response = RevBulkData();
-        double pod1 = response.getEncoder(0)*0.00300622055*2;
+        double pod1 = -response.getEncoder(0)*0.00300622055*2;
         double pod2 = response.getEncoder(1)*0.00300622055*2;
-        double pod3 = response.getEncoder(2)*0.00300622055*2;
+        double pod3 = -response.getEncoder(2)*0.00300622055*2;
 
         double deltapod1 = pod1 - lastpod1;
         double deltapod2 = pod2 - lastpod2;
@@ -179,18 +193,30 @@ public class MecanumDrivetrain {
         opMode.telemetry.addData("pod2 inches", pod2);
         opMode.telemetry.addData("pod3 inches", pod3);
 
-
-
-        deltaheading = 2*(deltapod1-deltapod2)/13.1;
+        deltaheading = (deltapod1-deltapod2)/13.74;
 
         double localx = (deltapod1+deltapod2)/2;
-        double localy = deltapod3 - deltaheading*6.5*1.4;
+        double localy = deltapod3 - deltaheading*2.54;
 
-        x += localx*Math.sin(currentheading+deltaheading)/deltaheading
-                + localy*Math.cos(currentheading+deltaheading)/deltaheading;
-        y += localy*Math.sin(currentheading+deltaheading)/deltaheading
-                - localx*Math.cos(currentheading+deltaheading)/deltaheading;
-        
+
+
+//        x += localx*Math.cos(currentheading) - localy*Math.sin(currentheading);
+//        y += localy*Math.cos(currentheading) + localx*Math.sin(currentheading);
+
+        if(deltaheading<Math.PI/8){
+            x += localx*Math.sin(currentheading) - localy*Math.sin(currentheading);
+            y += localy*Math.cos(currentheading) + localx*Math.sin(currentheading);
+
+        }
+        else{
+
+            x += (localx*Math.sin(currentheading+deltaheading)
+                    +localy*Math.cos(currentheading+deltaheading) - localx*Math.sin(currentheading)
+                    - localy*Math.cos(currentheading))/deltaheading;
+            y += (localy*Math.sin(currentheading+deltaheading)
+                    -localx*Math.cos(currentheading+deltaheading)-localy*Math.sin(currentheading)+
+                    localx*Math.cos(currentheading))/deltaheading;
+        }
         currentheading += deltaheading;
 
         lastpod1 = pod1;
