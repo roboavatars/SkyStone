@@ -6,19 +6,22 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 @Autonomous(name = "OpenCV")
 public class detectorTest extends LinearOpMode {
 
+    private final int ssAligned = 125;
+
     @Override public void runOpMode() {
         skyStoneDetector detector = new skyStoneDetector(this);
         detector.initializeCamera();
         detector.start();
         detector.setActive(true);
+        detector.isAllianceRed(true);
         telemetry.addData("Status", "Ready"); telemetry.update();
 
         while (!opModeIsActive() && !isStopRequested()) {
             double curPos = detector.getPosition();
-            if (curPos > 120 && curPos < 130) { //125
-                telemetry.addData("Status", "Ready to Get SkyStone");
-            }
-            telemetry.addData("SkyStone X Location", curPos);
+            if (Math.abs(ssAligned - curPos) < 5) {telemetry.addData("Status", "Ready to Get SkyStone");}
+
+            telemetry.addData("SkyStone Position: ", curPos);
+            telemetry.addData("SkyStone X Location", detector.getSSPosX());
             telemetry.addData("# of SkyStones", detector.getNumberOfStones());
             telemetry.update();
         }
@@ -26,10 +29,10 @@ public class detectorTest extends LinearOpMode {
 
         while (opModeIsActive() && !isStopRequested()) {
             double curPos = detector.getPosition();
-            if (curPos > 120 && curPos < 130) { //125
-                telemetry.addData("Status", "Ready to Get SkyStone");
-            }
-            telemetry.addData("SkyStone X Location", curPos);
+            if (Math.abs(ssAligned - curPos) < 5) {telemetry.addData("Status", "Ready to Get SkyStone");}
+
+            telemetry.addData("SkyStone Position: ", curPos);
+            telemetry.addData("SkyStone X Location", detector.getSSPosX());
             telemetry.addData("# of SkyStones", detector.getNumberOfStones());
             telemetry.update();
         }

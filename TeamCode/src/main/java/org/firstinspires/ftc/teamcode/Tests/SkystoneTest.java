@@ -27,6 +27,7 @@ public class SkystoneTest extends LinearOpMode {
         clamp.openClamp();
         detector = new skyStoneDetector(this);
         detector.initializeCamera();
+        detector.isAllianceRed(false);
         detector.start();
         detector.setActive(true);
         telemetry.addData("Status", "Ready"); telemetry.update();

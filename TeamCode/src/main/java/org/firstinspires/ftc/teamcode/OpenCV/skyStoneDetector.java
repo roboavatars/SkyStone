@@ -38,20 +38,24 @@ public class skyStoneDetector extends Thread {
     private final int verThreshold = 225;
     private final int magnificationFactor = 10;
     private final int binaryValue = 255;
-    private final int columnsBack = 10;
-    private final int columnDiff = 75;
 
     private int frameNum = 1;
-    private double leftSSCenter = -1;
+    private double ssPos = -1;
+    private double ssXPos = -1;
+
     private boolean active = false;
     private double stoneSum = 0;
     private double curStoneCount;
+    private double stoneLength;
+    private boolean isRed = true;
 
     private LinearOpMode op;
     public skyStoneDetector(LinearOpMode opMode) {op = opMode;}
 
     // Phone Position-
     // 7in up, side closest to camera is 7.5in from left of robot (aligned to depot), slight tilt forward
+
+    // difference between 2 skystones is 170
 
     public void initializeCamera() {
         telemetry2("Initializing OpenCV", "v" + OpenCVLoader.OPENCV_VERSION);
@@ -75,23 +79,23 @@ public class skyStoneDetector extends Thread {
 
                 if (input != null) {
                     log("Frame " + frameNum + " ----------------------------------------");
-                    leftSSCenter = detectSkyStone(input);
-                    log("Left SkyStone Position: " + leftSSCenter);
+                    ssPos = detectSkyStone(input);
+                    log("SkyStone Position: " + ssPos);
                     frameNum++;
-                } else leftSSCenter = -1;
+                } else ssPos = -1;
             }
             log("Avg stone is view: " + String.format("%.2f", stoneSum /frameNum));
             FtcRobotControllerActivity.disableCameraView();
         } else {
             Mat in = Imgcodecs.imread(testPath + "test.jpg", Imgcodecs.IMREAD_COLOR);
             Imgproc.resize(in, in, new Size(240, 180));
-            leftSSCenter = detectSkyStone(in);
+            ssPos = detectSkyStone(in);
         }
         log(" ");
     }
 
     private double detectSkyStone (Mat input) {
-        double leftSSPos = -1;
+        double ssPosValue = -1;
 
         // Convert to HSV (Saturation)
         Mat HSV = new Mat();
@@ -153,14 +157,16 @@ public class skyStoneDetector extends Thread {
                 }
                 else if (curIntensity == 0 && nextIntensity == binaryValue) {
                     right = c;
-                    double avg = (left + right) / 2;
-                    darkAreas.add(avg);
+                    double stoneCenter = (left + right) / 2;
+                    stoneLength = right - left;
+                    darkAreas.add(stoneCenter);
                     left = 0; right = 0;
                 }
             }
-            if (darkAreas.size() == 1 && new Scalar(verImage.get(0, verImage.cols()-1)).val[0] == 0) {
+
+            /*if (darkAreas.size() == 1 && new Scalar(verImage.get(0, verImage.cols()-1)).val[0] == 0) {
                 darkAreas.add(left+darkAreas.get(0)-firstLeft);
-            }
+            }*/
             //log(darkAreas.size() + " Dark Areas: " + darkAreas);
 
             double prevArea = 0;
@@ -169,7 +175,7 @@ public class skyStoneDetector extends Thread {
                 double curArea = darkAreas.get(a);
 
                 double areaDiff = Math.abs(curArea - prevArea);
-                if (areaDiff < columnDiff && !firstStone) {
+                if (areaDiff < stoneLength && !firstStone) {
                     darkAreas.remove(a);
                     a--;
                 }
@@ -183,12 +189,23 @@ public class skyStoneDetector extends Thread {
             stoneSum += curStoneCount;
 
             if (!(darkAreas.size() == 0)) {
-                leftSSPos = darkAreas.get(0);
-            } else log("Cannot Determine Left SkyStone Position :-(");
-        } else {
-            log("Quarry Row Not Detected :-(");
-        }
-        return leftSSPos;
+                ssXPos = darkAreas.get(0);
+
+                if (isRed) {
+                    if (ssXPos > 60 && ssXPos < 105) {ssPosValue = 1;} // left
+                    else if((ssXPos > 0 && ssXPos < 10) || (ssXPos > 105 && ssXPos < 165)) {ssPosValue = 2;} // middle
+                    else if ((ssXPos > 10 && ssXPos < 60) || (ssXPos > 165 && ssXPos < 230)) {ssPosValue = 3;} // right
+                } else {
+                    if (ssXPos > 135 && ssXPos < 180) {ssPosValue = 1;} // left
+                    else if((ssXPos > 230 && ssXPos < 240) || (ssXPos > 75 && ssXPos < 135)) {ssPosValue = 2;} // middle
+                    else if ((ssXPos > 180 && ssXPos < 230) || (ssXPos > 10 && ssXPos < 75)) {ssPosValue = 3;} // right
+                }
+
+            } else log("Cannot Determine SkyStone Position :-(");
+        } else log("Quarry Row Not Detected :-(");
+
+        log("Stone Length: " + stoneLength);
+        return ssPosValue;
     }
 
     private void telemetry2(String caption, String value) {
@@ -198,9 +215,13 @@ public class skyStoneDetector extends Thread {
 
     private void log(String message) {Log.w("opencv-main", message);}
 
-    public double getPosition() {return leftSSCenter;}
+    public double getPosition() {return ssPos;}
 
     public double getNumberOfStones() {return curStoneCount;}
 
+    public double getSSPosX() {return ssXPos;}
+
     public void setActive(boolean active) {this.active = active;}
+
+    public void isAllianceRed(boolean isRed) {this.isRed = isRed;}
 }
