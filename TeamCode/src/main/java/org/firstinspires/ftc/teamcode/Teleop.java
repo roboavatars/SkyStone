@@ -4,18 +4,12 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.RobotClasses.Clamp;
-import org.firstinspires.ftc.teamcode.RobotClasses.Intake;
-import org.firstinspires.ftc.teamcode.RobotClasses.MecanumDrivetrain;
-import org.firstinspires.ftc.teamcode.RobotClasses.Transfer;
+import org.firstinspires.ftc.teamcode.RobotClasses.Robot;
 
 @TeleOp(name="Teleop") @SuppressWarnings("FieldCanBeLocal")
 public class Teleop extends LinearOpMode {
 
-    private MecanumDrivetrain drivetrain;
-    private Intake intake;
-    private Transfer transfer;
-    private Clamp clamp;
+    private Robot robot;
 
     private double forward = 0;
     private double right = 0;
@@ -28,21 +22,17 @@ public class Teleop extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        drivetrain = new MecanumDrivetrain(hardwareMap,this,0,0,0);
-        intake = new Intake(hardwareMap,this);
-        transfer = new Transfer(hardwareMap, this);
-        clamp = new Clamp(hardwareMap,this);
+        robot = new Robot(hardwareMap, this);
+        robot.deposit.unclampStone();
+        robot.clamp.openClamp();
         ElapsedTime xBuffer = new ElapsedTime();
 
-        transfer.openTransfer();
-        clamp.openClamp();
-
         waitForStart();
-        drivetrain.resetAngle();
-        intake.setControls(1);
+        robot.drivetrain.resetAngle();
+        robot.intake.setControls(1);
 
         while(opModeIsActive()){
-            angle = drivetrain.getAngle();
+            angle = robot.drivetrain.getAngle();
             if (robotCentric) {
             forward = gamepad1.left_stick_y;
             right = gamepad1.left_stick_x;
@@ -54,7 +44,7 @@ public class Teleop extends LinearOpMode {
             if (gamepad2.dpad_up) {intakePower += 0.2;}
             else if (gamepad2.dpad_down) {intakePower -= 0.2;}
 
-            if (gamepad2.x && xBuffer.milliseconds()>1000 && intakePower==0) {
+            if (gamepad2.x && xBuffer.milliseconds()>1000 && intakePower == 0) {
                 intakePower = 1;
                 xBuffer.reset();
                 xBuffer.startTime();
@@ -64,23 +54,20 @@ public class Teleop extends LinearOpMode {
                 xBuffer.startTime();
             }
 
-            if (gamepad2.a) transfer.openTransfer();
-            else if (gamepad2.b) transfer.closeTransfer();
-            transferPower = gamepad2.right_trigger - gamepad2.left_trigger;
-
-            if (gamepad1.a) clamp.openClamp();
-            else if (gamepad1.b) clamp.closeClamp();
+            if (gamepad1.a) robot.clamp.openClamp();
+            else if (gamepad1.b) robot.clamp.closeClamp();
             clampPower = gamepad1.right_trigger*0.25 - gamepad1.left_trigger*0.25;
 
-            drivetrain.setControls(right, forward, gamepad1.right_stick_x); drivetrain.updatePose();
-            intake.setControls(intakePower);
-            transfer.setControls(transferPower);
-            clamp.setControls(clampPower);
+            robot.drivetrain.setControls(right, forward, gamepad1.right_stick_x); robot.drivetrain.updatePose();
+            robot.intake.setControls(intakePower);
+            robot.deposit.setControls(transferPower);
+            robot.clamp.setControls(clampPower);
 
-            telemetry.addData("X", drivetrain.x);
-            telemetry.addData("Y", drivetrain.y);
-            telemetry.addData("Theta", drivetrain.currentheading);
+            telemetry.addData("X", robot.drivetrain.x);
+            telemetry.addData("Y", robot.drivetrain.y);
+            telemetry.addData("Theta", robot.drivetrain.currentheading);
             telemetry.addData("Heading", angle);
+            telemetry.addData("stone", "not detected");
             telemetry.update();
         }
     }
