@@ -41,7 +41,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
-import org.firstinspires.ftc.teamcode.key;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,7 +57,7 @@ import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocaliz
 public class VuforiaOriginal extends LinearOpMode {
 
     // Vuforia License Key
-    private final String VUFORIA_KEY = key.key;
+    private final String VUFORIA_KEY = null;
 
     // Initialize Variables
     private OpenGLMatrix lastLocation = null;

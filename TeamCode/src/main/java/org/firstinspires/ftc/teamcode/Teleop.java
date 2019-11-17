@@ -22,7 +22,7 @@ public class Teleop extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        robot = new Robot(hardwareMap, this);
+        robot = new Robot(hardwareMap, this, 0 , 0,0);
         robot.deposit.unclampStone();
         robot.clamp.openClamp();
         ElapsedTime xBuffer = new ElapsedTime();

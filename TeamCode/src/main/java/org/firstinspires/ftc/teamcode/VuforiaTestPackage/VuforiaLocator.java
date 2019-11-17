@@ -8,7 +8,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
-import org.firstinspires.ftc.teamcode.key;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
@@ -33,7 +32,7 @@ public class VuforiaLocator extends Thread{
     @Override
     public void run() {
         // Vuforia License Key
-        final String VUFORIA_KEY = key.key;
+        final String VUFORIA_KEY = null;
 
         // Initialize Variables
         OpenGLMatrix lastLocation = null;
