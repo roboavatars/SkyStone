@@ -14,7 +14,7 @@ public class MecanumTest extends LinearOpMode {
     ElapsedTime time = new ElapsedTime();
     @Override
     public void runOpMode() throws InterruptedException {
-        drivetrain = new MecanumDrivetrain(hardwareMap,this,0,0,0);
+        drivetrain = new MecanumDrivetrain(hardwareMap,this,9,111,0);
         waitForStart();
         double thetaerror = 0;
         double xerror = 0;
@@ -22,13 +22,7 @@ public class MecanumTest extends LinearOpMode {
         time.reset();
         while(opModeIsActive()){
             drivetrain.updatePose();
-            xerror = drivetrain.x - 20*Math.cos(2*time.seconds());
-            yerror = drivetrain.y - 20*Math.sin(2*time.seconds());
-            thetaerror = drivetrain.currentheading - Math.PI/2;
-
-
-//            drivetrain.setGlobalControls(-0.1*xerror,-0.1*yerror,-1*thetaerror);
-//            drivetrain.setControls(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
+            drivetrain.setTargetPoint(48,120,5*Math.PI/12);
 
             telemetry.addData("x", drivetrain.x);
             telemetry.addData("y", drivetrain.y);

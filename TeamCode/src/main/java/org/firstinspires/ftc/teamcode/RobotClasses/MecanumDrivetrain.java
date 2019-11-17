@@ -66,6 +66,11 @@ public class MecanumDrivetrain {
     private double lastpod2 = 0;
     private double lastpod3 = 0;
 
+    //k variables for control of linear system
+    private double xk = 0.1;
+    private double yk = 0.1;
+    private double thetak = 0.8;
+
     //Constructor
     public MecanumDrivetrain(HardwareMap hardwareMap, LinearOpMode opMode, double initialx, double
                              initialy, double initialtheta){
@@ -144,6 +149,9 @@ public class MecanumDrivetrain {
         motorFrontLeft.setPower(-xvelocity+yvelocity-w);
         motorBackRight.setPower(-xvelocity+yvelocity+w);
     }
+    public void setTargetPoint(double xtarget, double ytarget, double thetatarget){
+        setGlobalControls(-xk*(x-xtarget),-yk*(y-ytarget),-thetak*(currentheading-thetatarget));
+    }
     public void setGlobalControls(double xvelocity, double yvelocity, double w){
 
         double xdot = xvelocity*Math.cos(-currentheading) - yvelocity*Math.sin(-currentheading);
@@ -200,7 +208,7 @@ public class MecanumDrivetrain {
 
         double localx = (deltapod1+deltapod2)/2;
         double localy = deltapod3 - deltaheading*2.54;
-        
+
         if(deltaheading<Math.PI/8){
             x += localx*Math.cos(currentheading) - localy*Math.sin(currentheading);
             y += localy*Math.cos(currentheading) + localx*Math.sin(currentheading);
