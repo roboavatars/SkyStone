@@ -12,6 +12,11 @@ import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
 
+/**
+ * OpenCV Camera Interface
+ * <p>Used to get camera frames
+ */
+
 @SuppressLint("SdCardPath")
 public class FrameGrabber implements CvCameraViewListener2 {
 
@@ -41,7 +46,11 @@ public class FrameGrabber implements CvCameraViewListener2 {
         curMat = resizedFrame;
         return inputFrame;
     }
-
+    
+    /**
+     * Returns the most recent camera frame (downsized to 240x180)
+     * @return Most recent camera frame
+     */
     public Mat getNextMat() {
         //if (saveCount < 200) Imgcodecs.imwrite(outputPath + saveCount + ".jpg", curMat); saveCount++;
         return curMat;

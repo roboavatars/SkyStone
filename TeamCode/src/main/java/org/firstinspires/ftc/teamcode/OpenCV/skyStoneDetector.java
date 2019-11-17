@@ -20,16 +20,21 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class processes camera frames from {@linkplain FrameGrabber}
+ * to determine the position of skystones in autonomous
+ */
+
 @SuppressWarnings({"FieldCanBeLocal"}) @SuppressLint({"DefaultLocale","SdCardPath"})
 public class skyStoneDetector extends Thread {
 
     // File Paths
-    private final String basePath = "/sdcard/FIRST/procFiles/";
-    private final String satFilteredPath = basePath + "sFiltered";
-    private final String openClosePath = basePath + "openClose";
-    private final String croppedPath = basePath + "croppedImage";
-    private final String verViewPath = basePath + "verticalAvg";
-    private final String testPath = "/sdcard/FIRST/testFiles/";
+    private final static String basePath = "/sdcard/FIRST/procFiles/";
+    private final static String satFilteredPath = basePath + "sFiltered";
+    private final static String openClosePath = basePath + "openClose";
+    private final static String croppedPath = basePath + "croppedImage";
+    private final static String verViewPath = basePath + "verticalAvg";
+    private final static String testPath = "/sdcard/FIRST/testFiles/";
 
     private FrameGrabber frameGrabber;
     private final boolean usingCamera = true; // <<<----------------------
@@ -56,13 +61,19 @@ public class skyStoneDetector extends Thread {
     // 7in up, side closest to camera is 7.5in from left of robot (aligned to depot), slight tilt forward
 
     // difference between 2 skystones is 170
-
+    
+    /**
+     * Enables the camera view
+     */
     public void initializeCamera() {
         telemetry2("Initializing OpenCV", "v" + OpenCVLoader.OPENCV_VERSION);
         if (usingCamera) FtcRobotControllerActivity.enableCameraView();
         telemetry2("Status", "Ready");
     }
-
+    
+    /**
+     * Runs OpenCV Thread
+     */
     @Override public void run() {
         setName("OpenCV");
 
@@ -70,6 +81,7 @@ public class skyStoneDetector extends Thread {
         File dir = new File(basePath);
         String[] children = dir.list();
         if (children != null) {for (String child : children) {new File(dir, child).delete();}}
+        //
 
         if (usingCamera) {
             frameGrabber = FtcRobotControllerActivity.frameGrabber;
@@ -80,7 +92,7 @@ public class skyStoneDetector extends Thread {
                 if (input != null) {
                     log("Frame " + frameNum + " ----------------------------------------");
                     ssPos = detectSkyStone(input);
-                    log("SkyStone Position: " + ssPos);
+                    log("SkyStone Position #: " + ssPos); log("SkyStone X Position: " + ssXPos);
                     frameNum++;
                 } else ssPos = -1;
             }
@@ -93,7 +105,13 @@ public class skyStoneDetector extends Thread {
         }
         log(" ");
     }
-
+    
+    /**
+     * Finds position value of skystone by processing an input frame
+     * <p>Return Values: 1 = left, 2 = middle, 3 = right)
+     * @param input the camera frame that will be used to detect skystones
+     * @return position value of skystone
+     */
     private double detectSkyStone (Mat input) {
         double ssPosValue = -1;
 
@@ -207,21 +225,41 @@ public class skyStoneDetector extends Thread {
         log("Stone Length: " + stoneLength);
         return ssPosValue;
     }
-
+    
+    /**
+     * Gets current skystone position value (1 = left, 2 = middle, 3 = right)
+     * @return current skystone position value
+     */
+    public double getPosition() {return ssPos;}
+    
+    /**
+     * Gets current skystone x coordinate value of the first skystone in view (0-240)
+     * @return current skystone x coordinate
+     */
+    public double getSSPosX() {return ssXPos;}
+    
+    /**
+     * Gets total amount of skystones in the camera view
+     * @return number of skystones
+     */
+    public double getNumberOfStones() {return curStoneCount;}
+    
+    /**
+     * Sets whether the skystone detector is actively processing camera frames to locate skystones
+     * @param active true = processing; false = not processing
+     */
+    public void setActive(boolean active) {this.active = active;}
+    
+    /**
+     * Sets the alliance color
+     * @param isRed true = red alliance; false = blue alliance
+     */
+    public void isAllianceRed(boolean isRed) {this.isRed = isRed;}
+    
     private void telemetry2(String caption, String value) {
         op.telemetry.addData(caption, value);
         op.telemetry.update();
     }
-
+    
     private void log(String message) {Log.w("opencv-main", message);}
-
-    public double getPosition() {return ssPos;}
-
-    public double getNumberOfStones() {return curStoneCount;}
-
-    public double getSSPosX() {return ssXPos;}
-
-    public void setActive(boolean active) {this.active = active;}
-
-    public void isAllianceRed(boolean isRed) {this.isRed = isRed;}
 }
