@@ -152,6 +152,10 @@ public class FtcRobotControllerActivity extends Activity {
         }
     };
 
+    /**
+     * Enables the camera view on the phone
+     * <p>Initializes {@linkplain FrameGrabber}
+     */
     public static void enableCameraView() {
         frameGrabber = new FrameGrabber();
         cameraBridgeViewBase.setCvCameraViewListener(frameGrabber);
@@ -160,6 +164,9 @@ public class FtcRobotControllerActivity extends Activity {
         Log.w("opencv-activity", "camera view enabled");
     }
 
+    /**
+     * Disables the camera view on the phone
+     */
     public static void disableCameraView() {
         cameraBridgeViewBase.disableView();
         cameraViewVisible = false;
@@ -167,18 +174,23 @@ public class FtcRobotControllerActivity extends Activity {
         Log.w("opencv-activity", "camera view disabled");
     }
 
+    /**
+     * Initializes camera view layout element when app starts,
+     * <p>creates process to check whether camera view is enabled for not
+     */
     private void CVOnCreate(){
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         cameraBridgeViewBase = (JavaCameraView) findViewById(R.id.openCV_View);
         cameraBridgeViewBase.setCameraPermissionGranted();
 
+        // background process to check whether camera view is enabled for not
         Handler cameraViewHandler = new Handler();
         cameraViewHandler.post(new Runnable() {
             @Override public void run() {
                 if (cameraViewVisible) cameraBridgeViewBase.setVisibility(SurfaceView.VISIBLE);
                 else cameraBridgeViewBase.setVisibility(SurfaceView.INVISIBLE);
-                cameraViewHandler.postDelayed(this, 1);
+                cameraViewHandler.postDelayed(this, 100);
             }
         });
     }
@@ -189,6 +201,9 @@ public class FtcRobotControllerActivity extends Activity {
         }
     }
 
+    /**
+     * Loads OpenCV Library
+     */
     private void CVOnResume(){
         if (!OpenCVLoader.initDebug()) {
             Log.i(TAG, "Internal OpenCV library not found. Using OpenCV Manager for initialization");
