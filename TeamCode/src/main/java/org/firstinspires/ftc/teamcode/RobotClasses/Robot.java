@@ -12,11 +12,11 @@ public class Robot {
     public Clamp clamp;
     public Rev2mDistanceSensor stoneSensor;
 
-    public Robot(HardwareMap hardwareMap, LinearOpMode op) {
-        drivetrain = new MecanumDrivetrain(hardwareMap, op, 0, 0, 0);
+    public Robot(HardwareMap hardwareMap, LinearOpMode op, double initx, double inity, double inittheta) {
+        drivetrain = new MecanumDrivetrain(hardwareMap, op, initx, inity, inittheta);
         intake = new Intake(hardwareMap, op);
         deposit = new Deposit(hardwareMap, op);
         clamp = new Clamp(hardwareMap, op);
-        //stoneSensor = hardwareMap.get(Rev2mDistanceSensor.class, "stoneSensor");
+
     }
 }
