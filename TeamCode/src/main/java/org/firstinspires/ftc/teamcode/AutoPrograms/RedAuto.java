@@ -36,10 +36,21 @@ public class RedAuto extends LinearOpMode {
 
         double skystonepos = detector.getPosition();
 
+        double skystoney = robot.drivetrain.y;
+
+        if(detector.getPosition() == 1){
+            skystoney = 130;
+
+        }else if(detector.getPosition() == 2){
+            skystoney = 122;
+
+        }else if(detector.getPosition() == 3){
+            skystoney = 114;
+        }
         SplineGenerator splineGenerator = new SplineGenerator();
-        Spline[] splines = splineGenerator.SplineBetweenTwoPoints(9,111,44,
-                129,0,Math.PI/4,0,0,
-                40,0,0,0, 3);
+        Spline[] splines = splineGenerator.SplineBetweenTwoPoints(9,111,47,
+                skystoney,0,2*Math.PI/5,0,0,
+                40,0,0,0, 2);
         Spline xspline = splines[0];
         Spline yspline = splines[1];
 
@@ -51,20 +62,15 @@ public class RedAuto extends LinearOpMode {
             //turn intake on
             robot.intake.setControls(1);
 
-            if(skystonepos == 1){
-                double currenttime = Math.min(2,time.seconds());
-                robot.drivetrain.setTargetPoint(xspline.position(currenttime), yspline.position(currenttime),
+            double currenttime = Math.min(2,time.seconds());
+            robot.drivetrain.setTargetPoint(xspline.position(currenttime), yspline.position(currenttime),
                         Math.atan(yspline.velocity(currenttime)/xspline.velocity(currenttime)));
-            }
-            else if(skystonepos == 2){
-                robot.drivetrain.setTargetPoint(44,123,Math.PI/4);
 
 
-            }else if(skystonepos == 3){
-                robot.drivetrain.setTargetPoint(44,111,Math.PI/4);
-
-            }
             telemetry.addData("skystone position",skystonepos);
+            telemetry.addData("x", robot.drivetrain.x);
+            telemetry.addData("y", robot.drivetrain.y);
+            telemetry.addData("theta", robot.drivetrain.currentheading);
             telemetry.update();
 
         }
