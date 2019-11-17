@@ -6,17 +6,24 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
+@SuppressWarnings("FieldCanBeLocal")
 public class Clamp {
+
     //Electronics
     private DcMotorEx clampLift;
     private Servo leftClamp;
     private Servo rightClamp;
 
-    //OpMode Related Stuff
+    //left decreases outward, right increases outward
+    private final double leftClose = 0.72;
+    private final double rightClose = 0.33;
+    private final double leftOpen = 0.15;
+    private final double rightOpen = 0.9;
+
+    //OpMode Stuff
     private LinearOpMode op;
     private HardwareMap hardwareMap;
 
-    //Constructor
     public Clamp(HardwareMap hardwareMap, LinearOpMode op){
 
         this.op = op;
@@ -29,21 +36,30 @@ public class Clamp {
         clampLift.setDirection(DcMotor.Direction.FORWARD);
         clampLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        op.telemetry.addLine("Status" + "Clamp Initialized");
+        op.telemetry.addData("Status", "Clamp Initialized");
         op.telemetry.update();
-
     }
 
-    public void setControls(double clampPosition, double clampPower) {
-        leftClamp.setPosition(clampPosition);
-        rightClamp.setPosition(1 - clampPosition);
-        clampLift.setPower(clampPower);
+    public void setControls(double liftPower) {
+        clampLift.setPower(liftPower);
     }
 
-    public void setClampPosition(double position){
-        leftClamp.setPosition(position);
-        rightClamp.setPosition(1 - position);
+    public void openClamp() {
+        leftClamp.setPosition(leftOpen);
+        rightClamp.setPosition(rightOpen);
+    }
+
+    public void closeClamp() {
+        leftClamp.setPosition(leftClose);
+        rightClamp.setPosition(rightClose);
     }
 
     public void setLiftPower(double power){clampLift.setPower(power);}
+
+    public double getLPosition() {
+        return leftClamp.getPosition();
+    }
+    public double getRPosition() {
+        return rightClamp.getPosition();
+    }
 }

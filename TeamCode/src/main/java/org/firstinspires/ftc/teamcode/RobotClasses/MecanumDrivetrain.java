@@ -19,6 +19,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
+import java.util.Iterator;
+
 /*
 Methods in the class:
 Changing motor power
@@ -70,7 +72,8 @@ public class MecanumDrivetrain {
 
         this.opMode = opMode;
         this.hardwareMap = hardwareMap;
-        module = hardwareMap.getAll(LynxModule.class).iterator().next();
+
+        module = hardwareMap.get(LynxModule.class,"Drivetrain Hub");
 
         motorFrontRight = hardwareMap.get(DcMotorEx.class,"motorFrontRight");
         motorFrontLeft = hardwareMap.get(DcMotorEx.class,"motorFrontLeft");
@@ -182,7 +185,7 @@ public class MecanumDrivetrain {
         LynxGetBulkInputDataResponse response = RevBulkData();
         double pod1 = -response.getEncoder(0)*0.00300622055*2;
         double pod2 = response.getEncoder(1)*0.00300622055*2;
-        double pod3 = -response.getEncoder(2)*0.00300622055*2;
+        double pod3 = response.getEncoder(2)*0.00300622055*2;
 
         double deltapod1 = pod1 - lastpod1;
         double deltapod2 = pod2 - lastpod2;
@@ -197,14 +200,9 @@ public class MecanumDrivetrain {
 
         double localx = (deltapod1+deltapod2)/2;
         double localy = deltapod3 - deltaheading*2.54;
-
-
-
-//        x += localx*Math.cos(currentheading) - localy*Math.sin(currentheading);
-//        y += localy*Math.cos(currentheading) + localx*Math.sin(currentheading);
-
+        
         if(deltaheading<Math.PI/8){
-            x += localx*Math.sin(currentheading) - localy*Math.sin(currentheading);
+            x += localx*Math.cos(currentheading) - localy*Math.sin(currentheading);
             y += localy*Math.cos(currentheading) + localx*Math.sin(currentheading);
 
         }

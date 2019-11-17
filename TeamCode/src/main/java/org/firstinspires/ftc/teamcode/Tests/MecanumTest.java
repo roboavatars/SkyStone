@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Tests;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -28,8 +29,6 @@ public class MecanumTest extends LinearOpMode {
 
 //            drivetrain.setGlobalControls(-0.1*xerror,-0.1*yerror,-1*thetaerror);
 //            drivetrain.setControls(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
-            telemetry.addData("xvelocity", -0.03*xerror);
-            telemetry.addData("yvelocity", -0.03*yerror);
 
             telemetry.addData("x", drivetrain.x);
             telemetry.addData("y", drivetrain.y);
