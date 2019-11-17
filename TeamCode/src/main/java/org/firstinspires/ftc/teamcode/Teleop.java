@@ -1,21 +1,24 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.RobotClasses.Clamp;
 import org.firstinspires.ftc.teamcode.RobotClasses.Intake;
 import org.firstinspires.ftc.teamcode.RobotClasses.MecanumDrivetrain;
-import org.firstinspires.ftc.teamcode.RobotClasses.Transfer;
+import org.firstinspires.ftc.teamcode.RobotClasses.Deposit;
 
 @TeleOp(name="Teleop") @SuppressWarnings("FieldCanBeLocal")
 public class Teleop extends LinearOpMode {
 
     private MecanumDrivetrain drivetrain;
     private Intake intake;
-    private Transfer transfer;
+    private Deposit deposit;
     private Clamp clamp;
+    private Rev2mDistanceSensor stoneSensor;
 
     private double forward = 0;
     private double right = 0;
@@ -30,11 +33,13 @@ public class Teleop extends LinearOpMode {
     public void runOpMode() {
         drivetrain = new MecanumDrivetrain(hardwareMap,this,0,0,0);
         intake = new Intake(hardwareMap,this);
-        transfer = new Transfer(hardwareMap, this);
+        deposit = new Deposit(hardwareMap, this);
         clamp = new Clamp(hardwareMap,this);
+        stoneSensor = hardwareMap.get(Rev2mDistanceSensor.class, "stoneSensor");
+        
         ElapsedTime xBuffer = new ElapsedTime();
 
-        transfer.openTransfer();
+        deposit.clampStone();
         clamp.openClamp();
 
         waitForStart();
@@ -54,7 +59,7 @@ public class Teleop extends LinearOpMode {
             if (gamepad2.dpad_up) {intakePower += 0.2;}
             else if (gamepad2.dpad_down) {intakePower -= 0.2;}
 
-            if (gamepad2.x && xBuffer.milliseconds()>1000 && intakePower==0) {
+            if (gamepad2.x && xBuffer.milliseconds()>1000 && intakePower == 0) {
                 intakePower = 1;
                 xBuffer.reset();
                 xBuffer.startTime();
@@ -63,10 +68,11 @@ public class Teleop extends LinearOpMode {
                 xBuffer.reset();
                 xBuffer.startTime();
             }
-
-            if (gamepad2.a) transfer.openTransfer();
-            else if (gamepad2.b) transfer.closeTransfer();
-            transferPower = gamepad2.right_trigger - gamepad2.left_trigger;
+    
+            if (stoneSensor.getDistance(DistanceUnit.MM) <= 5) {
+                telemetry.addData("stone", "detected");
+                deposit.clampStone();
+            }
 
             if (gamepad1.a) clamp.openClamp();
             else if (gamepad1.b) clamp.closeClamp();
@@ -74,13 +80,15 @@ public class Teleop extends LinearOpMode {
 
             drivetrain.setControls(right, forward, gamepad1.right_stick_x); drivetrain.updatePose();
             intake.setControls(intakePower);
-            transfer.setControls(transferPower);
+            deposit.setControls(transferPower);
             clamp.setControls(clampPower);
 
             telemetry.addData("X", drivetrain.x);
             telemetry.addData("Y", drivetrain.y);
             telemetry.addData("Theta", drivetrain.currentheading);
             telemetry.addData("Heading", angle);
+            telemetry.addData("Distance", String.format("%.01f mm", stoneSensor.getDistance(DistanceUnit.MM)));
+            telemetry.addData("stone", "not detected");
             telemetry.update();
         }
     }
