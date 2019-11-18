@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.RobotClasses.Robot;
 
 @TeleOp(name="Teleop") @SuppressWarnings("FieldCanBeLocal")
@@ -31,7 +32,7 @@ public class Teleop extends LinearOpMode {
         robot.drivetrain.resetAngle();
         robot.intake.setControls(1);
 
-        while(opModeIsActive()){
+        while (opModeIsActive()){
             angle = robot.drivetrain.getAngle();
             if (robotCentric) {
             forward = gamepad1.left_stick_y;
@@ -53,6 +54,13 @@ public class Teleop extends LinearOpMode {
                 xBuffer.reset();
                 xBuffer.startTime();
             }
+    
+            double distance = robot.stoneSensor.getDistance(DistanceUnit.INCH);
+            if (distance < 2) {
+                telemetry.addData("stone", "detected");
+            } else {
+                telemetry.addData("stone", "not detected");
+            }
 
             if (gamepad1.a) robot.clamp.openClamp();
             else if (gamepad1.b) robot.clamp.closeClamp();
@@ -67,7 +75,7 @@ public class Teleop extends LinearOpMode {
             telemetry.addData("Y", robot.drivetrain.y);
             telemetry.addData("Theta", robot.drivetrain.currentheading);
             telemetry.addData("Heading", angle);
-            telemetry.addData("stone", "not detected");
+            telemetry.addData("stone sensor", distance);
             telemetry.update();
         }
     }

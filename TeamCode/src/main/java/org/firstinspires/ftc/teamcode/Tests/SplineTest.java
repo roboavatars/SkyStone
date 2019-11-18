@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Tests;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -10,6 +11,7 @@ import org.firstinspires.ftc.teamcode.Splines.Spline;
 import org.firstinspires.ftc.teamcode.Splines.SplineGenerator;
 
 @Autonomous
+@Disabled
 public class SplineTest extends LinearOpMode {
 
     SixWheelDrivetrain drivetrain;
