@@ -125,13 +125,13 @@ public class skyStoneDetector extends Thread {
         // Filter Saturation Image
         Mat satFiltered = new Mat();
         Core.inRange(satUnfiltered, new Scalar(190, 120, 0), new Scalar(255, 135, 10), satFiltered);
-        // if (frameNum < 200) Imgcodecs.imwrite(satFilteredPath + frameNum + ".jpg", satFiltered);
+        // if (frameNum < 100) Imgcodecs.imwrite(satFilteredPath + frameNum + ".jpg", satFiltered);
 
         // Remove extra noise in image
         Mat openClose = new Mat();
         Imgproc.morphologyEx(satFiltered, openClose, Imgproc.MORPH_OPEN, new Mat());
         Imgproc.morphologyEx(openClose, openClose, Imgproc.MORPH_CLOSE, new Mat());
-        //if (frameNum < 200) Imgcodecs.imwrite(openClosePath + frameNum + ".jpg", openClose);
+        //if (frameNum < 100) Imgcodecs.imwrite(openClosePath + frameNum + ".jpg", openClose);
 
         // Crop Image to where quarry row is
         double horAvg;
@@ -142,7 +142,7 @@ public class skyStoneDetector extends Thread {
         }
 
         if (!(SCropped.cols() == 0)) {
-            //if (frameNum < 200) Imgcodecs.imwrite(croppedPath + frameNum + ".jpg", SCropped);
+            if (frameNum < 100) Imgcodecs.imwrite(croppedPath + frameNum + ".jpg", SCropped);
 
             // Makes image black(stone) and white(skyStone)
             double verAvg;
@@ -154,7 +154,7 @@ public class skyStoneDetector extends Thread {
                 verImage.col(col).setTo(new Scalar(verAvg));
             }
             Imgproc.morphologyEx(verImage, verImage, Imgproc.MORPH_OPEN, new Mat());
-            //if (frameNum < 200) Imgcodecs.imwrite(verViewPath + frameNum + ".jpg", verImage);
+            //if (frameNum < 100) Imgcodecs.imwrite(verViewPath + frameNum + ".jpg", verImage);
 
             /*String verCols = "";
             for (int col = 0; col < verImage.cols(); col++) {verCols+=(new Scalar(verImage.get(0, col)).val[0])+", ";}

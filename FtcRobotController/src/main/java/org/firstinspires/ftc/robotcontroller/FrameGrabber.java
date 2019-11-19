@@ -52,7 +52,7 @@ public class FrameGrabber implements CvCameraViewListener2 {
      * @return Most recent camera frame
      */
     public Mat getNextMat() {
-        //if (saveCount < 200) Imgcodecs.imwrite(outputPath + saveCount + ".jpg", curMat); saveCount++;
+        //if (saveCount < 100) Imgcodecs.imwrite(outputPath + saveCount + ".jpg", curMat); saveCount++;
         return curMat;
     }
 
