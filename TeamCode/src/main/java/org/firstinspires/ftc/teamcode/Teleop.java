@@ -15,7 +15,7 @@ public class Teleop extends LinearOpMode {
     private double forward = 0;
     private double right = 0;
     private double angle = 0;
-    private double intakePower = 1;
+    private double intakePower = 0;
     private double transferPower = 0;
     private double clampPower = 0;
 
@@ -23,14 +23,14 @@ public class Teleop extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        robot = new Robot(hardwareMap, this, 0 , 0,0);
+        robot = new Robot(this, 0 , 0,0);
         robot.deposit.unclampStone();
         robot.clamp.openClamp();
         ElapsedTime xBuffer = new ElapsedTime();
 
         waitForStart();
         robot.drivetrain.resetAngle();
-        robot.intake.setControls(1);
+        robot.intake.setControls(0);
 
         while (opModeIsActive()){
             angle = robot.drivetrain.getAngle();
@@ -61,6 +61,9 @@ public class Teleop extends LinearOpMode {
             } else {
                 telemetry.addData("stone", "not detected");
             }
+            
+            if (gamepad1.dpad_down) robot.grabber.grabFoundation();
+            if (gamepad1.dpad_up) robot.grabber.releaseFoundation();
 
             if (gamepad1.a) robot.clamp.openClamp();
             else if (gamepad1.b) robot.clamp.closeClamp();

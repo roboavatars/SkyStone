@@ -10,18 +10,20 @@ public class Robot {
     public Intake intake;
     public Deposit deposit;
     public Clamp clamp;
+    public FoundationGrabber grabber;
     public Rev2mDistanceSensor stoneSensor;
     
     boolean rangeSensorEnabled;
     boolean stoneInRobot;
 
-    public Robot(HardwareMap hardwareMap, LinearOpMode op, double initX, double initY, double initTheta) {
-        drivetrain = new MecanumDrivetrain(hardwareMap, op, initX, initY, initTheta);
-        intake = new Intake(hardwareMap, op);
-        deposit = new Deposit(hardwareMap, op);
-        clamp = new Clamp(hardwareMap, op);
+    public Robot(LinearOpMode op, double initX, double initY, double initTheta) {
+        drivetrain = new MecanumDrivetrain(op, initX, initY, initTheta);
+        intake = new Intake(op);
+        deposit = new Deposit(op);
+        clamp = new Clamp(op);
+        grabber = new FoundationGrabber(op);
         
-        stoneSensor = hardwareMap.get(Rev2mDistanceSensor.class, "stoneSensor");
+        stoneSensor = op.hardwareMap.get(Rev2mDistanceSensor.class, "stoneSensor");
     }
     
     public void update() {

@@ -142,7 +142,7 @@ public class skyStoneDetector extends Thread {
         }
 
         if (!(SCropped.cols() == 0)) {
-            if (frameNum < 200) Imgcodecs.imwrite(croppedPath + frameNum + ".jpg", SCropped);
+            //if (frameNum < 200) Imgcodecs.imwrite(croppedPath + frameNum + ".jpg", SCropped);
 
             // Makes image black(stone) and white(skyStone)
             double verAvg;
@@ -154,7 +154,7 @@ public class skyStoneDetector extends Thread {
                 verImage.col(col).setTo(new Scalar(verAvg));
             }
             Imgproc.morphologyEx(verImage, verImage, Imgproc.MORPH_OPEN, new Mat());
-            if (frameNum < 200) Imgcodecs.imwrite(verViewPath + frameNum + ".jpg", verImage);
+            //if (frameNum < 200) Imgcodecs.imwrite(verViewPath + frameNum + ".jpg", verImage);
 
             /*String verCols = "";
             for (int col = 0; col < verImage.cols(); col++) {verCols+=(new Scalar(verImage.get(0, col)).val[0])+", ";}

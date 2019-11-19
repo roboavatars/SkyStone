@@ -37,31 +37,24 @@ public class RedAuto extends LinearOpMode {
         boolean backToCenter1 = false;
         boolean toFoundation1 = false;
         boolean approachFoundation = false;
-        boolean scoreFoundation = false;
+        boolean pullFoundation = false;
+        boolean turnFoundation = false;
         boolean pushFoundation = false;
-        boolean backToCenter2 = false;
         boolean toQuarry = false;
         boolean skystone2 = false;
-        boolean backToCenter3 = false;
+        boolean toFoundation2 = false;
         boolean toTape = false;
         
-        double skystone1Time = 2;
+        double skystone1Time = 2.5;
         double backToCenter1Time = 1;
         double toFoundation1Time = 2;
         double scoreFoundationTime = 2;
-        double backToCenter2Time = 1;
-        double toQuarryTime = 2;
         double skystone2Time = 2;
-        double backToCenter3Time = 1;
-        double toFoundation2Time = 2;
-        double toTapeTime = 1;
         
         if (skystonePos == 1) {
-            skystoneY = 129;
-
+            skystoneY = 132;
         } else if (skystonePos == 2) {
-            skystoneY = 121;
-
+            skystoneY = 123;
         } else if (skystonePos == 3) {
             skystoneY = 113;
         }
@@ -85,37 +78,11 @@ public class RedAuto extends LinearOpMode {
                 26, 40, Math.PI, Math.PI/2, 0, 0,
                 10, 0, 0, 0, toFoundation1Time);
         Spline scoreFoundationThetaSpline = new Spline(Math.PI,0,0,Math.PI/2,0,0,scoreFoundationTime);
-    
-        ///////////////////////////////////
-        Spline[] backToCenter2Spline = splineGenerator.SplineBetweenTwoPoints(26, 40,
-                36, 57, Math.PI/2, Math.PI/2, 0, 0,
-                10, 0, 0, 0, toFoundation1Time);
-        Spline backToCenter2ThetaSpline = new Spline(Math.PI/2,0,0,Math.PI/2,0,0,backToCenter2Time);
-    
-        Spline[] toQuarrySpline = splineGenerator.SplineBetweenTwoPoints(36, 57,
-                36, 85, Math.PI/2, Math.PI/2, 0, 0,
-                10, 0, 0, 0, toFoundation1Time);
-        Spline toQuarryThetaSpline = new Spline(Math.PI/2,0,0,Math.PI/2,0,0,scoreFoundationTime);
         
-        /*Spline[] skystone2Spline = splineGenerator.SplineBetweenTwoPoints(36, 85,
-                45, skystoneY-24, Math.PI/2, Math.PI/4, 0, 0,
-                10, 0, 0, 0, toFoundationTime);
-        Spline skystone2ThetaSpline = new Spline(Math.PI/2,0,0,Math.PI/4,0,0,scoreFoundationTime);
-    
-        Spline[] backToCenter3Spline = splineGenerator.SplineBetweenTwoPoints(39.5, 24,
-                26, 40, Math.PI, Math.PI/2, 0, 0,
-                10, 0, 0, 0, toFoundationTime);
-        Spline backToCenter3ThetaSpline = new Spline(Math.PI,0,0,Math.PI/2,0,0,scoreFoundationTime);
-    
-        Spline[] toFoundation2Spline = splineGenerator.SplineBetweenTwoPoints(39.5, 24,
-                26, 40, Math.PI, Math.PI/2, 0, 0,
-                10, 0, 0, 0, toFoundationTime);
-        Spline toFoundation2ThetaSpline = new Spline(Math.PI,0,0,Math.PI/2,0,0,scoreFoundationTime);
-    
-        Spline[] toTapeSpline = splineGenerator.SplineBetweenTwoPoints(39.5, 24,
-                26, 40, Math.PI, Math.PI/2, 0, 0,
-                10, 0, 0, 0, toFoundationTime);
-        Spline toTapeThetaSpline = new Spline(Math.PI,0,0,Math.PI/2,0,0,scoreFoundationTime);*/
+        Spline[] skystone2Spline = splineGenerator.SplineBetweenTwoPoints(36, 72,
+                45, skystoneY-24, Math.PI/2, Math.PI/4, 30, 0,
+                20, 0, 0, 0, skystone2Time);
+        Spline skystone2ThetaSpline = new Spline(Math.PI/2,0,0,Math.PI/4,0,0,skystone2Time);
     
         ElapsedTime time = new ElapsedTime();
         while (opModeIsActive()) {
@@ -166,6 +133,7 @@ public class RedAuto extends LinearOpMode {
                     toFoundation1 = true;
                     time.reset();
                 }
+                
             } else if (!approachFoundation) {
                 robot.drivetrain.setTargetPoint(44, 25, Math.PI);
                 if (time.seconds() > 0.5) {
@@ -179,25 +147,65 @@ public class RedAuto extends LinearOpMode {
                     time.reset();
                 }
                 
-            } else if (!scoreFoundation) {
-                double currentTime = Math.min(scoreFoundationTime, time.seconds());
-                robot.drivetrain.setTargetPoint(scoreFoundationSpline[0].position(currentTime), scoreFoundationSpline[1].position(currentTime),
-                        scoreFoundationThetaSpline.position(currentTime));
+            } else if (!pullFoundation) {
+                robot.drivetrain.setTargetPoint(26, robot.drivetrain.y, Math.PI,1.5,0,0.8);
     
-                if (time.seconds() > toFoundation1Time+1) {
-                    scoreFoundation = true;
+                if (time.seconds() > toFoundation1Time + 1) {
+                    pullFoundation = true;
                     time.reset();
         
                 }
+                
+            } else if (!turnFoundation) {
+                
+                robot.drivetrain.setTargetPoint(35, 35, Math.PI/2,0,0,3);
+                if (time.seconds() > 2) {
+                    turnFoundation = true;
+                    time.reset();
+                }
+
             } else if (!pushFoundation) {
-                robot.drivetrain.setTargetPoint(24, 30, Math.PI/2);
+    
+                robot.drivetrain.setTargetPoint(35, 29, Math.PI/2,0.1,0.4,0.8);
                 if (time.seconds() > 1) {
                     pushFoundation = true;
                     robot.grabber.releaseFoundation();
                     time.reset();
                 }
-                
-            } else{
+    
+            } else if (!toQuarry) {
+    
+                robot.drivetrain.setTargetPoint(24, skystoneY-35, Math.PI/4,0.2,0.2,0.8);
+                if (time.seconds()>2) {
+                    toQuarry = true;
+                    skystone2Spline = splineGenerator.SplineBetweenTwoPoints(robot.drivetrain.x, robot.drivetrain.y,
+                            45, skystoneY-25, robot.drivetrain.currentheading, Math.PI/4, 30, 0,
+                            20, 0, 0, 0, skystone2Time);
+                    
+                    time.reset();
+                    robot.intake.setControls(1);
+                }
+            } else if(!skystone2){
+
+               double currentTime = Math.min(skystone2Time, time.seconds());
+               robot.drivetrain.setTargetPoint(skystone2Spline[0].position(currentTime), skystone2Spline[1].position(currentTime),
+                       Math.PI/4);
+
+               if (time.seconds()>skystone2Time+1){
+                   robot.intake.setControls(0);
+                   skystone2 = true;
+                   time.reset();
+               }
+
+           } else if (!toFoundation2) {
+    
+                robot.drivetrain.setTargetPoint(35, 27, Math.PI/2, 0.2, 0.2, 0.8);
+                if (time.seconds() > 2) {
+                    toFoundation2 = true;
+                    time.reset();
+                }
+            }
+            else {
                 robot.drivetrain.setControls(0,0,0);
             }
             

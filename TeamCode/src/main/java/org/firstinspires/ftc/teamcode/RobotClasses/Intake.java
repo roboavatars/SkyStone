@@ -17,10 +17,10 @@ public class Intake {
     private LinearOpMode op;
     private HardwareMap hardwareMap;
 
-    public Intake(HardwareMap hardwareMap, LinearOpMode op){
+    public Intake(LinearOpMode op){
 
         this.op = op;
-        this.hardwareMap = hardwareMap;
+        this.hardwareMap = op.hardwareMap;
 
         leftIntake = hardwareMap.get(DcMotorEx.class, "intake1");
         rightIntake = hardwareMap.get(DcMotorEx.class, "intake2");

@@ -72,11 +72,11 @@ public class MecanumDrivetrain {
     private double thetak = 0.8;
 
     //Constructor
-    public MecanumDrivetrain(HardwareMap hardwareMap, LinearOpMode opMode, double initialx, double
+    public MecanumDrivetrain(LinearOpMode opMode, double initialx, double
                              initialy, double initialtheta){
 
         this.opMode = opMode;
-        this.hardwareMap = hardwareMap;
+        this.hardwareMap = opMode.hardwareMap;
 
         module = hardwareMap.get(LynxModule.class,"Drivetrain Hub");
 
@@ -151,6 +151,9 @@ public class MecanumDrivetrain {
     }
     public void setTargetPoint(double xtarget, double ytarget, double thetatarget){
         setGlobalControls(-xk*(x-xtarget),-yk*(y-ytarget),-thetak*(currentheading-thetatarget));
+    }
+    public void setTargetPoint(double xtarget, double ytarget, double thetatarget, double xK, double yK, double thetaK){
+        setGlobalControls(-xK*(x-xtarget),-yK*(y-ytarget),-thetaK*(currentheading-thetatarget));
     }
     public void setGlobalControls(double xvelocity, double yvelocity, double w){
 

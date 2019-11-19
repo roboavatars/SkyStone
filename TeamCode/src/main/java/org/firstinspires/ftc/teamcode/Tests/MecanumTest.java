@@ -14,7 +14,7 @@ public class MecanumTest extends LinearOpMode {
     ElapsedTime time = new ElapsedTime();
     @Override
     public void runOpMode() throws InterruptedException {
-        drivetrain = new MecanumDrivetrain(hardwareMap,this,9,111,0);
+        drivetrain = new MecanumDrivetrain(this,9,111,0);
         waitForStart();
         double thetaerror = 0;
         double xerror = 0;

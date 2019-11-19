@@ -24,10 +24,10 @@ public class Clamp {
     private LinearOpMode op;
     private HardwareMap hardwareMap;
 
-    public Clamp(HardwareMap hardwareMap, LinearOpMode op){
+    public Clamp(LinearOpMode op){
 
         this.op = op;
-        this.hardwareMap = hardwareMap;
+        this.hardwareMap = op.hardwareMap;
 
         clampLift = hardwareMap.get(DcMotorEx.class, "clampLift");
         leftClamp = hardwareMap.get(Servo.class, "leftClamp");

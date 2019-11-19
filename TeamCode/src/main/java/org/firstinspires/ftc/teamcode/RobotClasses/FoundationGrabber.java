@@ -13,17 +13,14 @@ public class FoundationGrabber {
     private Servo leftGrabber;
     private Servo rightGrabber;
 
-    private final double grabPos = 0;
-    private final double releasePos = 0;
-
     //OpMode Stuff
     private LinearOpMode op;
     private HardwareMap hardwareMap;
 
-    public FoundationGrabber(HardwareMap hardwareMap, LinearOpMode op){
+    public FoundationGrabber(LinearOpMode op){
 
         this.op = op;
-        this.hardwareMap = hardwareMap;
+        this.hardwareMap = op.hardwareMap;
 
         leftGrabber = hardwareMap.get(Servo.class, "leftGrabber");
         rightGrabber = hardwareMap.get(Servo.class, "rightGrabber");
@@ -33,19 +30,12 @@ public class FoundationGrabber {
     }
 
     public void grabFoundation() {
-        leftGrabber.setPosition(grabPos);
-        rightGrabber.setPosition(grabPos);
+        leftGrabber.setPosition(1);
+        rightGrabber.setPosition(-1);
     }
 
     public void releaseFoundation() {
-        leftGrabber.setPosition(releasePos);
-        rightGrabber.setPosition(releasePos);
-    }
-
-    public double getLPosition() {
-        return leftGrabber.getPosition();
-    }
-    public double getRPosition() {
-        return rightGrabber.getPosition();
+        leftGrabber.setPosition(-1);
+        rightGrabber.setPosition(1);
     }
 }

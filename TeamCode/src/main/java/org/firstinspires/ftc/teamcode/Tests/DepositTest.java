@@ -13,7 +13,7 @@ public class DepositTest extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        deposit = new Deposit(hardwareMap, this);
+        deposit = new Deposit(this);
         deposit.clampStone();
 
         waitForStart();

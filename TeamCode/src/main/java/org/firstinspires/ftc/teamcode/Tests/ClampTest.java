@@ -14,7 +14,7 @@ public class ClampTest extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        clamp = new Clamp(hardwareMap,this);
+        clamp = new Clamp(this);
         clamp.openClamp();
 
         waitForStart();

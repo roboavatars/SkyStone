@@ -20,10 +20,10 @@ public class Deposit {
     private LinearOpMode op;
     private HardwareMap hardwareMap;
 
-    public Deposit(HardwareMap hardwareMap, LinearOpMode op){
+    public Deposit(LinearOpMode op){
 
         this.op = op;
-        this.hardwareMap = hardwareMap;
+        this.hardwareMap = op.hardwareMap;
 
         depositMotor = hardwareMap.get(DcMotorEx.class, "depositMotor");
         depositServo = hardwareMap.get(Servo.class, "depositServo");
