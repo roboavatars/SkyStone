@@ -52,7 +52,7 @@ public class Teleop extends LinearOpMode {
             z++;
             if(z%100 == 0 && stackcounter == 0){
                 double distance = robot.stoneSensor.getDistance(DistanceUnit.INCH);
-                if (distance < 5) {
+                if (distance < 6) {
                     robot.stacker.setDepositControls(0.5,50);
                     robot.stacker.clampStone();
                     robot.intake.setControls(0);
@@ -61,8 +61,9 @@ public class Teleop extends LinearOpMode {
                     robot.intake.setControls(1);
                 }
             }
-            if(gamepad1.left_bumper){
+            if(gamepad1.left_bumper && armout){
                 robot.stacker.unClampStone();
+                robot.stacker.setDepositControls(0.2, (int)robot.stacker.getArmPosition() + 70);
             }
 
             if(gamepad1.right_bumper && stackcounter == 0 && !armout){

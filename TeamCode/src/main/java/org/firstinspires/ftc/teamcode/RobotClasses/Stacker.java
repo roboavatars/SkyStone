@@ -18,7 +18,7 @@ public class Stacker {
     private final double unClampPos = 0.65;
 
 
-    private final int armpos[] = {2200,1900,1700,1500,1230,1230,1230};
+    private final int armpos[] = {2160,1990,1700,1560,1260,1260,1260};
     private final int liftpos[] = {0,0,0,0,250,780,1250};
 
     private int currentStackHeight = 0;
