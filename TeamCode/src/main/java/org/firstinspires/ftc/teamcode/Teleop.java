@@ -16,7 +16,13 @@ public class Teleop extends LinearOpMode {
     private double armPower = 0;
     private double liftPower = 0;
 
-    private final boolean robotCentric = true;
+    private final boolean robotCentric = false;
+    private int z = 0;
+    private int stackcounter = 0;
+    private boolean armout = false;
+
+    boolean dpadup = true;
+    boolean dpaddown = true;
 
     @Override
     public void runOpMode() {
@@ -27,46 +33,87 @@ public class Teleop extends LinearOpMode {
         waitForStart();
         robot.drivetrain.resetAngle();
         robot.intake.setControls(0);
-
+        robot.stacker.unClampStone();
+        robot.stacker.setDepositControls(0.5,130);
         while (opModeIsActive()){
 
-            if (gamepad1.x && xBuffer.milliseconds()>1000 && intakePower == 0) {
-                intakePower = 1;
-                xBuffer.reset();
-                xBuffer.startTime();
-            } else if (gamepad1.x && xBuffer.milliseconds()>1000) {
-                intakePower = 0;
-                xBuffer.reset();
-                xBuffer.startTime();
-            }
-    
-            double distance = robot.stoneSensor.getDistance(DistanceUnit.INCH);
-            if (distance < 2) {
-                telemetry.addData("stone", "detected");
-            } else {
-                telemetry.addData("stone", "not detected");
-            }
-            
-            if (gamepad1.dpad_down) robot.grabber.grabFoundation();
-            if (gamepad1.dpad_up) robot.grabber.releaseFoundation();
+//            if (gamepad1.x && xBuffer.milliseconds()>300 && intakePower == 0) {
+//                intakePower = 1;
+//                xBuffer.reset();
+//                xBuffer.startTime();
+//            } else if (gamepad1.x && xBuffer.milliseconds()>300) {
+//                intakePower = 0;
+//                xBuffer.reset();
+//                xBuffer.startTime();
+//            }
 
-            if (gamepad1.a) robot.stacker.clampStone();
-            else if (gamepad1.b) robot.stacker.unClampStone();
+
+
+            z++;
+            if(z%100 == 0 && stackcounter == 0){
+                double distance = robot.stoneSensor.getDistance(DistanceUnit.INCH);
+                if (distance < 5) {
+                    robot.stacker.setDepositControls(0.5,50);
+                    robot.stacker.clampStone();
+                    robot.intake.setControls(0);
+                }
+                else{
+                    robot.intake.setControls(1);
+                }
+            }
+            if(gamepad1.left_bumper){
+                robot.stacker.unClampStone();
+            }
+
+            if(gamepad1.right_bumper && stackcounter == 0 && !armout){
+                robot.stacker.deposit();
+                armout = true;
+                stackcounter = 100;
+            }else if(gamepad1.right_bumper && stackcounter == 0 && armout){
+                robot.stacker.setLiftControls(0.5,0);
+                robot.stacker.setDepositControls(0.5,130);
+                robot.stacker.nextLevel();
+                stackcounter = 100;
+                armout = false;
+            }
+            else if(stackcounter>0){
+                stackcounter--;
+            }
+
+
+            if(gamepad1.dpad_up && dpadup){
+                dpadup = false;
+
+            }else if(!dpadup && !gamepad1.dpad_up){
+                robot.stacker.nextLevel();
+                dpadup = true;
+            }
+
+            if(gamepad1.dpad_down && dpaddown){
+                dpaddown = false;
+
+            }else if(!dpaddown && !gamepad1.dpad_down){
+                robot.stacker.lastLevel();
+                dpaddown = true;
+            }
+
+
+
             
-            armPower = gamepad1.right_trigger*0.25 - gamepad1.left_trigger*0.25;
-            liftPower = gamepad2.right_trigger*0.25 - gamepad2.left_trigger*0.25;
+            if (gamepad1.dpad_left) robot.grabber.grabFoundation();
+            if (gamepad1.dpad_right) robot.grabber.releaseFoundation();
+
     
-            if (robotCentric) {robot.drivetrain.setControls(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);}
-            else {robot.drivetrain.setGlobalControls(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);}
+            if (robotCentric) {
+                robot.drivetrain.setControls(-gamepad1.left_stick_x, -gamepad1.left_stick_y, -gamepad1.right_stick_x);
+            }
+            else {robot.drivetrain.setGlobalControls(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x);}
             robot.update();
-            robot.intake.setControls(intakePower);
 
-            telemetry.addData("X", robot.drivetrain.x);
-            telemetry.addData("Y", robot.drivetrain.y);
-            telemetry.addData("Theta", robot.drivetrain.currentheading);
-            telemetry.addData("Stone Sensor", distance);
-            telemetry.addData("Lift Pos", robot.stacker.getLiftPosition());
-            telemetry.addData("Arm Pos", robot.stacker.getArmPosition());
+
+//            telemetry.addData("X", robot.drivetrain.x);
+//            telemetry.addData("Y", robot.drivetrain.y);
+//            telemetry.addData("Theta", robot.drivetrain.currentheading);
             telemetry.update();
         }
     }

@@ -15,7 +15,13 @@ public class Stacker {
     private Servo stoneClamp;
     
     private final double clampPos = 0.9;
-    private final double unClampPos = 0.6;
+    private final double unClampPos = 0.65;
+
+
+    private final int armpos[] = {2200,1900,1700,1500,1230,1230,1230};
+    private final int liftpos[] = {0,0,0,0,250,780,1250};
+
+    private int currentStackHeight = 0;
 
     //OpMode Stuff
     private LinearOpMode op;
@@ -46,21 +52,36 @@ public class Stacker {
         op.telemetry.update();
     }
     public void setLiftControls(double power, int ticks){
+        liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         liftMotor.setPower(power);
         liftMotor.setTargetPosition(ticks);
     }
     public void setDepositControls(double power, int ticks){
+        depositMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         depositMotor.setPower(power);
         depositMotor.setTargetPosition(ticks);
     }
     
     public void setDepositPower(double power){
+        depositMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         depositMotor.setPower(power);
         
     }
     public void setLiftPower(double power){
-        depositMotor.setPower(power);
-        
+        liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        liftMotor.setPower(power);
+    }
+    public void deposit(){
+        setLiftControls(1, liftpos[currentStackHeight]);
+        setDepositControls(0.75, armpos[currentStackHeight]);
+    }
+
+
+    public void nextLevel(){
+        currentStackHeight++;
+    }
+    public void lastLevel(){
+        currentStackHeight--;
     }
     
     public void clampStone() {

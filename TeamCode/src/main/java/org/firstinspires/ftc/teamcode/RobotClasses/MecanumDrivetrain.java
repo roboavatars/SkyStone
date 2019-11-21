@@ -96,7 +96,8 @@ public class MecanumDrivetrain {
         motorBackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
-        motorBackLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        motorFrontRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
      
 
         imu = new LynxEmbeddedIMU(new MecanumDrivetrain.BetterI2cDeviceSynchImplOnSimple(
@@ -150,10 +151,10 @@ public class MecanumDrivetrain {
         motorBackRight.setPower(-xvelocity+yvelocity+w);
     }
     public void setTargetPoint(double xtarget, double ytarget, double thetatarget){
-        setGlobalControls(xk*(x-xtarget),yk*(y-ytarget),thetak*(currentheading-thetatarget));
+        setGlobalControls(-xk*(x-xtarget),-yk*(y-ytarget),-thetak*(currentheading-thetatarget));
     }
     public void setTargetPoint(double xtarget, double ytarget, double thetatarget, double xK, double yK, double thetaK){
-        setGlobalControls(xK*(x-xtarget),yK*(y-ytarget),thetaK*(currentheading-thetatarget));
+        setGlobalControls(-xK*(x-xtarget),-yK*(y-ytarget),-thetaK*(currentheading-thetatarget));
     }
     public void setGlobalControls(double xvelocity, double yvelocity, double w){
 
