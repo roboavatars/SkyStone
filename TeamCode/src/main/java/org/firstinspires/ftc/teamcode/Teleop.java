@@ -12,20 +12,16 @@ public class Teleop extends LinearOpMode {
 
     private Robot robot;
 
-    private double forward = 0;
-    private double right = 0;
-    private double angle = 0;
     private double intakePower = 0;
-    private double transferPower = 0;
-    private double clampPower = 0;
+    private double armPower = 0;
+    private double liftPower = 0;
 
     private final boolean robotCentric = true;
 
     @Override
     public void runOpMode() {
         robot = new Robot(this, 0 , 0,0);
-        robot.deposit.unclampStone();
-        robot.clamp.openClamp();
+        //robot.stacker.unClampStone();
         ElapsedTime xBuffer = new ElapsedTime();
 
         waitForStart();
@@ -33,23 +29,12 @@ public class Teleop extends LinearOpMode {
         robot.intake.setControls(0);
 
         while (opModeIsActive()){
-            angle = robot.drivetrain.getAngle();
-            if (robotCentric) {
-            forward = gamepad1.left_stick_y;
-            right = gamepad1.left_stick_x;
-            } else {
-                forward = gamepad1.left_stick_y * Math.sin(angle) - gamepad1.left_stick_x * Math.cos(angle);
-                right = gamepad1.left_stick_y * Math.cos(angle) + gamepad1.left_stick_x * Math.sin(angle);
-            }
 
-            if (gamepad2.dpad_up) {intakePower += 0.2;}
-            else if (gamepad2.dpad_down) {intakePower -= 0.2;}
-
-            if (gamepad2.x && xBuffer.milliseconds()>1000 && intakePower == 0) {
+            if (gamepad1.x && xBuffer.milliseconds()>1000 && intakePower == 0) {
                 intakePower = 1;
                 xBuffer.reset();
                 xBuffer.startTime();
-            } else if (gamepad2.x && xBuffer.milliseconds()>1000) {
+            } else if (gamepad1.x && xBuffer.milliseconds()>1000) {
                 intakePower = 0;
                 xBuffer.reset();
                 xBuffer.startTime();
@@ -65,20 +50,23 @@ public class Teleop extends LinearOpMode {
             if (gamepad1.dpad_down) robot.grabber.grabFoundation();
             if (gamepad1.dpad_up) robot.grabber.releaseFoundation();
 
-            if (gamepad1.a) robot.clamp.openClamp();
-            else if (gamepad1.b) robot.clamp.closeClamp();
-            clampPower = gamepad1.right_trigger*0.25 - gamepad1.left_trigger*0.25;
-
-            robot.drivetrain.setControls(right, forward, gamepad1.right_stick_x); robot.drivetrain.updatePose();
+            if (gamepad1.a) robot.stacker.clampStone();
+            else if (gamepad1.b) robot.stacker.unClampStone();
+            
+            armPower = gamepad1.right_trigger*0.25 - gamepad1.left_trigger*0.25;
+            liftPower = gamepad2.right_trigger*0.25 - gamepad2.left_trigger*0.25;
+    
+            if (robotCentric) {robot.drivetrain.setControls(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);}
+            else {robot.drivetrain.setGlobalControls(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);}
+            robot.update();
             robot.intake.setControls(intakePower);
-            robot.deposit.setControls(transferPower);
-            robot.clamp.setControls(clampPower);
 
             telemetry.addData("X", robot.drivetrain.x);
             telemetry.addData("Y", robot.drivetrain.y);
             telemetry.addData("Theta", robot.drivetrain.currentheading);
-            telemetry.addData("Heading", angle);
-            telemetry.addData("stone sensor", distance);
+            telemetry.addData("Stone Sensor", distance);
+            telemetry.addData("Lift Pos", robot.stacker.getLiftPosition());
+            telemetry.addData("Arm Pos", robot.stacker.getArmPosition());
             telemetry.update();
         }
     }

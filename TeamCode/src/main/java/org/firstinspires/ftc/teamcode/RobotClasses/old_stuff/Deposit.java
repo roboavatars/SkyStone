@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.RobotClasses;
+package org.firstinspires.ftc.teamcode.RobotClasses.old_stuff;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 @SuppressWarnings("FieldCanBeLocal")
+@Deprecated
 public class Deposit {
 
     //Electronics

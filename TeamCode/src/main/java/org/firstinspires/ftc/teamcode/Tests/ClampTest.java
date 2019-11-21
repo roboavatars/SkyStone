@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.Tests;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.RobotClasses.Clamp;
+import org.firstinspires.ftc.teamcode.RobotClasses.old_stuff.Clamp;
 
 @TeleOp(name="Clamp Test") @SuppressWarnings("FieldCanBeLocal")
+@Disabled
 public class ClampTest extends LinearOpMode {
 
     private Clamp clamp;

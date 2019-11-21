@@ -29,12 +29,12 @@ public class FoundationGrabber {
         op.telemetry.update();
     }
 
-    public void grabFoundation() {
+    public void releaseFoundation() {
         leftGrabber.setPosition(1);
         rightGrabber.setPosition(-1);
     }
 
-    public void releaseFoundation() {
+    public void grabFoundation() {
         leftGrabber.setPosition(-1);
         rightGrabber.setPosition(1);
     }

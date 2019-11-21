@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.Tests;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.RobotClasses.Deposit;
+import org.firstinspires.ftc.teamcode.RobotClasses.old_stuff.Deposit;
 
 @TeleOp(name="Deposit Test") @SuppressWarnings("FieldCanBeLocal")
+@Disabled
 public class DepositTest extends LinearOpMode {
 
     private Deposit deposit;
