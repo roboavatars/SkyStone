@@ -2,7 +2,11 @@ package org.firstinspires.ftc.teamcode.RobotClasses;
 
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.HardwareMap;
+
+import java.io.File;
+import java.io.FileWriter;
+
+import java.util.Date;
 
 public class Robot {
     
@@ -14,6 +18,8 @@ public class Robot {
     
     boolean rangeSensorEnabled;
     boolean stoneInRobot;
+
+    private File file = new File(new File("/sdcard/FIRST/"), "RobotDataLog");
     
     public Robot(LinearOpMode op, double initX, double initY, double initTheta) {
         drivetrain = new MecanumDrivetrain(op, initX, initY, initTheta);
@@ -24,7 +30,13 @@ public class Robot {
         stoneSensor = op.hardwareMap.get(Rev2mDistanceSensor.class, "stoneSensor");
     }
     
-    public void update() {
-        drivetrain.updatePose();
+    public void update() {drivetrain.updatePose();}
+    public void logData(String category, String text) {
+        Date time = new Date();
+        try {
+            FileWriter fileWriter = new FileWriter(file);
+            fileWriter.write(time + "-" + category + "----" + text);
+            fileWriter.close();
+        } catch (Exception e) {e.printStackTrace();}
     }
 }
