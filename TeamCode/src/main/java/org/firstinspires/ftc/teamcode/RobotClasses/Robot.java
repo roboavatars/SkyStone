@@ -104,7 +104,7 @@ public class Robot {
 
 
 
-    //file stuff
+    /*//file stuff
     public void writePos(double x, double y, double theta) {
         try {
             FileWriter fileWriter = new FileWriter(robotPositionLog);
@@ -131,5 +131,5 @@ public class Robot {
             fileReader.close();
         } catch (Exception e) {e.printStackTrace();}
         return lines;
-    }
+    }*/
 }

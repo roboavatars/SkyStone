@@ -23,8 +23,9 @@ public class Teleop extends LinearOpMode {
     
     @Override
     public void runOpMode() {
-        Double[] initialPosition = robot.readPos();
-        robot = new Robot(this, initialPosition[0], initialPosition[1], initialPosition[2]);
+        //Double[] initialPosition = robot.readPos();
+        //robot = new Robot(this, initialPosition[0], initialPosition[1], initialPosition[2]);
+        robot = new Robot(this, 0, 0, 0);
         //robot.stacker.unClampStone();
         
         waitForStart();
