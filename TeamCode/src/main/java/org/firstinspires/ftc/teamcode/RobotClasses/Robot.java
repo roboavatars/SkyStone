@@ -33,8 +33,9 @@ public class Robot {
     private final int stoneValidationDistance = 6;
     private final int armTicksUpdatePeriod = 10;
 
-
     private int cycleCounter = 0;
+
+    private int z = 20;
 
     private static File robotPositionLog = new File(new File("/sdcard/FIRST/"), "RobotPositionLog");
     
@@ -45,6 +46,7 @@ public class Robot {
         grabber = new FoundationGrabber(op);
         
         stoneSensor = op.hardwareMap.get(Rev2mDistanceSensor.class, "stoneSensor");
+
     }
     
     public void update() {
@@ -69,14 +71,22 @@ public class Robot {
         }
         //start clamping procedure
         else if(stoneInRobot && ishome()){
-            intake.setControls(0);
-            stacker.goDown();
+            if(z>0){
+                z--;
+
+            }else{
+                intake.setControls(0);
+                stacker.goDown();
+                z = 20;
+            }
+
         }
         else if(stoneInRobot && stacker.isArmDown() && !stacker.stoneClamped){
             stacker.clampStone();
         }
         else if(!stacker.isArmMoving() && downstacked){
             stacker.unClampStone();
+            stacker.setLiftControls(0.8, Math.min(stacker.getLiftPosition()+100, 1285));
             downstacked = false;
         }
 
@@ -87,8 +97,9 @@ public class Robot {
         return (stacker.isArmHome() && !stacker.stoneClamped);
     }
     public void swapArmState(){
-        if(stacker.isArmOut()){
+        if(!stacker.isArmOut()){
             stacker.deposit();
+            stacker.nextLevel();
         }
         else if(!stacker.stoneClamped){
             stacker.goHome();

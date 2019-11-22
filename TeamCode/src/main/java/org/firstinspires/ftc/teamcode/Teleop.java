@@ -30,7 +30,7 @@ public class Teleop extends LinearOpMode {
         
         waitForStart();
         robot.drivetrain.resetAngle();
-        robot.intake.setControls(0);
+        robot.intake.setControls(1);
         robot.stacker.unClampStone();
         robot.stacker.setDepositControls(0.5, 130);
         while (opModeIsActive()) {

@@ -17,7 +17,7 @@ public class Stacker {
     private final double clampPos = 0.9;
     private final double unClampPos = 0.65;
     
-    private final int armPos[] =  {2160, 1970, 1700, 1550, 1250, 1250, 1250}; // increases down
+    private final int armPos[] =  {2200, 1970, 1750, 1500, 1230, 1230, 1230}; // increases down
     private final int liftPos[] = {0,    0,    0,    0,    280,  810,  1280};
     
     private int currentStackHeight = 0;
@@ -27,7 +27,7 @@ public class Stacker {
     public boolean stoneClamped = false;
     private final int armOut = 1100;
     private final int armDown = 25;
-    private final int armHome = 120;
+    private final int armHome = 180;
     private final int armTolerance = 25;
     //unit is ticks/second
     private final int armVelocityTolerance = 5;
@@ -81,7 +81,7 @@ public class Stacker {
     }
 
     public void downStack(){
-        setDepositControls(0.3,armTicks + 50);
+        setDepositControls(0.3,armTicks + 150);
     }
 
 
