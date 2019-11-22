@@ -26,7 +26,7 @@ public class Stacker {
     private double armVelocity = 0;
     public boolean stoneClamped = false;
     private final int armOut = 1100;
-    private final int armDown = 0;
+    private final int armDown = 25;
     private final int armHome = 120;
     private final int armTolerance = 25;
     //unit is ticks/second

@@ -72,7 +72,7 @@ public class Robot {
             intake.setControls(0);
             stacker.goDown();
         }
-        else if(stoneInRobot && stacker.isArmHome() && !stacker.stoneClamped){
+        else if(stoneInRobot && stacker.isArmDown() && !stacker.stoneClamped){
             stacker.clampStone();
         }
         else if(!stacker.isArmMoving() && downstacked){
