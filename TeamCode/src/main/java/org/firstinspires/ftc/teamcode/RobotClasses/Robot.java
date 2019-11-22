@@ -19,7 +19,7 @@ public class Robot {
     boolean rangeSensorEnabled;
     boolean stoneInRobot;
 
-    private File robotPositionLog = new File(new File("/sdcard/FIRST/"), "RobotPositionLog");
+    private static File robotPositionLog = new File(new File("/sdcard/FIRST/"), "RobotPositionLog");
     
     public Robot(LinearOpMode op, double initX, double initY, double initTheta) {
         drivetrain = new MecanumDrivetrain(op, initX, initY, initTheta);
@@ -41,16 +41,16 @@ public class Robot {
             fileWriter.close();
         } catch (Exception e) {e.printStackTrace();}
     }
-    public String[] readPos() {
+    public static Double[] readPos() {
         String line;
-        String[] lines = new String[3];
+        Double[] lines = new Double[3];
         int counter = 0;
         try {
             FileReader fileReader = new FileReader(robotPositionLog);
             BufferedReader bufferedReader = new BufferedReader(fileReader);
 
             while ((line = bufferedReader.readLine()) != null) {
-                lines[counter] = line;
+                lines[counter] = Double.parseDouble(line);
                 counter = (counter + 1) % 3;
 
             }
