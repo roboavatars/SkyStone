@@ -3,10 +3,10 @@ package org.firstinspires.ftc.teamcode.RobotClasses;
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
-
-import java.util.Date;
 
 public class Robot {
     
@@ -19,7 +19,7 @@ public class Robot {
     boolean rangeSensorEnabled;
     boolean stoneInRobot;
 
-    private File file = new File(new File("/sdcard/FIRST/"), "RobotDataLog");
+    private File robotPositionLog = new File(new File("/sdcard/FIRST/"), "RobotPositionLog");
     
     public Robot(LinearOpMode op, double initX, double initY, double initTheta) {
         drivetrain = new MecanumDrivetrain(op, initX, initY, initTheta);
@@ -31,12 +31,31 @@ public class Robot {
     }
     
     public void update() {drivetrain.updatePose();}
-    public void logData(String category, String text) {
-        Date time = new Date();
+    public void writePos(double x, double y, double theta) {
         try {
-            FileWriter fileWriter = new FileWriter(file);
-            fileWriter.write(time + "-" + category + "----" + text);
+            FileWriter fileWriter = new FileWriter(robotPositionLog);
+            fileWriter.write(x + "\n");
+            fileWriter.write(y + "\n");
+            fileWriter.write(theta + "\n");
+            fileWriter.write("\n");
             fileWriter.close();
         } catch (Exception e) {e.printStackTrace();}
+    }
+    public String[] readPos() {
+        String line;
+        String[] lines = new String[3];
+        int counter = 0;
+        try {
+            FileReader fileReader = new FileReader(robotPositionLog);
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+
+            while ((line = bufferedReader.readLine()) != null) {
+                lines[counter] = line;
+                counter = (counter + 1) % 3;
+
+            }
+            fileReader.close();
+        } catch (Exception e) {e.printStackTrace();}
+        return lines;
     }
 }
