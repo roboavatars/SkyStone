@@ -93,8 +93,7 @@ public class Robot {
         drivetrain.updatePose();
     }
     public boolean ishome(){
-        //TODO add lift home position stuff
-        return (stacker.isArmHome() && !stacker.stoneClamped);
+        return (stacker.isArmHome() && stacker.isLiftHome() && !stacker.stoneClamped);
     }
     public void swapArmState(){
         if(!stacker.isArmOut()){

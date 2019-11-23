@@ -29,6 +29,8 @@ public class Stacker {
     private final int armDown = 25;
     private final int armHome = 180;
     private final int armTolerance = 25;
+    private final int liftHome = 0;
+    private final int liftTolerance = 10;
     //unit is ticks/second
     private final int armVelocityTolerance = 5;
     
@@ -91,6 +93,9 @@ public class Stacker {
     }
     public boolean isArmHome(){
         return Math.abs(getArmPosition()-armHome)<armTolerance;
+    }
+    public boolean isLiftHome(){
+        return Math.abs(getLiftPosition()-liftHome)<liftTolerance;
     }
     public boolean isArmOut(){
         return getArmPosition()>armOut;
