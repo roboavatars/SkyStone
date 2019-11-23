@@ -141,6 +141,7 @@ public class skyStoneDetector extends Thread {
             if (horAvg > horThreshold) SCropped.push_back(openClose.row(row));
         }
 
+        // Vertical Analysis
         if (!(SCropped.cols() == 0)) {
             if (frameNum < 100) Imgcodecs.imwrite(croppedPath + frameNum + ".jpg", SCropped);
 
@@ -187,6 +188,7 @@ public class skyStoneDetector extends Thread {
             }*/
             //log(darkAreas.size() + " Dark Areas: " + darkAreas);
 
+            // Disregarding Small Columns
             double prevArea = 0;
             boolean firstStone = true;
             for (int a = 0; a < darkAreas.size(); a++) {
@@ -206,6 +208,7 @@ public class skyStoneDetector extends Thread {
             curStoneCount = darkAreas.size();
             stoneSum += curStoneCount;
 
+            // Converting X Coordinates to Positions
             if (!(darkAreas.size() == 0)) {
                 ssXPos = darkAreas.get(0);
 
