@@ -29,6 +29,8 @@ public class Robot {
     private final int stoneSensorUpdatePeriod = 20;
     private final int stoneValidationDistance = 6;
     private final int armTicksUpdatePeriod = 10;
+    private final int loggerUpdatePeriod = 2;
+    private final int flushUpdatePeriod = 50000;
 
     private int cycleCounter = 0;
     private int z = 10;
@@ -87,7 +89,12 @@ public class Robot {
         }
 
         drivetrain.updatePose();
-        logger.writePos(drivetrain.x, drivetrain.y, drivetrain.currentheading);
+        if (cycleCounter % loggerUpdatePeriod == 0) {
+            logger.writePos(drivetrain.x, drivetrain.y, drivetrain.currentheading);
+        }
+        if (cycleCounter % flushUpdatePeriod == 0) {
+            logger.flush();
+        }
     }
 
     public boolean isHome(){

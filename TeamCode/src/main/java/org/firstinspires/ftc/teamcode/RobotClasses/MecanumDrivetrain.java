@@ -18,6 +18,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.opencv.core.Mat;
 
 import java.util.Iterator;
 
@@ -71,6 +72,9 @@ public class MecanumDrivetrain {
     private double yk = 0.1;
     private double thetak = 0.8;
 
+    private final double xyTolerance = 1;
+    private final double thetaTolerance = Math.PI/35;
+
     //Constructor
     public MecanumDrivetrain(LinearOpMode opMode, double initialx, double
                              initialy, double initialtheta){
@@ -110,6 +114,7 @@ public class MecanumDrivetrain {
         y = initialy;
         lastheading = initialtheta;
         currentheading = initialtheta;
+
 
         opMode.telemetry.addLine("ExH Version: " + getConciseLynxFirmwareVersion(module));
         opMode.telemetry.update();
@@ -261,6 +266,14 @@ public class MecanumDrivetrain {
     }
 
 
+    public boolean isAtPose(double targetx, double targety, double targettheta) {
+        return (Math.abs(x - targetx) < xyTolerance && Math.abs(y - targety) < xyTolerance
+                && Math.abs(currentheading - targettheta) < thetaTolerance);
+    }
+    public boolean isAtPose(double targetx, double targety, double targettheta, double xtolerance, double ytolerance, double thetatolerance) {
+        return (Math.abs(x - targetx) < xtolerance && Math.abs(y - targety) < ytolerance
+                && Math.abs(currentheading - targettheta) < thetatolerance);
+    }
 
 
 }

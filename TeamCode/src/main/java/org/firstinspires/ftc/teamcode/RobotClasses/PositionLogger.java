@@ -26,8 +26,12 @@ public class PositionLogger {
             fileWriter.write("\n" + x);
             fileWriter.write("\n" + y);
             fileWriter.write("\n" + theta);
-            fileWriter.flush();
         } catch (Exception e) {e.printStackTrace();}
+    }
+
+    public void flush() {
+        try {fileWriter.flush();}
+        catch (Exception e) {e.printStackTrace();}
     }
 
     public static double[] readPos() {

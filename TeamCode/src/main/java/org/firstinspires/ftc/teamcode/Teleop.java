@@ -22,11 +22,12 @@ public class Teleop extends LinearOpMode {
     @Override
     public void runOpMode() {
         double[] initialPosition = PositionLogger.readPos();
+        telemetry.addData("initial theta", initialPosition[2]);
+        telemetry.update();
         robot = new Robot(this, initialPosition[0], initialPosition[1], initialPosition[2]);
         robot.logger.startLogging();
         
         waitForStart();
-        robot.drivetrain.resetAngle();
         robot.intake.setControls(1);
         robot.stacker.unClampStone();
         robot.stacker.goHome();
@@ -74,6 +75,10 @@ public class Teleop extends LinearOpMode {
             robot.update();
             
             telemetry.addData("Robot Centric", robotCentric);
+            telemetry.addData("Robot x", robot.drivetrain.x);
+            telemetry.addData("Robot y", robot.drivetrain.y);
+            telemetry.addData("Robot theta", robot.drivetrain.currentheading);
+
             telemetry.update();
         }
 
