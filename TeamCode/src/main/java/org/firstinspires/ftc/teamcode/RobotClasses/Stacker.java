@@ -82,7 +82,7 @@ public class Stacker {
         setDepositControls(0.3, armDown);
     }
     public void downStack() {
-        setDepositControls(0.3,armTicks + 150);
+        setDepositControls(0.3,armTicks + 100);
     }
 
     public void deposit() {
@@ -108,6 +108,10 @@ public class Stacker {
     }
     public void lastLevel() {
         currentStackHeight = Math.max(currentStackHeight - 1, 0);
+    }
+
+    public void setLevel(int level) {
+        currentStackHeight = level;
     }
     
     public void clampStone() {
