@@ -38,8 +38,6 @@ public class RedAuto extends LinearOpMode {
         // skystone position variables
         double skystonePos = detector.getPosition();
         double skystoneY = robot.drivetrain.y;
-
-        boolean stoneIntaked = false;
         
         // segment finished variables
         boolean skystone1 = false;
@@ -59,7 +57,7 @@ public class RedAuto extends LinearOpMode {
         double skystone1Time = 2.5;
         double backToCenterTime = 1;
         double toFoundation1Time = 1.75;
-        double toQuarryTime = 2;
+        double toQuarryTime = 3;
         double skystone2Time = 2;
         
         // set skystone y coordinate according to skystone position
@@ -110,12 +108,11 @@ public class RedAuto extends LinearOpMode {
             // get the first skystone
             if (!skystone1) {
                 double currentTime = Math.min(2, time.seconds());
-                stoneIntaked = robot.stoneInRobot;
 
                 if (time.seconds() < skystone1Time) {
                     robot.drivetrain.setTargetPoint(skystone1Spline[0].position(currentTime), skystone1Spline[1].position(currentTime),
-                            Math.PI / 4);
-                } else if (stoneIntaked || time.seconds() > skystone1Time + 2) {
+                            Math.PI / 4 + 0.15);
+                } else if (robot.stacker.stoneClamped || time.seconds() > skystone1Time + 2) {
                     skystone1 = true;
                     detector.setActive(false);
                     backToCenterSpline = splineGenerator.SplineBetweenTwoPoints(robot.drivetrain.x, robot.drivetrain.y,
@@ -192,12 +189,12 @@ public class RedAuto extends LinearOpMode {
             // push the foundation forward to score it in building zone, unclamp it
             else if (!pushFoundation) {
                 robot.drivetrain.setTargetPoint(35, 29, Math.PI / 2, 0.1, 0.4, 0.8);
-                if (stoneIntaked && time.seconds() > 0.5) {
+                if (robot.stacker.stoneClamped && time.seconds() > 0.5) {
                     robot.stacker.unClampStone();
                 }
                 if (time.seconds() > 1) {
                     pushFoundation = true;
-                    if (stoneIntaked && !robot.stoneInRobot) {
+                    if (robot.stacker.stoneClamped && !robot.stoneInRobot) {
                         telemetry.addData("", robot.stacker.isArmOut()); telemetry.update();
                         robot.swapArmState();
                     }
@@ -215,24 +212,24 @@ public class RedAuto extends LinearOpMode {
                 double currentTime = Math.min(toQuarryTime, time.seconds());
                 robot.drivetrain.setTargetPoint(toQuarrySpline[0].position(currentTime), toQuarrySpline[1].position(currentTime),
                         toQuarryThetaSpline.position(currentTime));
+
                 if (time.seconds() > toQuarryTime) {
                     toQuarry = true;
                     skystone2Spline = splineGenerator.SplineBetweenTwoPoints(robot.drivetrain.x, robot.drivetrain.y,
-                            45, skystoneY - 25, robot.drivetrain.currentheading, Math.PI / 4, 30, 0,
+                            45, skystoneY - 26, robot.drivetrain.currentheading, Math.PI / 4, 30, 0,
                             20, 0, 0, 0, skystone2Time);
                     time.reset();
                 }
             }
             
             // get the second skystone
-            /*else if (!skystone2) {
+            else if (!skystone2) {
                 double currentTime = Math.min(skystone2Time, time.seconds());
-                stoneIntaked = robot.stoneInRobot;
 
                 if (time.seconds() < skystone2Time) {
                     robot.drivetrain.setTargetPoint(skystone2Spline[0].position(currentTime), skystone2Spline[1].position(currentTime),
-                            Math.PI / 4);
-                } else if (stoneIntaked || time.seconds() > skystone2Time + 2) {
+                            Math.PI / 4 + 0.15);
+                } else if (robot.stacker.stoneClamped || time.seconds() > skystone2Time + 2) {
                         skystone2 = true;
                         time.reset();
                 } else {
@@ -261,7 +258,7 @@ public class RedAuto extends LinearOpMode {
                 }
                 if (time.seconds() > 5.5) {
                     toFoundation2 = true;
-                    if (!robot.stoneInRobot && stoneIntaked) {
+                    if (!robot.stoneInRobot && robot.stacker.stoneClamped) {
                         robot.swapArmState();
                     }
                     time.reset();
@@ -275,7 +272,7 @@ public class RedAuto extends LinearOpMode {
                     toTape = true;
                     time.reset();
                 }
-            }*/
+            }
             
             // stop robot
             else {
