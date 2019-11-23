@@ -94,7 +94,7 @@ public class Robot {
     }
 
     public boolean isHome(){
-        return (stacker.isArmHome() && stacker.isLiftHome() && !stacker.stoneClamped);
+        return (stacker.isArmHome() && stacker.isLiftHome() && grabber.isGrabberHome() && !stacker.stoneClamped);
     }
 
     public void swapArmState() {
