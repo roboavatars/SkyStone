@@ -114,7 +114,9 @@ public class RedAuto extends LinearOpMode {
                 if (time.seconds() < skystone1Time) {
                     robot.drivetrain.setTargetPoint(skystone1Spline[0].position(currentTime), skystone1Spline[1].position(currentTime),
                             Math.PI / 4 + 0.1);
-                } else if (robot.stacker.stoneClamped || time.seconds() > skystone1Time + 2) {
+                }
+                // if skystone is clamped or robot has been trying to intake stone for too long, move on
+                else if (robot.stacker.stoneClamped || time.seconds() > skystone1Time + 2) {
                     skystone1 = true;
                     detector.setActive(false);
                     backToCenterSpline = splineGenerator.SplineBetweenTwoPoints(robot.drivetrain.x, robot.drivetrain.y,
@@ -122,7 +124,9 @@ public class RedAuto extends LinearOpMode {
                             -20, -50, 0, 0, backToCenterTime);
                     backToCenterThetaSpline = new Spline(robot.drivetrain.currentheading, 0, 0, Math.PI / 2, 0, 0, backToCenterTime);
                     time.reset();
-                } else {
+                }
+                // if skystone has not been clamped, move forward to try to suck it in
+                else {
                     robot.drivetrain.setTargetPoint(robot.drivetrain.x + 1, robot.drivetrain.y + 1, robot.drivetrain.currentheading);
                 }
             }
@@ -132,6 +136,7 @@ public class RedAuto extends LinearOpMode {
                 double currentTime = Math.min(backToCenterTime, time.seconds());
                 robot.drivetrain.setTargetPoint(backToCenterSpline[0].position(currentTime), backToCenterSpline[1].position(currentTime),
                         backToCenterThetaSpline.position(currentTime));
+
                 if (time.seconds() > backToCenterTime) {
                     backToCenter1 = true;
                     time.reset();
@@ -163,12 +168,15 @@ public class RedAuto extends LinearOpMode {
                 }
             }
             
-            // approach and align robot with foundation and grab it
+            // approach and align robot with foundation
             else if (!approachFoundation) {
                 robot.drivetrain.setTargetPoint(44, 25, Math.PI);
+
+                // grab foundation
                 if (time.seconds() > 0.5) {
                     robot.grabber.grabFoundation();
                 }
+                // extend arm with skystone over the foundation
                 if (robot.drivetrain.isAtPose(44, 25, Math.PI) && time.seconds() > 1.5) {
                     approachFoundation = true;
                     if (robot.stacker.stoneClamped) {
@@ -199,13 +207,15 @@ public class RedAuto extends LinearOpMode {
                 }
             }
             
-            // push the foundation forward to score it in building zone, unclamp it
+            // push the foundation forward to score it in building zone
             else if (!pushFoundation) {
                 robot.drivetrain.setTargetPoint(35, 29, Math.PI / 2, 0.1, 0.4, 0.8);
+                // release the skystone onto the foundation
                 robot.stacker.unClampStone();
 
                 if (time.seconds() > 1) {
-                    pushFoundation = true;
+                    pushFoundation = true;// retract the arm back into the robot, release foundation
+                    // retract the arm back into the robot, release foundation
                     if (robot.stacker.isArmOut()) {
                         robot.swapArmState();
                     }
@@ -240,10 +250,14 @@ public class RedAuto extends LinearOpMode {
                 if (time.seconds() < skystone2Time) {
                     robot.drivetrain.setTargetPoint(skystone2Spline[0].position(currentTime), skystone2Spline[1].position(currentTime),
                             Math.PI / 4 + 0.15);
-                } else if (robot.stacker.stoneClamped || time.seconds() > skystone2Time + 2) {
+                }
+                // if skystone is clamped or robot has been trying to intake stone for too long, move on
+                else if (robot.stacker.stoneClamped || time.seconds() > skystone2Time + 2) {
                         skystone2 = true;
                         time.reset();
-                } else {
+                }
+                // if skystone has not been clamped, move forward to try to suck it in
+                else {
                     robot.drivetrain.setTargetPoint(robot.drivetrain.x + 1, robot.drivetrain.y + 1, robot.drivetrain.currentheading);
                 }
             }
@@ -257,19 +271,22 @@ public class RedAuto extends LinearOpMode {
                 }
             }
             
-            // go to foundation to score second skystone
+            // go to foundation to deposit second skystone
             else if (!toFoundation2) {
                 robot.drivetrain.setTargetPoint(33, 33, Math.PI / 2, 0.2, 0.03, 0.8);
+                // extend arm with skystone over the foundation
                 if (robot.drivetrain.isAtPose(robot.drivetrain.x, 60, robot.drivetrain.currentheading)) {
                     robot.stacker.setLevel(1);
                     robot.swapArmState();
                 }
+                // release the skystone onto the foundation
                 if (time.seconds() > 2.5) {
                     robot.stacker.unClampStone();
                 }
                 if (robot.drivetrain.isAtPose(33, 33, Math.PI/2) && time.seconds()<3) {
                     robot.stacker.unClampStone();
                     toFoundation2 = true;
+                    // retract the arm back into the robot
                     if (robot.stacker.isArmOut()) {
                         robot.swapArmState();
                     }
