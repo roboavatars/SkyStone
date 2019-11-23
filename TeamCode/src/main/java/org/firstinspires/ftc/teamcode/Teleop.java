@@ -50,6 +50,10 @@ public class Teleop extends LinearOpMode {
                 rightBumper = true;
             }
 
+            if (gamepad1.right_trigger > 0) {
+                robot.capstoneDeposit.attachCapstone();
+            }
+
             if (gamepad1.dpad_up && dpadUp) {
                 dpadUp = false;
             } else if (!dpadUp && !gamepad1.dpad_up) {
@@ -81,7 +85,5 @@ public class Teleop extends LinearOpMode {
 
             telemetry.update();
         }
-
-        //Robot.deletePosFile();
     }
 }

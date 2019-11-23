@@ -14,6 +14,7 @@ public class Robot {
     public Intake intake;
     public Stacker stacker;
     public FoundationGrabber grabber;
+    public CapstoneDeposit capstoneDeposit;
     public Rev2mDistanceSensor stoneSensor;
 
     public PositionLogger logger;
@@ -40,6 +41,7 @@ public class Robot {
         intake = new Intake(op);
         stacker = new Stacker(op);
         grabber = new FoundationGrabber(op);
+        capstoneDeposit = new CapstoneDeposit(op);
         logger = new PositionLogger();
 
         stoneSensor = op.hardwareMap.get(Rev2mDistanceSensor.class, "stoneSensor");
@@ -57,6 +59,10 @@ public class Robot {
         // update arm
         if ((cycleCounter + 3) % armTicksUpdatePeriod == 0) {
             stacker.update();
+        }
+
+        if (capstoneDeposit.isOut()) {
+            capstoneDeposit.retract();
         }
 
         // check states----------------------
