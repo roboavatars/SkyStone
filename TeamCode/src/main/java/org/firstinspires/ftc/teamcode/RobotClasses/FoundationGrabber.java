@@ -13,6 +13,9 @@ public class FoundationGrabber {
     private Servo leftGrabber;
     private Servo rightGrabber;
 
+    private final double grabberHome = 1;
+    private final double grabberTolerance = 0.1;
+
     //OpMode Stuff
     private LinearOpMode op;
     private HardwareMap hardwareMap;
@@ -33,9 +36,16 @@ public class FoundationGrabber {
         leftGrabber.setPosition(1);
         rightGrabber.setPosition(-1);
     }
-
     public void grabFoundation() {
         leftGrabber.setPosition(-1);
         rightGrabber.setPosition(1);
+    }
+
+    public double getGrabberPosition() {
+        return leftGrabber.getPosition();
+    }
+
+    public boolean isGrabberHome() {
+        return Math.abs(getGrabberPosition() - grabberHome) < grabberTolerance;
     }
 }

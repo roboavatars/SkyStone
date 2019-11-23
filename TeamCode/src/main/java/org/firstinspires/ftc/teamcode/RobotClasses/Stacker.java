@@ -68,46 +68,44 @@ public class Stacker {
         liftMotor.setPower(power);
         liftMotor.setTargetPosition(ticks);
     }
-    
     public void setDepositControls(double power, int ticks) {
         depositMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         depositMotor.setPower(power);
         depositMotor.setTargetPosition(ticks);
     }
-    public void goHome(){
+
+    public void goHome() {
         setDepositControls(0.5,armHome);
         setLiftControls(0.5,0);
     }
-    public void goDown(){
+    public void goDown() {
         setDepositControls(0.3, armDown);
     }
-
-    public void downStack(){
+    public void downStack() {
         setDepositControls(0.3,armTicks + 150);
     }
-
 
     public void deposit() {
         setLiftControls(1, liftPos[currentStackHeight]);
         setDepositControls(0.75, armPos[currentStackHeight]);
     }
-    public boolean isArmHome(){
-        return Math.abs(getArmPosition()-armHome)<armTolerance;
+
+    public boolean isArmHome() {
+        return Math.abs(getArmPosition() - armHome) < armTolerance;
     }
-    public boolean isLiftHome(){
-        return Math.abs(getLiftPosition()-liftHome)<liftTolerance;
+    public boolean isLiftHome() {
+        return Math.abs(getLiftPosition() - liftHome) < liftTolerance;
     }
-    public boolean isArmOut(){
-        return getArmPosition()>armOut;
+    public boolean isArmOut() {
+        return getArmPosition() > armOut;
     }
-    public boolean isArmDown(){
-        return Math.abs(getArmPosition()-armDown)<armTolerance;
+    public boolean isArmDown() {
+        return Math.abs(getArmPosition() - armDown) < armTolerance;
     }
 
     public void nextLevel() {
         currentStackHeight = Math.min(currentStackHeight + 1, 6);
     }
-    
     public void lastLevel() {
         currentStackHeight = Math.max(currentStackHeight - 1, 0);
     }
@@ -116,7 +114,6 @@ public class Stacker {
         stoneClamp.setPosition(clampPos);
         stoneClamped = true;
     }
-    
     public void unClampStone() {
         stoneClamp.setPosition(unClampPos);
         stoneClamped = false;
@@ -125,16 +122,15 @@ public class Stacker {
     public int getLiftPosition() {
         return liftTicks;
     }
-    
     public int getArmPosition() {
         return armTicks;
     }
 
-    public boolean isArmMoving(){
-        return Math.abs(armVelocity)>armVelocityTolerance;
+    public boolean isArmMoving() {
+        return Math.abs(armVelocity) > armVelocityTolerance;
     }
 
-    public void update(){
+    public void update() {
         armTicks = depositMotor.getCurrentPosition();
         liftTicks = liftMotor.getCurrentPosition();
         armVelocity = depositMotor.getVelocity();
