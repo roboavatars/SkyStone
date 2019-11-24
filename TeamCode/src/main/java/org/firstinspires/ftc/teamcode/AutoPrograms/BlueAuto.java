@@ -1,4 +1,4 @@
-/*package org.firstinspires.ftc.teamcode.AutoPrograms;
+package org.firstinspires.ftc.teamcode.AutoPrograms;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -112,7 +112,7 @@ public class BlueAuto extends LinearOpMode {
 
                 if (time.seconds() < skystone1Time) {
                     robot.drivetrain.setTargetPoint(skystone1Spline[0].position(currentTime), skystone1Spline[1].position(currentTime),
-                            3 * Math.PI / 4 + 0.1);
+                            3 * Math.PI / 4 + 0.15);
                 }
                 // if skystone is clamped or robot has been trying to intake stone for too long, move on
                 else if (robot.stacker.stoneClamped || time.seconds() > skystone1Time + 3) {
@@ -126,7 +126,7 @@ public class BlueAuto extends LinearOpMode {
                 }
                 // if skystone has not been clamped, move forward to try to suck it in
                 else {
-                    robot.drivetrain.setTargetPoint(robot.drivetrain.x - 1, robot.drivetrain.y + 1, robot.drivetrain.currentheading - 0.1);
+                    robot.drivetrain.setTargetPoint(robot.drivetrain.x - 1, robot.drivetrain.y + 0.5, robot.drivetrain.currentheading - 0.07);
                 }
             }
 
@@ -145,7 +145,7 @@ public class BlueAuto extends LinearOpMode {
             // get near the foundation
             else if (!toFoundation1) {
                 robot.drivetrain.setTargetPoint(108, 55, Math.PI / 2);
-                if (robot.drivetrain.isAtPose(108, 55, Math.PI / 2)) {
+                if (robot.drivetrain.y < 58) {
                     toFoundation1 = true;
                     foundationTurnSpline = splineGenerator.SplineBetweenTwoPoints(robot.drivetrain.x, robot.drivetrain.y,
                             113, 36, robot.drivetrain.currentheading, 0, -70, -30,
@@ -172,16 +172,14 @@ public class BlueAuto extends LinearOpMode {
                 robot.drivetrain.setTargetPoint(100, 25, 0);
 
                 // grab foundation
-                if (time.seconds() > 0.5) {
+                if (time.seconds() > 0.3) {
                     robot.grabber.grabFoundation();
                 }
                 // extend arm with skystone over the foundation
-                if (robot.drivetrain.isAtPose(100, 25, 0) && time.seconds() > 1.5) {
+                if (robot.drivetrain.isAtPose(100, 25, 0) || time.seconds() > 2) {
                     approachFoundation = true;
                     if (robot.stacker.stoneClamped) {
-                        robot.stacker.setLevel(1);
-                        robot.swapArmState();
-                        robot.deposit();
+                        robot.depositAuto();
                     }
                     time.reset();
                 }
@@ -190,8 +188,8 @@ public class BlueAuto extends LinearOpMode {
 
             // pull the foundation so that it is in front of the building site
             else if (!pullFoundation) {
-                robot.drivetrain.setTargetPoint(118, 25, 0, 0.8, 0, 0.8);
-                if (robot.drivetrain.isAtPose(118, 25, 0) || time.seconds() > 1) {
+                robot.drivetrain.setTargetPoint(118, 35, 0, 0.6, 0.6, 0.4);
+                if (robot.drivetrain.isAtPose(118, 35, 0) || time.seconds() > 1.5) {
                     pullFoundation = true;
                     time.reset();
                 }
@@ -209,15 +207,9 @@ public class BlueAuto extends LinearOpMode {
             // push the foundation forward to score it in building zone
             else if (!pushFoundation) {
                 robot.drivetrain.setTargetPoint(109, 29, Math.PI / 2, 0.1, 0.4, 0.8);
-                // release the skystone onto the foundation
-                robot.stacker.unClampStone();
 
-                if (time.seconds() > 1) {
+                if (robot.stacker.isArmHome() || time.seconds() > 1) {
                     pushFoundation = true;// retract the arm back into the robot, release foundation
-                    // retract the arm back into the robot, release foundation
-                    if (robot.stacker.isArmOut()) {
-                        robot.swapArmState();
-                    }
                     robot.grabber.releaseFoundation();
                     toQuarrySpline = splineGenerator.SplineBetweenTwoPoints(robot.drivetrain.x, robot.drivetrain.y,
                             120, skystoneY - 30, robot.drivetrain.currentheading, 3 * Math.PI / 4, 0, 0,
@@ -255,9 +247,14 @@ public class BlueAuto extends LinearOpMode {
                     skystone2 = true;
                     time.reset();
                 }
+                // go to tape if skystone not collected
+                else if (!robot.stoneInRobot && time.seconds() > skystone2Time + 3) {
+                    backToCenter2 = true;
+                    toFoundation2 = true;
+                }
                 // if skystone has not been clamped, move forward to try to suck it in
                 else {
-                    robot.drivetrain.setTargetPoint(robot.drivetrain.x - 1, robot.drivetrain.y + 1, robot.drivetrain.currentheading - 0.1);
+                    robot.drivetrain.setTargetPoint(robot.drivetrain.x - 1, robot.drivetrain.y + 0.5, robot.drivetrain.currentheading - 0.07);
                 }
             }
 
@@ -272,23 +269,13 @@ public class BlueAuto extends LinearOpMode {
 
             // go to foundation to deposit second skystone
             else if (!toFoundation2) {
-                robot.drivetrain.setTargetPoint(111, 33, Math.PI / 2, 0.2, 0.03, 0.8);
+                robot.drivetrain.setTargetPoint(111, 33, Math.PI / 2);
                 // extend arm with skystone over the foundation
                 if (robot.drivetrain.isAtPose(robot.drivetrain.x, 60, robot.drivetrain.currentheading)) {
-                    robot.stacker.setLevel(1);
-                    robot.swapArmState();
+                    robot.depositAuto();
                 }
-                // release the skystone onto the foundation
-                if (time.seconds() > 2.5) {
-                    robot.stacker.unClampStone();
-                }
-                if (robot.drivetrain.isAtPose(111, 33, Math.PI / 2) && time.seconds() > 3) {
-                    robot.stacker.unClampStone();
+                if (!robot.stacker.stoneClamped && robot.stacker.isArmHome()) {
                     toFoundation2 = true;
-                    // retract the arm back into the robot
-                    if (robot.stacker.isArmOut()) {
-                        robot.swapArmState();
-                    }
                     time.reset();
                 }
             }
@@ -296,16 +283,6 @@ public class BlueAuto extends LinearOpMode {
             // park at tape under the alliance skybridge
             else if (!toTape) {
                 robot.drivetrain.setTargetPoint(114, 72, Math.PI / 2, 0.2, 0.2, 0.8);
-                if (robot.drivetrain.isAtPose(144, 72, Math.PI / 2) || time.seconds() > 1) {
-                    toTape = true;
-                    time.reset();
-                }
-            }
-
-            // stop robot
-            else {
-                robot.drivetrain.setControls(0, 0, 0);
-                detector.interrupt();
             }
 
             telemetry.addData("skystone position", skystonePos);
@@ -319,5 +296,6 @@ public class BlueAuto extends LinearOpMode {
         robot.logger.writePos(robot.drivetrain.x, robot.drivetrain.y, robot.drivetrain.currentheading);
         robot.logger.flush();
         robot.logger.stopLogging();
+        detector.interrupt();
     }
-}*/
+}

@@ -126,7 +126,7 @@ public class RedAuto extends LinearOpMode {
                 }
                 // if skystone has not been clamped, move forward to try to suck it in
                 else {
-                    robot.drivetrain.setTargetPoint(robot.drivetrain.x + 1, robot.drivetrain.y + 0.5 , robot.drivetrain.currentheading + 0.07);
+                    robot.drivetrain.setTargetPoint(robot.drivetrain.x + 1, robot.drivetrain.y + 0.5, robot.drivetrain.currentheading + 0.07);
                 }
             }
 
@@ -145,7 +145,7 @@ public class RedAuto extends LinearOpMode {
             // get near the foundation
             else if (!toFoundation1) {
                 robot.drivetrain.setTargetPoint(36, 55, Math.PI / 2);
-                if (robot.drivetrain.y<58) {
+                if (robot.drivetrain.y < 58) {
                     toFoundation1 = true;
                     foundationTurnSpline = splineGenerator.SplineBetweenTwoPoints(robot.drivetrain.x, robot.drivetrain.y,
                             31, 36, robot.drivetrain.currentheading, Math.PI, -70, -30,
@@ -254,7 +254,7 @@ public class RedAuto extends LinearOpMode {
                 }
                 // if skystone has not been clamped, move forward to try to suck it in
                 else {
-                    robot.drivetrain.setTargetPoint(robot.drivetrain.x + 1, robot.drivetrain.y, robot.drivetrain.currentheading + 0.1);
+                    robot.drivetrain.setTargetPoint(robot.drivetrain.x + 1, robot.drivetrain.y + 0.5, robot.drivetrain.currentheading + 0.07);
                 }
             }
 
@@ -269,7 +269,7 @@ public class RedAuto extends LinearOpMode {
 
             // go to foundation to deposit second skystone
             else if (!toFoundation2) {
-                robot.drivetrain.setTargetPoint(33, 33, Math.PI /2);
+                robot.drivetrain.setTargetPoint(33, 33, Math.PI / 2);
                 // extend arm with skystone over the foundation
                 if (robot.drivetrain.isAtPose(robot.drivetrain.x, 60, robot.drivetrain.currentheading)) {
                     robot.depositAuto();
@@ -283,17 +283,7 @@ public class RedAuto extends LinearOpMode {
             // park at tape under the alliance skybridge
             else if (!toTape) {
                 robot.drivetrain.setTargetPoint(30, 72, Math.PI / 2, 0.2, 0.2, 0.8);
-//                if (robot.drivetrain.isAtPose(30, 72, Math.PI / 2) || time.seconds() > 1) {
-//                    toTape = true;
-//                    time.reset();
-//                }
             }
-
-//            // stop robot
-//            else {
-//                robot.drivetrain.setControls(0, 0, 0);
-//                detector.interrupt();
-//            }
 
             telemetry.addData("skystone position", skystonePos);
             telemetry.addData("x", robot.drivetrain.x);
@@ -306,5 +296,6 @@ public class RedAuto extends LinearOpMode {
         robot.logger.writePos(robot.drivetrain.x, robot.drivetrain.y, robot.drivetrain.currentheading);
         robot.logger.flush();
         robot.logger.stopLogging();
+        detector.interrupt();
     }
 }
