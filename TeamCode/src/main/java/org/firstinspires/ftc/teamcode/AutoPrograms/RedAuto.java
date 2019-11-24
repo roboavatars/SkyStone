@@ -126,7 +126,7 @@ public class RedAuto extends LinearOpMode {
                 }
                 // if skystone has not been clamped, move forward to try to suck it in
                 else {
-                    robot.drivetrain.setTargetPoint(robot.drivetrain.x + 1, robot.drivetrain.y + 0.8 , robot.drivetrain.currentheading + 0.07,0.4,0.4,0.8);
+                    robot.drivetrain.setTargetPoint(robot.drivetrain.x + 1, robot.drivetrain.y + 0.8 , robot.drivetrain.currentheading + 0.07);
                 }
             }
 
@@ -260,7 +260,7 @@ public class RedAuto extends LinearOpMode {
 
             // go to the center of the tile closet to the neutral skybridge to avoid hitting alliance partner's robot
             else if (!backToCenter2) {
-                robot.drivetrain.setTargetPoint(33, 85, Math.PI / 2, 0.2, 0.2, 0.8);
+                robot.drivetrain.setTargetPoint(33, 88, Math.PI / 2, 0.2, 0.2, 0.8);
                 if (robot.drivetrain.y < 85) {
                     backToCenter2 = true;
                     time.reset();
@@ -269,7 +269,7 @@ public class RedAuto extends LinearOpMode {
 
             // go to foundation to deposit second skystone
             else if (!toFoundation2) {
-                robot.drivetrain.setTargetPoint(33, 33, Math.PI /2);
+                robot.drivetrain.setTargetPoint(33, 37, Math.PI /2);
                 // extend arm with skystone over the foundation
                 if (robot.drivetrain.isAtPose(robot.drivetrain.x, 60, robot.drivetrain.currentheading)) {
                     robot.depositAuto();
