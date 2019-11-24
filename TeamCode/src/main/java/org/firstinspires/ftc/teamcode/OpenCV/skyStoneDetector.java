@@ -40,7 +40,7 @@ public class skyStoneDetector extends Thread {
     private final boolean usingCamera = true; // <<<----------------------
 
     private final int horThreshold = 90;
-    private final int verThreshold = 225;
+    private final int verThreshold = 215;
     private final int magnificationFactor = 10;
     private final int binaryValue = 255;
 
@@ -143,19 +143,23 @@ public class skyStoneDetector extends Thread {
 
         // Vertical Analysis
         if (!(SCropped.cols() == 0)) {
-            if (frameNum < 100) Imgcodecs.imwrite(croppedPath + frameNum + ".jpg", SCropped);
+            if (frameNum < 50) Imgcodecs.imwrite(croppedPath + frameNum + ".jpg", SCropped);
 
             // Makes image black(stone) and white(skyStone)
+            String avgList = "";
             double verAvg;
             Mat verImage = new Mat(10, SCropped.cols(), CvType.CV_8UC1);
             for (int col = 0; col < SCropped.cols(); col++) {
                 verAvg = Core.mean(openClose.col(col)).val[0] * magnificationFactor;
+                avgList += verAvg + " ";
                 if (verAvg <= verThreshold) verAvg = 0;
                 else verAvg = binaryValue;
                 verImage.col(col).setTo(new Scalar(verAvg));
             }
             Imgproc.morphologyEx(verImage, verImage, Imgproc.MORPH_OPEN, new Mat());
-            //if (frameNum < 100) Imgcodecs.imwrite(verViewPath + frameNum + ".jpg", verImage);
+            if (frameNum < 50) Imgcodecs.imwrite(verViewPath + frameNum + ".jpg", verImage);
+
+            log("ver avg: " + avgList);
 
             /*String verCols = "";
             for (int col = 0; col < verImage.cols(); col++) {verCols+=(new Scalar(verImage.get(0, col)).val[0])+", ";}

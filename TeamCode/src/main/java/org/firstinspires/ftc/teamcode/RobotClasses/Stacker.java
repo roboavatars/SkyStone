@@ -17,9 +17,9 @@ public class Stacker {
     private final double clampPos = 0.9;
     private final double unClampPos = 0.65;
     
-    private final int armPos[] =  {2200, 1970, 1750, 1500, 1230, 1230, 1230}; // increases down
-    private final int liftPos[] = {0,    0,    0,    0,    280,  810,  1280};
-    
+    private final int armPos[] =  {2100, 1800, 1600, 1380, 1230, 1230, 1230, 1230, 1230, 1230}; // increases down
+    private final int liftPos[] = {0,    0,    0,    0,    330,  860,  1330, 1800, 2270, 2740};
+
     private int currentStackHeight = 0;
     private int armTicks = 0;
     private int liftTicks = 0;
@@ -82,7 +82,7 @@ public class Stacker {
         setDepositControls(0.3, armDown);
     }
     public void downStack() {
-        setDepositControls(0.3,armTicks + 100);
+        setDepositControls(0.3,armTicks + 130);
     }
 
     public void deposit() {
@@ -104,7 +104,7 @@ public class Stacker {
     }
 
     public void nextLevel() {
-        currentStackHeight = Math.min(currentStackHeight + 1, 6);
+        currentStackHeight = Math.min(currentStackHeight + 1, 9);
     }
     public void lastLevel() {
         currentStackHeight = Math.max(currentStackHeight - 1, 0);

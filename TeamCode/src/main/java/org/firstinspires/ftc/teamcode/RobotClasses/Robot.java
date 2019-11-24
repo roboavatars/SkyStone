@@ -21,20 +21,24 @@ public class Robot {
 
     // State booleans
     public boolean stoneInRobot = false;
+    private boolean depositAuto = false;
 
     //TODO create clampedOnFoundation methods
     private boolean clampedOnFoundation = false;
     private boolean downStacked = false;
 
     // Class constants
-    private final int stoneSensorUpdatePeriod = 20;
+    private final int stoneSensorUpdatePeriod = 7;
     private final int stoneValidationDistance = 6;
     private final int armTicksUpdatePeriod = 10;
     private final int loggerUpdatePeriod = 2;
-    private final int flushUpdatePeriod = 50000;
+    private final int flushUpdatePeriod = 5000;
 
     private int cycleCounter = 0;
-    private int z = 10;
+    private int z = 25;
+    private int x = 0;
+
+    private LinearOpMode op;
 
     public Robot(LinearOpMode op, double initX, double initY, double initTheta) {
         drivetrain = new MecanumDrivetrain(op, initX, initY, initTheta);
@@ -44,10 +48,26 @@ public class Robot {
         capstoneDeposit = new CapstoneDeposit(op);
         logger = new PositionLogger();
 
+        this.op = op;
+
         stoneSensor = op.hardwareMap.get(Rev2mDistanceSensor.class, "stoneSensor");
+
+        if (stoneSensor.getDistance(DistanceUnit.INCH) > 18) {
+            op.telemetry.addData("DISTANCE SENSOR VALUE TOO HIGH", stoneSensor.getDistance(DistanceUnit.INCH));
+            op.telemetry.update();
+        }
     }
 
     public void update() {
+
+        op.telemetry.addData("stone in robot", stoneInRobot);
+        op.telemetry.addData("arm is out", stacker.isArmOut());
+        op.telemetry.addData("arm is home", stacker.isArmHome());
+        op.telemetry.addData("arm is down", stacker.isArmDown());
+        op.telemetry.addData("stone clamped", stacker.stoneClamped);
+        op.telemetry.update();
+
+
         // increase cycle count
         cycleCounter++;
 
@@ -61,8 +81,9 @@ public class Robot {
             stacker.update();
         }
 
-        if (capstoneDeposit.isOut()) {
-            capstoneDeposit.retract();
+        //update downstack time variable
+        if(downStacked){
+            x++;
         }
 
         // check states----------------------
@@ -87,11 +108,27 @@ public class Robot {
             stacker.clampStone();
         }
         // check if stone should be unclamped
-        else if (!stacker.isArmMoving() && downStacked) {
+        else if (!stacker.isArmMoving() && downStacked && x>15) {
             stacker.unClampStone();
-            stacker.setLiftControls(0.8, Math.min(stacker.getLiftPosition() + 150, 1285));
-            stacker.setDepositControls(0.2, stacker.getArmPosition() - 100);
+            stacker.setLiftControls(0.8, Math.min(stacker.getLiftPosition() + 400, 2400));
+
+            x = 0;
             downStacked = false;
+        }
+        //expel block if arm is out
+        else if (stoneInRobot && stacker.isArmOut()) {
+            expelStone();
+        }
+        // deposit stone in auto
+        else if (depositAuto) {
+            if(!stacker.isArmOut()){
+                stacker.deposit();
+            }
+            else if (!stacker.isArmMoving()) {
+                stacker.unClampStone();
+                stacker.goHome();
+                depositAuto = false;
+            }
         }
 
         drivetrain.updatePose();
@@ -107,7 +144,7 @@ public class Robot {
         return (stacker.isArmHome() && stacker.isLiftHome() && grabber.isGrabberHome() && !stacker.stoneClamped);
     }
 
-    public void swapArmState() {
+    public void swapArmStateTeleop() {
         if (!stacker.isArmOut()) {
             stacker.deposit();
             stacker.nextLevel();
@@ -117,15 +154,20 @@ public class Robot {
     }
 
     public void deposit() {
-        if (stacker.isArmOut() && stacker.stoneClamped) {
+        if (stacker.isArmOut() && stacker.stoneClamped && !downStacked) {
             stacker.downStack();
             downStacked = true;
         }
+
     }
 
     public void expelStone() {
         stacker.goHome();
         stacker.unClampStone();
         intake.setControls(-1);
+    }
+
+    public void depositAuto() {
+        depositAuto = !depositAuto;
     }
 }

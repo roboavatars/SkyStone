@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.AutoPrograms;
+/*package org.firstinspires.ftc.teamcode.AutoPrograms;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -115,7 +115,7 @@ public class BlueAuto extends LinearOpMode {
                             3 * Math.PI / 4 + 0.1);
                 }
                 // if skystone is clamped or robot has been trying to intake stone for too long, move on
-                else if (robot.stacker.stoneClamped || time.seconds() > skystone1Time + 2) {
+                else if (robot.stacker.stoneClamped || time.seconds() > skystone1Time + 3) {
                     skystone1 = true;
                     detector.setActive(false);
                     backToCenterSpline = splineGenerator.SplineBetweenTwoPoints(robot.drivetrain.x, robot.drivetrain.y,
@@ -126,7 +126,7 @@ public class BlueAuto extends LinearOpMode {
                 }
                 // if skystone has not been clamped, move forward to try to suck it in
                 else {
-                    robot.drivetrain.setTargetPoint(robot.drivetrain.x - 1, robot.drivetrain.y + 1, robot.drivetrain.currentheading);
+                    robot.drivetrain.setTargetPoint(robot.drivetrain.x - 1, robot.drivetrain.y + 1, robot.drivetrain.currentheading - 0.1);
                 }
             }
 
@@ -191,7 +191,7 @@ public class BlueAuto extends LinearOpMode {
             // pull the foundation so that it is in front of the building site
             else if (!pullFoundation) {
                 robot.drivetrain.setTargetPoint(118, 25, 0, 0.8, 0, 0.8);
-                if (robot.drivetrain.isAtPose(118, 25, 0)) {
+                if (robot.drivetrain.isAtPose(118, 25, 0) || time.seconds() > 1) {
                     pullFoundation = true;
                     time.reset();
                 }
@@ -200,7 +200,7 @@ public class BlueAuto extends LinearOpMode {
             // turn the foundation 90 degrees
             else if (!turnFoundation) {
                 robot.drivetrain.setTargetPoint(109, 35, Math.PI / 2, 0, 0, 3);
-                if (robot.drivetrain.isAtPose(109, 35, Math.PI / 2, 144, 144, 0.1)) {
+                if (robot.drivetrain.isAtPose(109, 35, Math.PI / 2, 144, 144, 0.1) || time.seconds() > 1) {
                     turnFoundation = true;
                     time.reset();
                 }
@@ -251,13 +251,13 @@ public class BlueAuto extends LinearOpMode {
                             3 * Math.PI / 4 + 0.15);
                 }
                 // if skystone is clamped or robot has been trying to intake stone for too long, move on
-                else if (robot.stacker.stoneClamped || time.seconds() > skystone2Time + 2) {
+                else if (robot.stacker.stoneClamped || time.seconds() > skystone2Time + 3) {
                     skystone2 = true;
                     time.reset();
                 }
                 // if skystone has not been clamped, move forward to try to suck it in
                 else {
-                    robot.drivetrain.setTargetPoint(robot.drivetrain.x - 1, robot.drivetrain.y + 1, robot.drivetrain.currentheading);
+                    robot.drivetrain.setTargetPoint(robot.drivetrain.x - 1, robot.drivetrain.y + 1, robot.drivetrain.currentheading - 0.1);
                 }
             }
 
@@ -282,7 +282,7 @@ public class BlueAuto extends LinearOpMode {
                 if (time.seconds() > 2.5) {
                     robot.stacker.unClampStone();
                 }
-                if (robot.drivetrain.isAtPose(111, 33, Math.PI / 2) && time.seconds() < 3) {
+                if (robot.drivetrain.isAtPose(111, 33, Math.PI / 2) && time.seconds() > 3) {
                     robot.stacker.unClampStone();
                     toFoundation2 = true;
                     // retract the arm back into the robot
@@ -295,8 +295,8 @@ public class BlueAuto extends LinearOpMode {
 
             // park at tape under the alliance skybridge
             else if (!toTape) {
-                robot.drivetrain.setTargetPoint(114, 62, Math.PI / 2, 0.2, 0.2, 0.8);
-                if (robot.drivetrain.isAtPose(144, 62, Math.PI / 2)) {
+                robot.drivetrain.setTargetPoint(114, 72, Math.PI / 2, 0.2, 0.2, 0.8);
+                if (robot.drivetrain.isAtPose(144, 72, Math.PI / 2) || time.seconds() > 1) {
                     toTape = true;
                     time.reset();
                 }
@@ -320,4 +320,4 @@ public class BlueAuto extends LinearOpMode {
         robot.logger.flush();
         robot.logger.stopLogging();
     }
-}
+}*/

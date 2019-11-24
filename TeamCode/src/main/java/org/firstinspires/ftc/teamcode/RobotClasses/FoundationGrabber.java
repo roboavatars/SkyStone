@@ -28,6 +28,8 @@ public class FoundationGrabber {
         leftGrabber = hardwareMap.get(Servo.class, "leftGrabber");
         rightGrabber = hardwareMap.get(Servo.class, "rightGrabber");
 
+        releaseFoundation();
+
         op.telemetry.addData("Status", "Grabbers Initialized");
         op.telemetry.update();
     }
@@ -37,8 +39,8 @@ public class FoundationGrabber {
         rightGrabber.setPosition(-1);
     }
     public void grabFoundation() {
-        leftGrabber.setPosition(-1);
-        rightGrabber.setPosition(1);
+        leftGrabber.setPosition(-0.86);
+        rightGrabber.setPosition(0.86);
     }
 
     public double getGrabberPosition() {

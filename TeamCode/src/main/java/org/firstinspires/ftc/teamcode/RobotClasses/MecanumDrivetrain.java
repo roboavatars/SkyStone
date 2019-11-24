@@ -199,44 +199,45 @@ public class MecanumDrivetrain {
         return response;
     }
     public void updatePose(){
-        LynxGetBulkInputDataResponse response = RevBulkData();
-        double pod1 = -response.getEncoder(0)*0.00300622055*2;
-        double pod2 = response.getEncoder(1)*0.00300622055*2;
-        double pod3 = response.getEncoder(2)*0.00300622055*2;
+        try {
+            LynxGetBulkInputDataResponse response = RevBulkData();
+            double pod1 = -response.getEncoder(0) * 0.00300622055 * 2;
+            double pod2 = response.getEncoder(1) * 0.00300622055 * 2;
+            double pod3 = response.getEncoder(2) * 0.00300622055 * 2;
 
-        double deltapod1 = pod1 - lastpod1;
-        double deltapod2 = pod2 - lastpod2;
-        double deltapod3 = pod3 - lastpod3;
+            double deltapod1 = pod1 - lastpod1;
+            double deltapod2 = pod2 - lastpod2;
+            double deltapod3 = pod3 - lastpod3;
 
 
 //        opMode.telemetry.addData("pod1 inches", pod1);
 //        opMode.telemetry.addData("pod2 inches", pod2);
 //        opMode.telemetry.addData("pod3 inches", pod3);
 
-        deltaheading = (deltapod1-deltapod2)/13.74;
+            deltaheading = (deltapod1 - deltapod2) / 13.74;
 
-        double localx = (deltapod1+deltapod2)/2;
-        double localy = deltapod3 - deltaheading*2.54;
+            double localx = (deltapod1 + deltapod2) / 2;
+            double localy = deltapod3 - deltaheading * 2.54;
 
-        if(deltaheading<Math.PI/8){
-            x += localx*Math.cos(currentheading) - localy*Math.sin(currentheading);
-            y += localy*Math.cos(currentheading) + localx*Math.sin(currentheading);
+            if (deltaheading < Math.PI / 8) {
+                x += localx * Math.cos(currentheading) - localy * Math.sin(currentheading);
+                y += localy * Math.cos(currentheading) + localx * Math.sin(currentheading);
 
-        }
-        else{
+            } else {
 
-            x += (localx*Math.sin(currentheading+deltaheading)
-                    +localy*Math.cos(currentheading+deltaheading) - localx*Math.sin(currentheading)
-                    - localy*Math.cos(currentheading))/deltaheading;
-            y += (localy*Math.sin(currentheading+deltaheading)
-                    -localx*Math.cos(currentheading+deltaheading)-localy*Math.sin(currentheading)+
-                    localx*Math.cos(currentheading))/deltaheading;
-        }
-        currentheading += deltaheading;
+                x += (localx * Math.sin(currentheading + deltaheading)
+                        + localy * Math.cos(currentheading + deltaheading) - localx * Math.sin(currentheading)
+                        - localy * Math.cos(currentheading)) / deltaheading;
+                y += (localy * Math.sin(currentheading + deltaheading)
+                        - localx * Math.cos(currentheading + deltaheading) - localy * Math.sin(currentheading) +
+                        localx * Math.cos(currentheading)) / deltaheading;
+            }
+            currentheading += deltaheading;
 
-        lastpod1 = pod1;
-        lastpod2 = pod2;
-        lastpod3 = pod3;
+            lastpod1 = pod1;
+            lastpod2 = pod2;
+            lastpod3 = pod3;
+        } catch (Exception e) {e.printStackTrace();}
 
     }
 
