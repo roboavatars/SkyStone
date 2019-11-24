@@ -126,7 +126,7 @@ public class RedAuto extends LinearOpMode {
                 }
                 // if skystone has not been clamped, move forward to try to suck it in
                 else {
-                    robot.drivetrain.setTargetPoint(robot.drivetrain.x + 1, robot.drivetrain.y + 0.5 , robot.drivetrain.currentheading + 0.07);
+                    robot.drivetrain.setTargetPoint(robot.drivetrain.x + 1, robot.drivetrain.y + 0.8 , robot.drivetrain.currentheading + 0.07,0.4,0.4,0.8);
                 }
             }
 

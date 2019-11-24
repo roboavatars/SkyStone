@@ -34,6 +34,13 @@ public class Teleop extends LinearOpMode {
 
         while (opModeIsActive()) {
 
+            if(gamepad2.a){
+                robot.capstoneDeposit.attachCapstone();
+            }
+            else{
+                robot.capstoneDeposit.goHome();
+            }
+
 
             if(gamepad1.left_bumper){
                 robot.deposit();
@@ -51,10 +58,10 @@ public class Teleop extends LinearOpMode {
                 rightBumper = true;
             }
             else if(gamepad2.dpad_up){
-                robot.stacker.setDepositControls(0.3, robot.stacker.getArmPosition() - 10);
+                robot.stacker.setDepositControls(0.3, robot.stacker.getArmPosition() - 45);
             }
             else if(gamepad2.dpad_down){
-                robot.stacker.setDepositControls(0.3, robot.stacker.getArmPosition() + 10);
+                robot.stacker.setDepositControls(0.3, robot.stacker.getArmPosition() + 45);
             }
 
 

@@ -10,8 +10,6 @@ public class CapstoneDeposit {
     //Electronics
     private Servo capstoneDeposit;
 
-    private final double out = 1;
-    private final double tolerance = 0.1;
 
     //OpMode Stuff
     private LinearOpMode op;
@@ -23,23 +21,20 @@ public class CapstoneDeposit {
         this.hardwareMap = op.hardwareMap;
 
         capstoneDeposit = hardwareMap.get(Servo.class, "capstoneDeposit");
+        goHome();
+
 
         op.telemetry.addData("Status", "Grabbers Initialized");
         op.telemetry.update();
     }
 
-    public void retract() {
-        capstoneDeposit.setPosition(1);
-    }
+
     public void attachCapstone() {
-        capstoneDeposit.setPosition(-1);
+        capstoneDeposit.setPosition(0.25);
     }
 
-    public double getGrabberPosition() {
-        return capstoneDeposit.getPosition();
+    public void goHome(){
+        capstoneDeposit.setPosition(0.7);
     }
 
-    public boolean isOut() {
-        return Math.abs(getGrabberPosition() - out) < tolerance;
-    }
 }
