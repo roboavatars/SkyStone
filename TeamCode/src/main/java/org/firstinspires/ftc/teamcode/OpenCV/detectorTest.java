@@ -13,7 +13,7 @@ public class detectorTest extends LinearOpMode {
         detector.initializeCamera();
         detector.start();
         detector.setActive(true);
-        detector.isAllianceRed(true);
+        detector.isAllianceRed(false);
         telemetry.addData("Status", "Ready"); telemetry.update();
 
         while (!opModeIsActive() && !isStopRequested()) {

@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Tests;
 
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -8,6 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @TeleOp(name="Distance Sensor Test")
+@Disabled
 public class DistanceSensorTest extends LinearOpMode {
 
     private Rev2mDistanceSensor stoneSensor;

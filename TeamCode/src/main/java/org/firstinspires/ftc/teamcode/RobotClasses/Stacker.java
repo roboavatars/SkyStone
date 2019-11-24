@@ -13,12 +13,14 @@ public class Stacker {
     private DcMotorEx liftMotor;
     private DcMotorEx depositMotor;
     private Servo stoneClamp;
+
+    public int basepos = 0;
     
     private final double clampPos = 0.9;
     private final double unClampPos = 0.65;
     
-    private final int armPos[] =  {2100, 1800, 1600, 1380, 1230, 1230, 1230, 1230, 1230, 1230}; // increases down
-    private final int liftPos[] = {0,    0,    0,    0,    330,  860,  1330, 1800, 2270, 2740};
+    private final int armPos[] =  {2150, 1850, 1650, 1430, 1260, 1260, 1260, 1260, 1260, 1260}; // increases down
+    private final int liftPos[] = {0,    0,    0,    0,    350,  840,  1360, 1830, 2300, 2760};
 
     private int currentStackHeight = 0;
     private int armTicks = 0;
@@ -71,7 +73,7 @@ public class Stacker {
     public void setDepositControls(double power, int ticks) {
         depositMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         depositMotor.setPower(power);
-        depositMotor.setTargetPosition(ticks);
+        depositMotor.setTargetPosition(ticks + basepos);
     }
 
     public void goHome() {

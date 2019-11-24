@@ -8,9 +8,8 @@ import org.firstinspires.ftc.teamcode.RobotClasses.Robot;
 
 import java.io.File;
 
-@TeleOp(name = "Teleop")
-@SuppressWarnings("FieldCanBeLocal")
-public class Teleop extends LinearOpMode {
+@TeleOp
+public class RedTeleop extends LinearOpMode {
     
     private Robot robot;
     private boolean robotCentric = false;
@@ -41,6 +40,14 @@ public class Teleop extends LinearOpMode {
                 robot.capstoneDeposit.goHome();
             }
 
+            if(gamepad2.right_trigger>0){
+                robot.stacker.basepos += 20;
+                robot.stacker.goHome();
+            }
+            else if(gamepad2.left_trigger>0){
+                robot.stacker.basepos -= 20;
+                robot.stacker.goHome();
+            }
 
             if(gamepad1.left_bumper){
                 robot.deposit();

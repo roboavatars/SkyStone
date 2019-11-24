@@ -22,6 +22,7 @@ public class Robot {
     // State booleans
     public boolean stoneInRobot = false;
     private boolean depositAuto = false;
+    public boolean isOutTake = false;
 
     //TODO create clampedOnFoundation methods
     private boolean clampedOnFoundation = false;
@@ -35,7 +36,7 @@ public class Robot {
     private final int flushUpdatePeriod = 5000;
 
     private int cycleCounter = 0;
-    private int z = 25;
+    private int z = 10;
     private int x = 0;
 
     private LinearOpMode op;
@@ -67,6 +68,8 @@ public class Robot {
         op.telemetry.addData("stone clamped", stacker.stoneClamped);
         op.telemetry.update();
 
+        isOutTake = false;
+
 
         // increase cycle count
         cycleCounter++;
@@ -86,9 +89,14 @@ public class Robot {
             x++;
         }
 
+        //expel block if arm is out
+        if (stoneInRobot && stacker.isArmOut()) {
+            expelStone();
+        }
+
         // check states----------------------
         // check if ready to collect stones
-        if (!stoneInRobot && isHome()) {
+        if (!stoneInRobot && isHome() && !isOutTake) {
             intake.setControls(1);
         }
         // check if arm should lower in preparation to clamp stone
@@ -114,10 +122,6 @@ public class Robot {
 
             x = 0;
             downStacked = false;
-        }
-        //expel block if arm is out
-        else if (stoneInRobot && stacker.isArmOut()) {
-            expelStone();
         }
         // deposit stone in auto
         else if (depositAuto) {
@@ -165,6 +169,7 @@ public class Robot {
         stacker.goHome();
         stacker.unClampStone();
         intake.setControls(-1);
+        isOutTake = true;
     }
 
     public void depositAuto() {

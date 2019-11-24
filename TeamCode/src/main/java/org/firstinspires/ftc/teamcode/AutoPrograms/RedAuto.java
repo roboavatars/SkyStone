@@ -63,11 +63,11 @@ public class RedAuto extends LinearOpMode {
 
         // set skystone y coordinate according to skystone position
         if (skystonePos == 1) {
-            skystoneY = 131;
+            skystoneY = 130.5;
         } else if (skystonePos == 2) {
-            skystoneY = 122;
+            skystoneY = 122.5;
         } else if (skystonePos == 3) {
-            skystoneY = 113;
+            skystoneY = 113.5;
         }
 
         // generate splines
@@ -99,6 +99,7 @@ public class RedAuto extends LinearOpMode {
         ElapsedTime time = new ElapsedTime();
 
         robot.intake.setControls(-1);
+        sleep(333);
 
         // robot move loop
         while (opModeIsActive()) {
@@ -260,7 +261,7 @@ public class RedAuto extends LinearOpMode {
 
             // go to the center of the tile closet to the neutral skybridge to avoid hitting alliance partner's robot
             else if (!backToCenter2) {
-                robot.drivetrain.setTargetPoint(33, 88, Math.PI / 2, 0.2, 0.2, 0.8);
+                robot.drivetrain.setTargetPoint(33, 91, Math.PI / 2, 0.2, 0.2, 0.8);
                 if (robot.drivetrain.y < 85) {
                     backToCenter2 = true;
                     time.reset();
