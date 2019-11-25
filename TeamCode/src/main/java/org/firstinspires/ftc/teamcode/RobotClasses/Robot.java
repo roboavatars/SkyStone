@@ -118,7 +118,7 @@ public class Robot {
         // check if stone should be unclamped
         else if (!stacker.isArmMoving() && downStacked && x>15) {
             stacker.unClampStone();
-            stacker.setLiftControls(0.8, Math.min(stacker.getLiftPosition() + 400, 2400));
+            stacker.setLiftControls(0.8, Math.min(stacker.getLiftPosition() + 1200, 2400));
 
             x = 0;
             downStacked = false;

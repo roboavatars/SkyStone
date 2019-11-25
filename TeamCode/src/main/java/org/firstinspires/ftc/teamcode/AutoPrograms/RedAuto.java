@@ -63,11 +63,11 @@ public class RedAuto extends LinearOpMode {
 
         // set skystone y coordinate according to skystone position
         if (skystonePos == 1) {
-            skystoneY = 130.5;
+            skystoneY = 129;
         } else if (skystonePos == 2) {
-            skystoneY = 122.5;
+            skystoneY = 121;
         } else if (skystonePos == 3) {
-            skystoneY = 113.5;
+            skystoneY = 112;
         }
 
         // generate splines
@@ -270,7 +270,7 @@ public class RedAuto extends LinearOpMode {
 
             // go to foundation to deposit second skystone
             else if (!toFoundation2) {
-                robot.drivetrain.setTargetPoint(33, 37, Math.PI /2);
+                robot.drivetrain.setTargetPoint(33, 33, Math.PI /2);
                 // extend arm with skystone over the foundation
                 if (robot.drivetrain.isAtPose(robot.drivetrain.x, 60, robot.drivetrain.currentheading)) {
                     robot.depositAuto();
@@ -283,18 +283,8 @@ public class RedAuto extends LinearOpMode {
 
             // park at tape under the alliance skybridge
             else if (!toTape) {
-                robot.drivetrain.setTargetPoint(30, 72, Math.PI / 2, 0.2, 0.2, 0.8);
-//                if (robot.drivetrain.isAtPose(30, 72, Math.PI / 2) || time.seconds() > 1) {
-//                    toTape = true;
-//                    time.reset();
-//                }
+                robot.drivetrain.setTargetPoint(30, 72, Math.PI / 2, 0.14, 0.07, 0.8);
             }
-
-//            // stop robot
-//            else {
-//                robot.drivetrain.setControls(0, 0, 0);
-//                detector.interrupt();
-//            }
 
             telemetry.addData("skystone position", skystonePos);
             telemetry.addData("x", robot.drivetrain.x);
@@ -307,5 +297,6 @@ public class RedAuto extends LinearOpMode {
         robot.logger.writePos(robot.drivetrain.x, robot.drivetrain.y, robot.drivetrain.currentheading);
         robot.logger.flush();
         robot.logger.stopLogging();
+        detector.interrupt();
     }
 }

@@ -64,11 +64,11 @@ public class BlueAuto extends LinearOpMode {
 
         // set skystone y coordinate according to skystone position
         if (skystonePos == 1) {
-            skystoneY = 131.5;
+            skystoneY = 129.5;
         } else if (skystonePos == 2) {
-            skystoneY = 122.5;
+            skystoneY = 121.5;
         } else if (skystonePos == 3) {
-            skystoneY = 113.5;
+            skystoneY = 112.5;
         }
 
         // generate splines
@@ -271,7 +271,7 @@ public class BlueAuto extends LinearOpMode {
 
             // go to foundation to deposit second skystone
             else if (!toFoundation2) {
-                robot.drivetrain.setTargetPoint(111, 33, Math.PI / 2);
+                robot.drivetrain.setTargetPoint(111, 33,Math.PI / 2);
                 // extend arm with skystone over the foundation
                 if (robot.drivetrain.isAtPose(robot.drivetrain.x, 60, robot.drivetrain.currentheading)) {
                     robot.depositAuto();
@@ -284,7 +284,7 @@ public class BlueAuto extends LinearOpMode {
 
             // park at tape under the alliance skybridge
             else if (!toTape) {
-                robot.drivetrain.setTargetPoint(114, 72, Math.PI / 2, 0.2, 0.2, 0.8);
+                robot.drivetrain.setTargetPoint(114, 72, Math.PI / 2, 0.14,0.7,0.8);
             }
 
             telemetry.addData("skystone position", skystonePos);
