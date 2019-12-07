@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Logger;
+package org.firstinspires.ftc.teamcode.Other.Logger;
 
 import android.annotation.SuppressLint;
 

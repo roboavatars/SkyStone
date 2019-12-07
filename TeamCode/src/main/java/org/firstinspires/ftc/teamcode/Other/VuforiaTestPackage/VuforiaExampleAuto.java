@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.VuforiaTestPackage;
+package org.firstinspires.ftc.teamcode.Other.VuforiaTestPackage;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
