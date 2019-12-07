@@ -117,7 +117,7 @@ public class skyStoneDetector extends Thread {
 
         // Convert to HSV (Saturation)
         Mat HSV = new Mat();
-        Imgproc.cvtColor(input, HSV, Imgproc.COLOR_BGR2HSV);
+        Imgproc.cvtColor(input, HSV, Imgproc.COLOR_RGB2HSV);
         List<Mat> hsvTypes = new ArrayList<>(3);
         Core.split(HSV, hsvTypes);
         Mat satUnfiltered = hsvTypes.get(1);
@@ -221,7 +221,7 @@ public class skyStoneDetector extends Thread {
                     else if((ssXPos > 0 && ssXPos < 10) || (ssXPos > 105 && ssXPos < 165)) {ssPosValue = 2;} // middle
                     else if ((ssXPos > 10 && ssXPos < 60) || (ssXPos > 165 && ssXPos < 230)) {ssPosValue = 3;} // right
                 } else {
-                    if (darkAreas.size() > 1) {ssXPos = darkAreas.get(1);log("hi!!!"); }
+                    if (darkAreas.size() > 1) {ssXPos = darkAreas.get(1);}
                     else {ssXPos = darkAreas.get(0);}
                     if ((ssXPos > 25 && ssXPos < 50) || (ssXPos > 190 && ssXPos < 240)) {ssPosValue = 3;} // left
                     else if((ssXPos > 60 && ssXPos < 120)) {ssPosValue = 2;} // middle
@@ -270,5 +270,5 @@ public class skyStoneDetector extends Thread {
         op.telemetry.update();
     }
     
-    private void log(String message) {Log.w("opencv-main", message);}
+    private void log(String message) {Log.w("opencv-ssd", message);}
 }

@@ -41,8 +41,10 @@ public class FrameGrabber implements CvCameraViewListener2 {
 
     @Override public Mat onCameraFrame(CvCameraViewFrame cameraFrame) {
         Mat inputFrame = cameraFrame.rgba();
+        Mat recoloredFrame = new Mat();
+        Imgproc.cvtColor(inputFrame, recoloredFrame, Imgproc.COLOR_BGR2RGB);
         Mat resizedFrame = new Mat();
-        Imgproc.resize(inputFrame, resizedFrame, new Size(240, 180));
+        Imgproc.resize(recoloredFrame, resizedFrame, new Size(240, 180));
         curMat = resizedFrame;
         return inputFrame;
     }

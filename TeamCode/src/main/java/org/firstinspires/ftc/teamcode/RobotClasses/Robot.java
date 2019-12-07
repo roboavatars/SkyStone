@@ -5,8 +5,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-import java.io.File;
-
 public class Robot {
 
     // Subsystems
@@ -15,7 +13,7 @@ public class Robot {
     public Stacker stacker;
     public FoundationGrabber grabber;
     public CapstoneDeposit capstoneDeposit;
-    public Rev2mDistanceSensor stoneSensor;
+    private Rev2mDistanceSensor stoneSensor;
 
     public PositionLogger logger;
 

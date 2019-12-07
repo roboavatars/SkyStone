@@ -174,11 +174,11 @@ public class MecanumDrivetrain {
         double maxpower = Math.max(Math.abs(FRpower),Math.max(Math.abs(BLpower),
                 Math.max(Math.abs(FLpower),Math.abs(BRpower))));
 
-        if(Math.abs(maxpower)>1){
-            FRpower *= 1/maxpower;
-            BLpower *= 1/maxpower;
-            FLpower *= 1/maxpower;
-            BRpower *= 1/maxpower;
+        if(maxpower > 1){
+            FRpower /= maxpower;
+            BLpower /= maxpower;
+            FLpower /= maxpower;
+            BRpower /= maxpower;
         }
 
         motorFrontRight.setPower(FRpower);
