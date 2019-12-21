@@ -14,8 +14,10 @@ public class Robot {
     public FoundationGrabber grabber;
     public CapstoneDeposit capstoneDeposit;
     private Rev2mDistanceSensor stoneSensor;
+    public Logger logger;
 
-    public PositionLogger logger;
+    private double prevX, prevY, prevTh, velocityX, velocityY, velocityTh, prevTime;
+    private double startTime;
 
     // State booleans
     public boolean stoneInRobot = false;
@@ -45,7 +47,8 @@ public class Robot {
         stacker = new Stacker(op);
         grabber = new FoundationGrabber(op);
         capstoneDeposit = new CapstoneDeposit(op);
-        logger = new PositionLogger();
+        logger = new Logger();
+        startTime = System.currentTimeMillis();
 
         this.op = op;
 
@@ -59,15 +62,7 @@ public class Robot {
 
     public void update() {
 
-        op.telemetry.addData("stone in robot", stoneInRobot);
-        op.telemetry.addData("arm is out", stacker.isArmOut());
-        op.telemetry.addData("arm is home", stacker.isArmHome());
-        op.telemetry.addData("arm is down", stacker.isArmDown());
-        op.telemetry.addData("stone clamped", stacker.stoneClamped);
-        op.telemetry.update();
-
         isOutTake = false;
-
 
         // increase cycle count
         cycleCounter++;
@@ -135,11 +130,29 @@ public class Robot {
 
         drivetrain.updatePose();
         if (cycleCounter % loggerUpdatePeriod == 0) {
-            logger.writePos(drivetrain.x, drivetrain.y, drivetrain.currentheading);
+            logger.logData(System.currentTimeMillis()-startTime,drivetrain.x,drivetrain.y,drivetrain.currentheading,velocityX,velocityY,velocityTh,stoneInRobot,stacker.stoneClamped,stacker.isArmHome(),stacker.isArmDown(),stacker.isArmOut());
         }
         if (cycleCounter % flushUpdatePeriod == 0) {
             logger.flush();
         }
+
+        double curTime = (double) System.currentTimeMillis();
+        double timeDiff = curTime - prevTime;
+        velocityX = (drivetrain.x - prevX) / timeDiff;
+        velocityY = (drivetrain.y - prevY) / timeDiff;
+        velocityTh = (drivetrain.currentheading - prevTh) / timeDiff;
+        prevX = drivetrain.x; prevY = drivetrain.y; prevTh = drivetrain.currentheading; prevTime = curTime;
+
+        op.telemetry.addData("Robot x", drivetrain.x);
+        op.telemetry.addData("Robot y", drivetrain.y);
+        op.telemetry.addData("Robot theta", drivetrain.currentheading);
+        op.telemetry.addData("Robot velocity", velocityX+", "+velocityY+", "+ velocityTh +" ("+timeDiff+")");
+        op.telemetry.addData("States", "");
+        op.telemetry.addData("stone in robot", stoneInRobot);
+        op.telemetry.addData("stone clamped", stacker.stoneClamped);
+        op.telemetry.addData("arm is out", stacker.isArmOut());
+        op.telemetry.addData("arm is home", stacker.isArmHome());
+        op.telemetry.addData("arm is down", stacker.isArmDown());
     }
 
     public boolean isHome(){
@@ -160,7 +173,6 @@ public class Robot {
             stacker.downStack();
             downStacked = true;
         }
-
     }
 
     public void expelStone() {

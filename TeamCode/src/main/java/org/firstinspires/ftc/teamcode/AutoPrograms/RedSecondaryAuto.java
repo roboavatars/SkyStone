@@ -37,7 +37,6 @@ public class RedSecondaryAuto extends LinearOpMode {
         }
 
         robot.update();
-        robot.logger.writePos(robot.drivetrain.x, robot.drivetrain.y, robot.drivetrain.currentheading);
         robot.logger.flush();
         robot.logger.stopLogging();
     }

@@ -3,10 +3,10 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.RobotClasses.PositionLogger;
+import org.firstinspires.ftc.teamcode.RobotClasses.Logger;
 import org.firstinspires.ftc.teamcode.RobotClasses.Robot;
 
-import java.io.File;
+import java.util.Arrays;
 
 @TeleOp
 @SuppressWarnings("FieldCanBeLocal")
@@ -14,16 +14,14 @@ public class BlueTeleop extends LinearOpMode {
 
     private Robot robot;
     private boolean robotCentric = false;
-    private int centricWait = 0;
     private boolean dpadUp = true;
     private boolean dpadDown = true;
     private boolean rightBumper = true;
 
     @Override
     public void runOpMode() {
-        double[] initialPosition = PositionLogger.readPos();
-        telemetry.addData("initial theta", initialPosition[2]);
-        telemetry.update();
+        double[] initialPosition = Logger.readPos();
+        telemetry.addData("Starting Position", Arrays.toString(initialPosition)); telemetry.update();
         robot = new Robot(this, initialPosition[0], initialPosition[1], initialPosition[2]);
         robot.logger.startLogging();
 
@@ -49,7 +47,6 @@ public class BlueTeleop extends LinearOpMode {
                 robot.stacker.basepos -= 20;
                 robot.stacker.goHome();
             }
-
 
             if(gamepad1.left_bumper){
                 robot.deposit();
@@ -109,10 +106,6 @@ public class BlueTeleop extends LinearOpMode {
             robot.update();
 
             telemetry.addData("Robot Centric", robotCentric);
-            telemetry.addData("Robot x", robot.drivetrain.x);
-            telemetry.addData("Robot y", robot.drivetrain.y);
-            telemetry.addData("Robot theta", robot.drivetrain.currentheading);
-
             telemetry.update();
         }
     }

@@ -99,7 +99,7 @@ public class RedAuto extends LinearOpMode {
         ElapsedTime time = new ElapsedTime();
 
         robot.intake.setControls(-1);
-        sleep(333);
+        sleep(33);
 
         // robot move loop
         while (opModeIsActive()) {
@@ -294,7 +294,6 @@ public class RedAuto extends LinearOpMode {
         }
 
         robot.update();
-        robot.logger.writePos(robot.drivetrain.x, robot.drivetrain.y, robot.drivetrain.currentheading);
         robot.logger.flush();
         robot.logger.stopLogging();
         detector.interrupt();
