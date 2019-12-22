@@ -57,10 +57,10 @@ public class BlueAuto extends LinearOpMode {
 
         // spline time variables
         double skystone1Time = 2.5;
-        double backToCenterTime = 1;
+        double backToCenterTime = 0.75;
         double foundationTurnTime = 1.75;
-        double toQuarryTime = 3;
-        double skystone2Time = 2;
+        double toQuarryTime = 2;
+        double skystone2Time = 1.5;
 
         // set skystone y coordinate according to skystone position
         if (skystonePos == 1) {
