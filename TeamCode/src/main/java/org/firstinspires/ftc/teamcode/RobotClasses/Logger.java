@@ -61,9 +61,9 @@ public class Logger {
                 lineNum++;
             }
             bufferedReader.close();
-        } catch (IOException | NumberFormatException e) {
+        } catch (Exception ex) {
             robotPos[0] = 0; robotPos[1] = 0; robotPos[2] = 0;
-            e.printStackTrace();
+            ex.printStackTrace();
         }
 
         return robotPos;
