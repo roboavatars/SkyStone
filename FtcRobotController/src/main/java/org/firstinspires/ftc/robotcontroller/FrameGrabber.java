@@ -33,6 +33,7 @@ public class FrameGrabber implements CvCameraViewListener2 {
         File dir = new File("/sdcard/FIRST/cameraFrames/");
         String[] children = dir.list();
         if (children != null) {for (String child : children) {new File(dir, child).delete();}}
+        //
     }
 
     @Override public void onCameraViewStopped() {
@@ -54,7 +55,7 @@ public class FrameGrabber implements CvCameraViewListener2 {
      * @return Most recent camera frame
      */
     public Mat getNextMat() {
-        //if (saveCount < 100) Imgcodecs.imwrite(outputPath + saveCount + ".jpg", curMat); saveCount++;
+        //if (saveCount < 50) Imgcodecs.imwrite(outputPath + saveCount + ".jpg", curMat); saveCount++;
         return curMat;
     }
 

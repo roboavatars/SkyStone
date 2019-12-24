@@ -49,7 +49,7 @@ public class skyStoneDetector extends Thread {
     private double ssXPos = -1;
 
     private boolean active = false;
-    private double stoneSum = 0;
+    //private double stoneSum = 0;
     private double curStoneCount;
     private double stoneLength;
     private boolean isRed = true;
@@ -59,8 +59,6 @@ public class skyStoneDetector extends Thread {
 
     // Phone Position-
     // 7in up, side closest to camera is 7.5in from left of robot (aligned to depot), slight tilt forward
-
-    // difference between 2 skystones is 170
     
     /**
      * Enables the camera view
@@ -96,8 +94,8 @@ public class skyStoneDetector extends Thread {
                     frameNum++;
                 } else ssPos = -1;
             }
-            log("Avg stone is view: " + String.format("%.2f", stoneSum /frameNum));
-            FtcRobotControllerActivity.disableCameraView();
+            interrupt();
+            //log("Avg stone is view: " + String.format("%.2f", stoneSum / frameNum));
         } else {
             Mat in = Imgcodecs.imread(testPath + "test.jpg", Imgcodecs.IMREAD_COLOR);
             Imgproc.resize(in, in, new Size(240, 180));
@@ -105,7 +103,13 @@ public class skyStoneDetector extends Thread {
         }
         log(" ");
     }
-    
+
+    @Override public void interrupt() {
+        FtcRobotControllerActivity.disableCameraView();
+        super.interrupt();
+        log("Thread interrupted " + Thread.currentThread());
+    }
+
     /**
      * Finds position value of skystone by processing an input frame
      * <p>Return Values: 1 = left, 2 = middle, 3 = right)
@@ -125,13 +129,13 @@ public class skyStoneDetector extends Thread {
         // Filter Saturation Image
         Mat satFiltered = new Mat();
         Core.inRange(satUnfiltered, new Scalar(190, 120, 0), new Scalar(255, 135, 10), satFiltered);
-        // if (frameNum < 100) Imgcodecs.imwrite(satFilteredPath + frameNum + ".jpg", satFiltered);
+        // if (frameNum < 50) Imgcodecs.imwrite(satFilteredPath + frameNum + ".jpg", satFiltered);
 
         // Remove extra noise in image
         Mat openClose = new Mat();
         Imgproc.morphologyEx(satFiltered, openClose, Imgproc.MORPH_OPEN, new Mat());
         Imgproc.morphologyEx(openClose, openClose, Imgproc.MORPH_CLOSE, new Mat());
-        //if (frameNum < 100) Imgcodecs.imwrite(openClosePath + frameNum + ".jpg", openClose);
+        //if (frameNum < 50) Imgcodecs.imwrite(openClosePath + frameNum + ".jpg", openClose);
 
         // Crop Image to where quarry row is
         double horAvg;
@@ -146,28 +150,25 @@ public class skyStoneDetector extends Thread {
             if (frameNum < 50) Imgcodecs.imwrite(croppedPath + frameNum + ".jpg", SCropped);
 
             // Makes image black(stone) and white(skyStone)
-            String avgList = "";
+            //String preList = ""; // for printing pre-binary vertical averages
+            //String postList = ""; // for printing post-binary vertical values
             double verAvg;
             Mat verImage = new Mat(10, SCropped.cols(), CvType.CV_8UC1);
             for (int col = 0; col < SCropped.cols(); col++) {
-                verAvg = Core.mean(openClose.col(col)).val[0] * magnificationFactor;
-                avgList += verAvg + " ";
+                verAvg = Core.mean(openClose.col(col)).val[0] * magnificationFactor; //preList += verAvg + " ";
                 if (verAvg <= verThreshold) verAvg = 0;
                 else verAvg = binaryValue;
-                verImage.col(col).setTo(new Scalar(verAvg));
+                verImage.col(col).setTo(new Scalar(verAvg)); //postList += verAvg + " ";
             }
             Imgproc.morphologyEx(verImage, verImage, Imgproc.MORPH_OPEN, new Mat());
             if (frameNum < 50) Imgcodecs.imwrite(verViewPath + frameNum + ".jpg", verImage);
 
-            log("ver avg: " + avgList);
-
-            /*String verCols = "";
-            for (int col = 0; col < verImage.cols(); col++) {verCols+=(new Scalar(verImage.get(0, col)).val[0])+", ";}
-            log("Vertical: " + verCols);*/
+            //log("pre-binary ver avg: " + preList);
+            //log("post-binary ver val: " + postList);
 
             // Image Analyzing
             ArrayList<Double> darkAreas = new ArrayList<>();
-            double left = 0, right = 0, firstLeft = 0;
+            double left = 0, right = 0;
             double curIntensity;
             double nextIntensity = new Scalar(verImage.get(0, 0)).val[0];
             for (int c = 0; c < verImage.cols()-1; c++) {
@@ -176,7 +177,6 @@ public class skyStoneDetector extends Thread {
 
                 if (curIntensity == binaryValue && nextIntensity == 0) {
                     left = c;
-                    firstLeft = c;
                 }
                 else if (curIntensity == 0 && nextIntensity == binaryValue) {
                     right = c;
@@ -186,10 +186,6 @@ public class skyStoneDetector extends Thread {
                     left = 0; right = 0;
                 }
             }
-
-            /*if (darkAreas.size() == 1 && new Scalar(verImage.get(0, verImage.cols()-1)).val[0] == 0) {
-                darkAreas.add(left+darkAreas.get(0)-firstLeft);
-            }*/
             //log(darkAreas.size() + " Dark Areas: " + darkAreas);
 
             // Disregarding Small Columns
@@ -207,10 +203,8 @@ public class skyStoneDetector extends Thread {
 
                 prevArea = curArea;
             }
-            log(darkAreas.size() + " Dark Areas: " + darkAreas);
-            log("SkyStones Detected: " + darkAreas.size());
-            curStoneCount = darkAreas.size();
-            stoneSum += curStoneCount;
+            log(darkAreas.size() + " Dark Areas: " + darkAreas); log("SkyStones Detected: " + darkAreas.size());
+            curStoneCount = darkAreas.size(); //stoneSum += curStoneCount;
 
             // Converting X Coordinates to Positions
             if (!(darkAreas.size() == 0)) {
@@ -223,6 +217,7 @@ public class skyStoneDetector extends Thread {
                 } else {
                     if (darkAreas.size() > 1) {ssXPos = darkAreas.get(1);}
                     else {ssXPos = darkAreas.get(0);}
+
                     if ((ssXPos > 25 && ssXPos < 50) || (ssXPos > 190 && ssXPos < 240)) {ssPosValue = 3;} // left
                     else if((ssXPos > 60 && ssXPos < 120)) {ssPosValue = 2;} // middle
                     else if (ssXPos > 120 && ssXPos < 190) {ssPosValue = 1;} // right
@@ -231,7 +226,7 @@ public class skyStoneDetector extends Thread {
             } else log("Cannot Determine SkyStone Position :-(");
         } else log("Quarry Row Not Detected :-(");
 
-        log("Stone Length: " + stoneLength);
+        //log("Stone Length: " + stoneLength);
         return ssPosValue;
     }
     
@@ -257,7 +252,7 @@ public class skyStoneDetector extends Thread {
      * Sets whether the skystone detector is actively processing camera frames to locate skystones
      * @param active true = processing; false = not processing
      */
-    public void setActive(boolean active) {this.active = active;}
+    public void setActive(boolean active) {this.active = active; log("active method invoked " + active);}
     
     /**
      * Sets the alliance color

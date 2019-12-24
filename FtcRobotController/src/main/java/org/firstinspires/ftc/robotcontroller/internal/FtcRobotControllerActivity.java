@@ -136,7 +136,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 @SuppressWarnings("WeakerAccess")
 public class FtcRobotControllerActivity extends Activity {
 
-  // --------------------------------------------------------------------------------------------------------
+    // --------------------------------------------------------------------------------------------------------
     public static CameraBridgeViewBase cameraBridgeViewBase;
     public static FrameGrabber frameGrabber = null;
     private static boolean cameraViewVisible = false;
