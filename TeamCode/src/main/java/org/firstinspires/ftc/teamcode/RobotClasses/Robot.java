@@ -140,7 +140,7 @@ public class Robot {
             logger.flush();
         }
 
-        double curTime = (double) System.currentTimeMillis();
+        double curTime = (double) System.currentTimeMillis() / 1000;
         double timeDiff = curTime - prevTime;
         velocityX = (drivetrain.x - prevX) / timeDiff;
         velocityY = (drivetrain.y - prevY) / timeDiff;

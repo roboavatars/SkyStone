@@ -32,6 +32,8 @@ public class Logger {
     public void stopLogging() {try {fileWriter.close();} catch (Exception e) {e.printStackTrace();}}
 
     public void logData(double timeSinceSt, double x, double y, double theta, double velocityx, double velocityy, double velocitytheta, boolean stoneInRobot, boolean stoneClamped, boolean armIsHome, boolean armIsDown, boolean armIsOut) {
+        @SuppressLint("SimpleDateFormat")
+        SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss.SSS"); Date d = new Date();
         try {
             fileWriter.write(df.format(d)+","+timeSinceSt+","+x+","+y+","+theta+","+velocityx+","+velocityy+","+velocitytheta+","+stoneInRobot+","+stoneClamped+","+armIsHome+","+armIsDown+","+armIsOut+"\n");
         } catch (IOException ex) {ex.printStackTrace();}
