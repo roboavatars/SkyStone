@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.RobotClasses;
 
+import android.util.Log;
+
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
@@ -90,6 +92,7 @@ public class Robot {
         // check states----------------------
         // check if ready to collect stones
         if (!stoneInRobot && isHome() && !isOutTake) {
+            Log.w("graph", "intake on called");
             intake.setControls(1);
         }
         // check if arm should lower in preparation to clamp stone
@@ -98,6 +101,7 @@ public class Robot {
                 z--;
 
             } else {
+                Log.w("graph", "intake off called");
                 intake.setControls(0);
                 stacker.goDown();
                 z = 10;
@@ -109,7 +113,7 @@ public class Robot {
             stacker.clampStone();
         }
         // check if stone should be unclamped
-        else if (!stacker.isArmMoving() && downStacked && x>15) {
+        else if (!stacker.isArmMoving() && downStacked && x > 15) {
             stacker.unClampStone();
             stacker.setLiftControls(0.8, Math.min(stacker.getLiftPosition() + 1200, 2400));
 
@@ -183,6 +187,7 @@ public class Robot {
     }
 
     public void depositAuto() {
+        Log.w("graph", "deposit stone called");
         depositAuto = !depositAuto;
     }
 }

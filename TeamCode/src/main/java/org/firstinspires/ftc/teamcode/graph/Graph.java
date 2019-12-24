@@ -54,6 +54,7 @@ public class Graph {
 
         // if task is not started, execute action based on task type
         if (!curNode.isStarted()) {
+            log("Starting " + curNode + "("+curNode.getType()+")");
             if (curNode.getType() == Node.nodeType.SplineNoTheta || curNode.getType() == Node.nodeType.SplineTheta) {
                 curNode.recalcSplines(robot.drivetrain.x, robot.drivetrain.y, robot.drivetrain.currentheading);
             } else if (curNode.getType() == Node.nodeType.ToPoint) {
@@ -69,8 +70,9 @@ public class Graph {
                     case ReleaseFoundation: robot.grabber.releaseFoundation();
                 }
             }
-            curNode.setStarted(); counter++; log("Starting " + curNode + "(" + curNode.getType());
+            curNode.setStarted(); counter++;
             if (curNode.wantsTimeReset()) time.reset();
+            else log("Time Not Reset");
         }
 
         // if task is started, execute action based on task type
@@ -103,19 +105,22 @@ public class Graph {
                 // return appropriate value based on type of start condition, assumes all conditions are "OR" based
                 if (!isReady && edge.hasTimeStart() && curCondition instanceof Double) {
                     isReady = time.seconds() > (double) curCondition;
+                    log("Time Condition Met");
                 }
                 if (!isReady && edge.hasRobotPosStart() && curCondition instanceof double[]) {
                     double[] posCond = (double[]) curCondition;
                     isReady = robot.drivetrain.isAtPose(posCond[0], posCond[1], posCond[2], posCond[3], posCond[4], posCond[5]);
+                    log("Position Condition Met");
                 }
                 if (!isReady && edge.hasStateStart() && curCondition instanceof Node.robotState) {
                     Node.robotState endState = (Node.robotState) curCondition;
                     isReady = endState == Node.robotState.StoneClamped && robot.stacker.stoneClamped
                             || endState == Node.robotState.StoneNotClamped && !robot.stacker.stoneClamped
                             || endState == Node.robotState.ArmHome && robot.stacker.isArmHome();
+                    log("State Condition Met");
                 }
                 if (!isReady && !edge.hasTimeStart() && !edge.hasRobotPosStart() && !edge.hasStateStart()) {
-                    isReady = true;
+                    isReady = true; log("Task Has No Start Condition");
                 }
             }
 

@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.RobotClasses;
 
+import android.util.Log;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -35,10 +37,12 @@ public class FoundationGrabber {
     }
 
     public void releaseFoundation() {
+        Log.w("graph", "release foundation called");
         leftGrabber.setPosition(1);
         rightGrabber.setPosition(-1);
     }
     public void grabFoundation() {
+        Log.w("graph", "grab foundation called");
         leftGrabber.setPosition(-0.86);
         rightGrabber.setPosition(0.86);
     }
