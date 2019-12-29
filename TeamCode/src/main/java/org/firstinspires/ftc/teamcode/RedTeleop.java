@@ -9,6 +9,7 @@ import org.firstinspires.ftc.teamcode.RobotClasses.Robot;
 import java.util.Arrays;
 
 @TeleOp
+@SuppressWarnings("FieldCanBeLocal")
 public class RedTeleop extends LinearOpMode {
 
     private Robot robot;
@@ -93,17 +94,17 @@ public class RedTeleop extends LinearOpMode {
                 robot.stacker.lastLevel();
                 dpadDown = true;
             }
-            
+
             if (gamepad1.dpad_left) robot.grabber.grabFoundation();
             if (gamepad1.dpad_right) robot.grabber.releaseFoundation();
-            
+
             if (robotCentric) {
                 robot.drivetrain.setControls(-gamepad1.left_stick_x, -gamepad1.left_stick_y, -gamepad1.right_stick_x);
             } else {
                 robot.drivetrain.setGlobalControls(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x);
             }
             robot.update();
-            
+
             telemetry.addData("Robot Centric", robotCentric);
             telemetry.update();
         }

@@ -1,8 +1,8 @@
 package org.firstinspires.ftc.teamcode.Tests;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.RobotClasses.Stacker;
 
@@ -10,27 +10,19 @@ import org.firstinspires.ftc.teamcode.RobotClasses.Stacker;
 public class StackerTest extends LinearOpMode {
 
     private Stacker stacker;
-    
 
-    
     @Override
     public void runOpMode() {
         stacker = new Stacker(this);
-        stacker.unClampStone();
 
         waitForStart();
 
         while(opModeIsActive()){
+            stacker.setLiftPower(gamepad1.left_stick_y * 0.75);
+            stacker.setDepositPower(gamepad1.right_stick_y * 0.75);
 
-            
-            if(gamepad1.x){
-                stacker.deposit();
-            }
-
-            
-            telemetry.addData("Lift Pos", stacker.getLiftPosition());
-            telemetry.addData("Arm Pos", stacker.getArmPosition());
-            telemetry.update();
+            if (gamepad1.y) {stacker.clampStone();}
+            else if (gamepad1.a) {stacker.unClampStone();}
         }
     }
 }

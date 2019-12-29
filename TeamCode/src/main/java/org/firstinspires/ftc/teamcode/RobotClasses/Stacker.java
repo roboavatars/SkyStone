@@ -49,8 +49,8 @@ public class Stacker {
         depositMotor = hardwareMap.get(DcMotorEx.class, "depositMotor");
         stoneClamp = hardwareMap.get(Servo.class, "stoneClamp");
         
-        liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        depositMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        depositMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         
         liftMotor.setTargetPosition(0);
         liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -74,6 +74,15 @@ public class Stacker {
         depositMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         depositMotor.setPower(power);
         depositMotor.setTargetPosition(Math.abs(ticks + basepos));
+    }
+
+    public void setLiftPower(double power) {
+        liftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        liftMotor.setPower(power);
+    }
+    public void setDepositPower(double power) {
+        depositMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        depositMotor.setPower(power);
     }
 
     public void goHome() {
