@@ -23,12 +23,11 @@ import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
  * This class processes camera frames from {@linkplain FrameGrabber}
- * to determine the location of stones in teleop
+ * to determine the location of stones in autonomous
  */
 
 @SuppressWarnings({"FieldCanBeLocal"}) @SuppressLint({"DefaultLocale","SdCardPath"})
@@ -42,6 +41,7 @@ public class stoneLocator2 extends Thread {
     private final static String circlePath = basePath + "circle";
     private final static String ellipsePath = basePath + "ellipse";
     private final static String testPath = "/sdcard/FIRST/testFiles3/";
+    private ElapsedTime timer = new ElapsedTime();
 
     private FrameGrabber frameGrabber;
     private final boolean usingCamera = false; // <<<----------------------
@@ -49,6 +49,7 @@ public class stoneLocator2 extends Thread {
 
     private int frameNum = 1;
     private double[] sPos = {-1, -1, -1};
+    private double time = -1;
 
     private boolean active = false;
 
@@ -117,7 +118,8 @@ public class stoneLocator2 extends Thread {
      * @return x, y, and theta of stone
      */
     private double[] detectSkyStone (Mat input) {
-        // Log Input Image and Reset Variables
+        // Log Input Image and Reset Variables and Timer
+        timer.reset();
         double stoneX = -1;
         double stoneY = -1;
         double stoneTheta = -1;
@@ -163,20 +165,28 @@ public class stoneLocator2 extends Thread {
         if (debug) Imgcodecs.imwrite(ellipsePath + (frameNum % 100) + ".jpg", ellipseOnly);
 
         // Log and Return Data
+        time = timer.milliseconds();
         log("x: " + stoneX);
         log("y: " + stoneY);
         log("theta: " + stoneTheta);
+        log("ms: " + time);
         return new double[] {stoneX, stoneY, stoneTheta};
     }
     
     /**
-     * Gets current skystone position value (1 = left, 2 = middle, 3 = right)
-     * @return current skystone position value
+     * Gets current stone position value (x, y, theta)
+     * @return current stone position value (x, y, theta)
      */
     public double[] getLocation() {return sPos;}
+
+    /**
+     * Gets current frame process time (ms)
+     * @return current frame process time (ms)
+     */
+    public double getTime() {return time;}
     
     /**
-     * Sets whether the skystone detector is actively processing camera frames to locate skystones
+     * Sets whether the stone locator is actively processing camera frames to locate stone
      * @param active true = processing; false = not processing
      */
     public void setActive(boolean active) {this.active = active;}
