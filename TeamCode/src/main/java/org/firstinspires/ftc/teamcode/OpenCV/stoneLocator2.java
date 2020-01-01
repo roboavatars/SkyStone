@@ -44,7 +44,7 @@ public class stoneLocator2 extends Thread {
     private ElapsedTime timer = new ElapsedTime();
 
     private FrameGrabber frameGrabber;
-    private final boolean usingCamera = false; // <<<----------------------
+    private final boolean usingCamera = true; // <<<----------------------
     private final boolean debug = true;
 
     private int frameNum = 1;
@@ -59,7 +59,7 @@ public class stoneLocator2 extends Thread {
     // Phone Position-
     // 7in up, side closest to camera is 7.5in from left of robot (aligned to depot), slight tilt forward
 
-    // difference between 2 skystones is 170
+    // difference between 2 skystones is 170 px
     
     /**
      * Enables the camera view
@@ -154,7 +154,6 @@ public class stoneLocator2 extends Thread {
         }
         Imgproc.circle(input, new Point(stoneX, stoneY), 2, new Scalar(0, 0, 255), 2);
         if (debug) Imgcodecs.imwrite(circlePath + (frameNum % 100) + ".jpg", input);
-        //log("t2: " + timer.milliseconds());
 
         // Find Ellipse Using Contour Index
         Mat ellipseOnly = new Mat();
