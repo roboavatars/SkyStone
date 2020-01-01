@@ -141,32 +141,18 @@ public class stoneLocator2 extends Thread {
         Imgproc.findContours(filtered, contours, heirarchyMat, Imgproc.RETR_CCOMP, Imgproc.CHAIN_APPROX_NONE);
 
         // Find Bottommost Point
-        boolean bottomFound = false;
-        for (int i = filtered.rows() - 1; i > -1; i--) {
-            for (int j = filtered.cols() - 1; j > -1; j--) {
-                if (filtered.get(i, j)[0] == 255 && !bottomFound) {
-                    stoneX = j;
-                    stoneY = i;
-                    bottomFound = true;
-                    break;
-                }
-            }
-        }
-        Imgproc.circle(input, new Point(stoneX, stoneY), 3, new Scalar(0, 0, 255), 3);
-        if (debug) Imgcodecs.imwrite(circlePath + (frameNum % 100) + ".jpg", input);
-
-        // Find Contour Containing Bottommost Point
-        boolean contourFound = false;
         int contourIndex = 0;
         for (int i = 0; i < contours.size(); i++) {
             for (int j = 0; j < contours.get(i).rows(); j++) {
-                if (contours.get(i).get(j, 0)[0] == stoneX && contours.get(i).get(j, 0)[1] == stoneY && !contourFound) {
-                    contourIndex = i;
-                    contourFound = true;
-                    break;
+                if (contours.get(i).get(j, 0)[1] >= stoneY) {
+                    stoneX = contours.get(i).get(j, 0)[0];
+                    stoneY = contours.get(i).get(j, 0)[1];
                 }
             }
         }
+        Imgproc.circle(input, new Point(stoneX, stoneY), 2, new Scalar(0, 0, 255), 2);
+        if (debug) Imgcodecs.imwrite(circlePath + (frameNum % 100) + ".jpg", input);
+        //log("t2: " + timer.milliseconds());
 
         // Find Ellipse Using Contour Index
         Mat ellipseOnly = new Mat();
