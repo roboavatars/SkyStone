@@ -18,9 +18,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-import org.opencv.core.Mat;
-
-import java.util.Iterator;
 
 /*
 Methods in the class:
@@ -120,7 +117,6 @@ public class MecanumDrivetrain {
         opMode.telemetry.update();
 
     }
-
 
     private class BetterI2cDeviceSynchImplOnSimple extends I2cDeviceSynchImplOnSimple {
         private BetterI2cDeviceSynchImplOnSimple(I2cDeviceSynchSimple simple, boolean isSimpleOwned) {
@@ -266,7 +262,6 @@ public class MecanumDrivetrain {
         currentheading = 0;
     }
 
-
     public boolean isAtPose(double targetx, double targety, double targettheta) {
         return (Math.abs(x - targetx) < xyTolerance && Math.abs(y - targety) < xyTolerance
                 && Math.abs(currentheading - targettheta) < thetaTolerance);
@@ -276,7 +271,4 @@ public class MecanumDrivetrain {
                 && Math.abs(currentheading - targettheta) < thetatolerance);
     }
 
-
 }
-
-

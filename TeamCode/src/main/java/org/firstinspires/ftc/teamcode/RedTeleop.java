@@ -14,8 +14,6 @@ public class RedTeleop extends LinearOpMode {
 
     private Robot robot;
     private boolean robotCentric = false;
-    private boolean dpadUp = true;
-    private boolean dpadDown = true;
     private boolean rightBumper = true;
 
     @Override
@@ -33,8 +31,6 @@ public class RedTeleop extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-
-
             if(gamepad1.right_bumper && rightBumper){
                 rightBumper = false;
             }
@@ -45,7 +41,7 @@ public class RedTeleop extends LinearOpMode {
 
             if (gamepad1.dpad_left) robot.grabber.grabFoundation();
             if (gamepad1.dpad_right) robot.grabber.releaseFoundation();
-//
+
             if (robotCentric) {
                 robot.drivetrain.setControls(-gamepad1.left_stick_x, -gamepad1.left_stick_y, -gamepad1.right_stick_x);
             } else {
