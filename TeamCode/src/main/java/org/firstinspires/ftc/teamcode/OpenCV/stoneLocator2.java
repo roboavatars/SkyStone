@@ -34,13 +34,13 @@ import java.util.List;
 public class stoneLocator2 extends Thread {
 
     // Variables
-    private final static String basePath = "/sdcard/FIRST/procFiles3/";
+    private final static String basePath = "/sdcard/FIRST/procFiles2/";
     private final static String inputPath = basePath + "input";
     private final static String filteredPath = basePath + "filtered";
     private final static String contoursPath = basePath + "contours";
     private final static String circlePath = basePath + "circle";
     private final static String ellipsePath = basePath + "ellipse";
-    private final static String testPath = "/sdcard/FIRST/testFiles3/";
+    private final static String testPath = "/sdcard/FIRST/testFiles2/";
     private ElapsedTime timer = new ElapsedTime();
 
     private FrameGrabber frameGrabber;
