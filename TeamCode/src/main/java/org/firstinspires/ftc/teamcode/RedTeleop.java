@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.RobotClasses.Logger;
 import org.firstinspires.ftc.teamcode.RobotClasses.Robot;
@@ -25,86 +26,37 @@ public class RedTeleop extends LinearOpMode {
         robot.logger.startLogging();
 
         waitForStart();
-        robot.intake.setControls(1);
         robot.stacker.unClampStone();
         robot.stacker.goHome();
+        ElapsedTime time = new ElapsedTime();
+
 
         while (opModeIsActive()) {
 
-            if(gamepad2.x){
-                robot.capstoneDeposit.attachCapstone();
-            }
-            else{
-                robot.capstoneDeposit.goHome();
-            }
 
-            if(gamepad2.right_trigger>0){
-                robot.stacker.basepos += 20;
-                robot.stacker.goHome();
-            }
-            else if(gamepad2.left_trigger>0){
-                robot.stacker.basepos -= 20;
-                robot.stacker.goHome();
-            }
-
-            if(gamepad1.left_bumper){
-                robot.deposit();
-            }
-
-            if (gamepad1.left_trigger > 0) {
-                robot.expelStone();
-            }
 
             if(gamepad1.right_bumper && rightBumper){
                 rightBumper = false;
             }
             else if(!rightBumper && !gamepad1.right_bumper){
-                robot.swapArmStateTeleop();
+                robot.deposit();
                 rightBumper = true;
             }
-            else if(gamepad2.dpad_up){
-                robot.stacker.setDepositControls(0.3, robot.stacker.getArmPosition() - 70);
-            }
-            else if(gamepad2.dpad_down){
-                robot.stacker.setDepositControls(0.3, robot.stacker.getArmPosition() + 70);
-            }
-            else if(gamepad2.y){
-                robot.stacker.setLiftControls(0.3,robot.stacker.getLiftPosition() + 45);
-            }
-            else if(gamepad2.a){
-                robot.stacker.setLiftControls(0.3,robot.stacker.getLiftPosition() - 45);
-            }
 
-
-            if (gamepad1.right_trigger > 0) {
-                robot.capstoneDeposit.attachCapstone();
-            }
-
-            if (gamepad1.dpad_up && dpadUp) {
-                dpadUp = false;
-            } else if (!dpadUp && !gamepad1.dpad_up) {
-                robot.stacker.nextLevel();
-                dpadUp = true;
-            }
-
-            if (gamepad1.dpad_down && dpadDown) {
-                dpadDown = false;
-            } else if (!dpadDown && !gamepad1.dpad_down) {
-                robot.stacker.lastLevel();
-                dpadDown = true;
-            }
-            
             if (gamepad1.dpad_left) robot.grabber.grabFoundation();
             if (gamepad1.dpad_right) robot.grabber.releaseFoundation();
-            
+//
             if (robotCentric) {
                 robot.drivetrain.setControls(-gamepad1.left_stick_x, -gamepad1.left_stick_y, -gamepad1.right_stick_x);
             } else {
                 robot.drivetrain.setGlobalControls(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x);
             }
+            double prev = time.milliseconds();
             robot.update();
-            
-            telemetry.addData("Robot Centric", robotCentric);
+            double now = time.milliseconds();
+            telemetry.addData("loop time", now-prev);
+            telemetry.addData("arm ticks", robot.stacker.getArmPosition());
+            telemetry.addData("slide ticks", robot.stacker.getLiftPosition());
             telemetry.update();
         }
     }

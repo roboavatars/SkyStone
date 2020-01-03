@@ -1,40 +1,49 @@
 package org.firstinspires.ftc.teamcode.RobotClasses;
 
+import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.hardware.lynx.commands.core.LynxGetBulkInputDataCommand;
+import com.qualcomm.hardware.lynx.commands.core.LynxGetBulkInputDataResponse;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
 @SuppressWarnings("FieldCanBeLocal")
 public class Stacker {
     
     //Electronics
+    private LynxModule module;
     private DcMotorEx liftMotor;
     private DcMotorEx depositMotor;
     private Servo stoneClamp;
 
     public int basepos = 0;
     
-    private final double clampPos = 0.9;
-    private final double unClampPos = 0.65;
+    private final double clampPos = 0.4;
+    private final double unClampPos = 0.99;
     
-    public final int armPos[] =   {2150, 1850, 1650, 1430, 1260, 1260, 1260, 1260, 1260, 1260}; // increases down
-    private final int liftPos[] = {0,    0,    0,    0,    350,  840,  1360, 1830, 2300, 2760};
+    public final int armPos[] =   {650, 650, 650, 650, 301, 301, 301, 301, 301, 301}; // increases down
+    private final int liftPos[] = {-540,  -992,  -1444,  -1896,    0,  -452,  -904, -1356, -1808, -2260};
 
     private int currentStackHeight = 0;
     private int armTicks = 0;
     private int liftTicks = 0;
-    private double armVelocity = 0;
+
     public boolean stoneClamped = false;
-    private final int armOut = 1100;
-    private final int armDown = 25;
-    private final int armHome = 180;
-    private final int armTolerance = 25;
+    private final int armOut = 250;
+    private final int armDown = -10;
+    private final int armHome = 25;
+    private final int armTolerance = 10;
     private final int liftHome = 0;
     private final int liftTolerance = 10;
     //unit is ticks/second
-    private final int armVelocityTolerance = 5;
+
+    private double armVelocity = 0;
+    private double liftVelocity = 0;
+    private final int armVelocityTolerance = 1;
+    private final int liftVelocityTolerance = 1;
     
     //OpMode Stuff
     private LinearOpMode op;
@@ -44,25 +53,46 @@ public class Stacker {
         
         this.op = op;
         this.hardwareMap = op.hardwareMap;
-        
+
+        module = hardwareMap.get(LynxModule.class,"Intake + Transfer + Clamp Hub");
         liftMotor = hardwareMap.get(DcMotorEx.class, "liftMotor");
         depositMotor = hardwareMap.get(DcMotorEx.class, "depositMotor");
         stoneClamp = hardwareMap.get(Servo.class, "stoneClamp");
         
         liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        depositMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        depositMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         
         liftMotor.setTargetPosition(0);
         liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        
+        liftMotor.setVelocityPIDFCoefficients(2,0.5,0, 20);
+
+
         depositMotor.setTargetPosition(0);
         depositMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        
+        depositMotor.setTargetPositionTolerance(0);
+        depositMotor.setPositionPIDFCoefficients(15);
+        depositMotor.setVelocityPIDFCoefficients(2,0.3,0,20);
+        op.telemetry.addLine(depositMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).toString());
+        op.telemetry.addLine(depositMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION).toString());
+
         liftMotor.setPower(0);
         depositMotor.setPower(0);
-        
+
         op.telemetry.addData("Status", "Stacker Initialized");
-        op.telemetry.update();
+
+    }
+
+    public LynxGetBulkInputDataResponse RevBulkData(){
+        LynxGetBulkInputDataResponse response;
+        try {
+            LynxGetBulkInputDataCommand command = new LynxGetBulkInputDataCommand(module);
+            response = command.sendReceive();
+        }
+        catch (Exception e) {
+            op.telemetry.addData("Exception", "bulk read exception");
+            response = null;
+        }
+        return response;
     }
     
     public void setLiftControls(double power, int ticks) {
@@ -71,38 +101,42 @@ public class Stacker {
         liftMotor.setTargetPosition(ticks);
     }
     public void setDepositControls(double power, int ticks) {
-        depositMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        depositMotor.setTargetPosition(ticks);
         depositMotor.setPower(power);
-        depositMotor.setTargetPosition(Math.abs(ticks + basepos));
     }
 
     public void goHome() {
-        setDepositControls(0.5,armHome);
-        setLiftControls(0.5,0);
+        setDepositControls(0.25 ,armHome);
+        setLiftControls(0.2,0);
+
     }
     public void goDown() {
-        setDepositControls(0.3, armDown);
+        setDepositControls(1.0, armDown);
     }
     public void downStack() {
-        setDepositControls(0.3,armTicks + 130);
+        setLiftControls(0.75,liftPos[currentStackHeight]+300);
     }
 
     public void deposit() {
-        setLiftControls(1, liftPos[currentStackHeight]);
-        setDepositControls(0.75, armPos[currentStackHeight]);
+        setLiftControls(1.0, liftPos[currentStackHeight]-300);
+        setDepositControls(0.2, armPos[currentStackHeight]);
     }
 
     public boolean isArmHome() {
+
         return Math.abs(getArmPosition() - armHome) < armTolerance;
     }
     public boolean isLiftHome() {
         return Math.abs(getLiftPosition() - liftHome) < liftTolerance;
     }
     public boolean isArmOut() {
+
         return getArmPosition() > armOut;
     }
     public boolean isArmDown() {
-        return Math.abs(getArmPosition() - armDown) < armTolerance;
+
+        return Math.abs(getArmPosition()+10) < armTolerance && !isArmMoving();
     }
 
     public void nextLevel() {
@@ -135,10 +169,28 @@ public class Stacker {
     public boolean isArmMoving() {
         return Math.abs(armVelocity) > armVelocityTolerance;
     }
+    public boolean isLiftMoving(){
+        return Math.abs(liftVelocity) > liftVelocityTolerance;
+    }
+    public boolean isDownStacked(){
+        return Math.abs(liftTicks - (liftPos[currentStackHeight]+300)) < 40 && !isLiftMoving();
+    }
 
     public void update() {
-        armTicks = depositMotor.getCurrentPosition();
-        liftTicks = liftMotor.getCurrentPosition();
-        armVelocity = depositMotor.getVelocity();
+        LynxGetBulkInputDataResponse response = RevBulkData();
+
+        armTicks = response.getEncoder(2);
+        liftTicks = response.getEncoder(3);
+        armVelocity = response.getVelocity(2);
+        liftVelocity = response.getVelocity(3);
+//        setArmPower(Math.signum(armTargetPos-armTicks)*Math.max(0.0075*(Math.abs(armTicks-armTargetPos))*armPower, 0.15*Math.cos(getArmAngle())) + 0.35*Math.cos(getArmAngle()));
+
+    }
+
+    public void setArmPower(double p){
+        depositMotor.setPower(p);
+    }
+    public double getArmAngle(){
+        return 2*Math.PI*(armTicks-69.0)/806.4;
     }
 }
