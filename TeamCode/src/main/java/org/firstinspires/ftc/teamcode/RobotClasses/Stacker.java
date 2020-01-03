@@ -54,7 +54,7 @@ public class Stacker {
         this.op = op;
         this.hardwareMap = op.hardwareMap;
 
-        module = hardwareMap.get(LynxModule.class,"Intake + Transfer + Clamp Hub");
+        module = hardwareMap.get(LynxModule.class,"Other Stuff");
         liftMotor = hardwareMap.get(DcMotorEx.class, "liftMotor");
         depositMotor = hardwareMap.get(DcMotorEx.class, "depositMotor");
         stoneClamp = hardwareMap.get(Servo.class, "stoneClamp");

@@ -36,7 +36,7 @@ public class Logger {
         SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss.SSS"); Date d = new Date();
         try {
             fileWriter.write(df.format(d)+","+timeSinceSt+","+x+","+y+","+theta+","+velocityx+","+velocityy+","+velocitytheta+","+stoneInRobot+","+stoneClamped+","+armIsHome+","+armIsDown+","+armIsOut+"\n");
-        } catch (IOException ex) {ex.printStackTrace();}
+        } catch (Exception ex) {ex.printStackTrace();}
     }
 
     public void flush() {
