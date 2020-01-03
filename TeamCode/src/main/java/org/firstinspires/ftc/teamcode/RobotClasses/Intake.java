@@ -22,8 +22,8 @@ public class Intake {
         this.op = op;
         this.hardwareMap = op.hardwareMap;
 
-        leftIntake = hardwareMap.get(DcMotorEx.class, "intake1");
-        rightIntake = hardwareMap.get(DcMotorEx.class, "intake2");
+        leftIntake = hardwareMap.get(DcMotorEx.class, "leftIntake");
+        rightIntake = hardwareMap.get(DcMotorEx.class, "rightIntake");
 
         leftIntake.setDirection(DcMotor.Direction.FORWARD);
         rightIntake.setDirection(DcMotor.Direction.REVERSE);
