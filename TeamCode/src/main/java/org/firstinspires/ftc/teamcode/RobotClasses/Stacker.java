@@ -10,6 +10,9 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.Splines.Spline;
+import org.firstinspires.ftc.teamcode.Splines.SplineGenerator;
+
 @SuppressWarnings("FieldCanBeLocal")
 public class Stacker {
     
@@ -45,7 +48,9 @@ public class Stacker {
     private double liftVelocity = 0;
     private final int armVelocityTolerance = 1;
     private final int liftVelocityTolerance = 1;
-    
+
+    private Spline trajectory;
+    private boolean isFollowingTrajectory = false;
     //OpMode Stuff
     private LinearOpMode op;
     private HardwareMap hardwareMap;
@@ -114,14 +119,14 @@ public class Stacker {
         else {
             setDepositControls(0.25, armHome);
         }
-        setLiftControls(0.2,0);
+        setLiftControls(0.5,0);
 
     }
     public void goDown() {
         setDepositControls(1.0, armDown);
     }
     public void downStack() {
-        setLiftControls(0.75,liftPos[currentStackHeight]);
+        setLiftControls(1.0,liftPos[currentStackHeight]-200);
     }
 
     public void deposit() {
@@ -185,7 +190,7 @@ public class Stacker {
         return Math.abs(liftVelocity) > liftVelocityTolerance;
     }
     public boolean isDownStacked(){
-        return Math.abs(liftTicks - (liftPos[currentStackHeight])) < 40 && !isLiftMoving();
+        return Math.abs(liftTicks - (liftPos[currentStackHeight])-200) < 100 && !isLiftMoving();
     }
 
     public void update() {
