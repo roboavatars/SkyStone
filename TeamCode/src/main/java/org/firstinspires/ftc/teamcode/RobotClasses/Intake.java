@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.RobotClasses;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -25,8 +26,8 @@ public class Intake {
         leftIntake = hardwareMap.get(DcMotorEx.class, "leftIntake");
         rightIntake = hardwareMap.get(DcMotorEx.class, "rightIntake");
 
-        leftIntake.setDirection(DcMotor.Direction.FORWARD);
-        rightIntake.setDirection(DcMotor.Direction.REVERSE);
+        leftIntake.setDirection(DcMotor.Direction.REVERSE);
+        rightIntake.setDirection(DcMotor.Direction.FORWARD);
 
         op.telemetry.addData("Status", "Intake Initialized");
         op.telemetry.update();
@@ -35,5 +36,9 @@ public class Intake {
     public void setControls(double intakePower) {
         leftIntake.setPower(intakePower);
         rightIntake.setPower(intakePower);
+    }
+
+    public boolean intakeOn() {
+        return (leftIntake.getPower() > 0) && (rightIntake.getPower() > 0);
     }
 }

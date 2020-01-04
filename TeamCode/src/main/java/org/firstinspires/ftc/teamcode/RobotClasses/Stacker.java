@@ -24,8 +24,8 @@ public class Stacker {
     private final double clampPos = 0.4;
     private final double unClampPos = 0.99;
     
-    public final int armPos[] =   {650, 650, 650, 650, 301, 301, 301, 301, 301, 301}; // increases down
-    private final int liftPos[] = {-540,  -992,  -1444,  -1896,    0,  -452,  -904, -1356, -1808, -2260};
+    public final int armPos[] =   {665, 665, 665, 665, 301, 301, 301, 301, 301, 301}; // increases down
+    private final int liftPos[] = {-540, -992, -1444, -1896, 0, -452,-904, -1356, -1808, -2260};
 
     private int currentStackHeight = 0;
     private int armTicks = 0;
@@ -38,6 +38,7 @@ public class Stacker {
     private final int armTolerance = 10;
     private final int liftHome = 0;
     private final int liftTolerance = 10;
+    private final int moveliftUpHeight = 100;
     //unit is ticks/second
 
     private double armVelocity = 0;
@@ -107,7 +108,12 @@ public class Stacker {
     }
 
     public void goHome() {
-        setDepositControls(0.25 ,armHome);
+        if(armTicks<20){
+            setDepositControls(1,armHome);
+        }
+        else {
+            setDepositControls(0.25, armHome);
+        }
         setLiftControls(0.2,0);
 
     }
@@ -115,12 +121,15 @@ public class Stacker {
         setDepositControls(1.0, armDown);
     }
     public void downStack() {
-        setLiftControls(0.75,liftPos[currentStackHeight]+300);
+        setLiftControls(0.75,liftPos[currentStackHeight]);
     }
 
     public void deposit() {
         setLiftControls(1.0, liftPos[currentStackHeight]-300);
-        setDepositControls(0.2, armPos[currentStackHeight]);
+        setDepositControls(0.3, armPos[currentStackHeight]);
+    }
+    public void liftUp(){
+        setLiftControls(1,liftPos[currentStackHeight]-moveliftUpHeight);
     }
 
     public boolean isArmHome() {
@@ -129,6 +138,9 @@ public class Stacker {
     }
     public boolean isLiftHome() {
         return Math.abs(getLiftPosition() - liftHome) < liftTolerance;
+    }
+    public boolean isLiftUp() {
+        return Math.abs(getLiftPosition() - (liftPos[currentStackHeight]-moveliftUpHeight)) < 40;
     }
     public boolean isArmOut() {
 
@@ -173,7 +185,7 @@ public class Stacker {
         return Math.abs(liftVelocity) > liftVelocityTolerance;
     }
     public boolean isDownStacked(){
-        return Math.abs(liftTicks - (liftPos[currentStackHeight]+300)) < 40 && !isLiftMoving();
+        return Math.abs(liftTicks - (liftPos[currentStackHeight])) < 40 && !isLiftMoving();
     }
 
     public void update() {

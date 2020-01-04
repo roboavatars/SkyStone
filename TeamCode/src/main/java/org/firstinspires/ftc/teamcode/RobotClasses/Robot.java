@@ -27,7 +27,6 @@ public class Robot {
     private boolean tryingToDeposit = false;
 
     //TODO create clampedOnFoundation methods
-    private boolean clampedOnFoundation = false;
     private boolean downStacked = false;
 
     // Class constants
@@ -80,15 +79,13 @@ public class Robot {
         // check states----------------------
         // check if ready to collect stones
         if (!stoneInRobot && !tryingToDeposit) {
-            Log.w("graph", "intake on called");
-            intake.setControls(-1);
+            stacker.goHome();
         }
         else if(stoneInRobot && stacker.isArmDown() ){
             stacker.clampStone();
         }
         // check if arm should lower in preparation to clamp stone
         else if (stoneInRobot && !tryingToDeposit) {
-            intake.setControls(0);
             stacker.goDown();
         }
         //check if we should downstack
@@ -96,12 +93,16 @@ public class Robot {
             stacker.downStack();
             op.telemetry.addLine("trying to downstack");
         }
-        else if(tryingToDeposit && stacker.isArmOut() && stacker.isDownStacked() && !stacker.isArmMoving()){
+        else if(tryingToDeposit && stacker.isArmOut() && !stacker.isArmMoving()){
             stacker.unClampStone();
+            stacker.liftUp();
             tryingToDeposit = false;
-            stacker.goHome();
-            op.telemetry.addLine("ok booma");
+            op.telemetry.addLine("unclamped that shit");
         }
+        else if(stacker.isArmOut() && stacker.isLiftUp()){
+            stacker.goHome();
+        }
+
 
         drivetrain.updatePose();
         if (cycleCounter % loggerUpdatePeriod == 0) {

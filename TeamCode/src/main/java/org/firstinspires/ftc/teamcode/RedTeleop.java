@@ -13,8 +13,9 @@ import java.util.Arrays;
 public class RedTeleop extends LinearOpMode {
 
     private Robot robot;
-    private boolean robotCentric = false;
+    private boolean robotCentric = true;
     private boolean rightBumper = true;
+    private boolean a = true;
 
     @Override
     public void runOpMode() {
@@ -28,15 +29,23 @@ public class RedTeleop extends LinearOpMode {
         robot.stacker.goHome();
         ElapsedTime time = new ElapsedTime();
 
-
         while (opModeIsActive()) {
 
-            if(gamepad1.right_bumper && rightBumper){
+            if (gamepad1.right_bumper && rightBumper) {
                 rightBumper = false;
-            }
-            else if(!rightBumper && !gamepad1.right_bumper){
+            } else if (!rightBumper && !gamepad1.right_bumper) {
                 robot.deposit();
                 rightBumper = true;
+            }
+
+            if (gamepad1.b) {robot.intake.setControls(-1);}
+
+            if (gamepad1.a && a) {
+                a = false;
+            } else if (!gamepad1.a && !a) {
+                a = true;
+                if (robot.intake.intakeOn()) {robot.intake.setControls(0);}
+                else {robot.intake.setControls(1);}
             }
 
             if (gamepad1.dpad_left) robot.grabber.grabFoundation();
@@ -47,6 +56,7 @@ public class RedTeleop extends LinearOpMode {
             } else {
                 robot.drivetrain.setGlobalControls(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x);
             }
+
             double prev = time.milliseconds();
             robot.update();
             double now = time.milliseconds();

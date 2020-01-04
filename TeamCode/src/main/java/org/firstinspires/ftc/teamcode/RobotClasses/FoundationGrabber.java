@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.RobotClasses;
 
 import android.util.Log;
 
+import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -14,6 +15,7 @@ public class FoundationGrabber {
     //Electronics
     private Servo leftGrabber;
     private Servo rightGrabber;
+    private Rev2mDistanceSensor autoAlighSensor;
 
     private final double grabberHome = 1;
     private final double grabberTolerance = 0.1;
@@ -29,6 +31,7 @@ public class FoundationGrabber {
 
         leftGrabber = hardwareMap.get(Servo.class, "leftGrabber");
         rightGrabber = hardwareMap.get(Servo.class, "rightGrabber");
+        autoAlighSensor = hardwareMap.get(Rev2mDistanceSensor.class, "autoAlignSensor");
 
         releaseFoundation();
 
