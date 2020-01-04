@@ -181,7 +181,7 @@
 ////                if (robot.drivetrain.isAtPose(100, 25, 0) || time.seconds() > 2) {
 ////                    approachFoundation = true;
 ////                    if (robot.stacker.stoneClamped) {
-////                        robot.depositAuto();
+////                        robot.deposit();
 ////                    }
 ////                    time.reset();
 ////                }
@@ -274,7 +274,7 @@
 ////                robot.drivetrain.setTargetPoint(111, 33,Math.PI / 2);
 ////                // extend arm with skystone over the foundation
 ////                if (robot.drivetrain.isAtPose(robot.drivetrain.x, 60, robot.drivetrain.currentheading)) {
-////                    robot.depositAuto();
+////                    robot.deposit();
 ////                }
 ////                if (!robot.stacker.stoneClamped && robot.stacker.isArmHome()) {
 ////                    toFoundation2 = true;
