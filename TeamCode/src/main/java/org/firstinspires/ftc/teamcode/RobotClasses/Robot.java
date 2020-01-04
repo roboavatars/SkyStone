@@ -31,7 +31,7 @@ public class Robot {
 
     // Class constants
     private final int stoneSensorUpdatePeriod = 7;
-    private final int stoneValidationDistance = 6;
+    private final int stoneValidationDistance = 3;
     private final int armTicksUpdatePeriod = 5;
     private final int loggerUpdatePeriod = 2;
     private final int flushUpdatePeriod = 5000;
@@ -80,12 +80,13 @@ public class Robot {
         // check if ready to collect stones
         if (!stoneInRobot && !tryingToDeposit) {
             stacker.goHome();
+            stacker.unClampStone();
         }
         else if(stoneInRobot && stacker.isArmDown() ){
             stacker.clampStone();
         }
         // check if arm should lower in preparation to clamp stone
-        else if (stoneInRobot && !tryingToDeposit) {
+        else if (stoneInRobot && !tryingToDeposit && !stacker.isArmOut()) {
             stacker.goDown();
         }
         //check if we should downstack
@@ -98,9 +99,6 @@ public class Robot {
             stacker.liftUp();
             tryingToDeposit = false;
             op.telemetry.addLine("unclamped that shit");
-        }
-        else if(stacker.isArmOut() && stacker.isLiftUp()){
-            stacker.goHome();
         }
 
 
