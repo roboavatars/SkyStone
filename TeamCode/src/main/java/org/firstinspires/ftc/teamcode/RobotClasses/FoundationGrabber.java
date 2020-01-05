@@ -9,6 +9,8 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
 @SuppressWarnings("FieldCanBeLocal")
 public class FoundationGrabber {
 
@@ -33,6 +35,8 @@ public class FoundationGrabber {
         rightGrabber = hardwareMap.get(Servo.class, "rightGrabber");
         autoAlighSensor = hardwareMap.get(Rev2mDistanceSensor.class, "autoAlignSensor");
 
+        autoAlighSensor.initialize();
+
         releaseFoundation();
 
         op.telemetry.addData("Status", "Grabbers Initialized");
@@ -48,6 +52,13 @@ public class FoundationGrabber {
         Log.w("graph", "grab foundation called");
         leftGrabber.setPosition(-0.86);
         rightGrabber.setPosition(0.86);
+    }
+
+    public void extendRangeSensor(){
+        rightGrabber.setPosition(0.78);
+    }
+    public double getDistance(){
+        return autoAlighSensor.getDistance(DistanceUnit.INCH);
     }
 
     public double getGrabberPosition() {

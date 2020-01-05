@@ -98,7 +98,7 @@ public class RedAuto extends LinearOpMode {
         // time used to end segments after a certain period of time
         ElapsedTime time = new ElapsedTime();
 
-        robot.intake.setControls(-1);
+        robot.intake.setControls(0.6);
         sleep(33);
 
         // robot move loop
