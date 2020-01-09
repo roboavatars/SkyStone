@@ -200,7 +200,6 @@ public class Stacker {
         liftTicks = response.getEncoder(3);
         armVelocity = response.getVelocity(2);
         liftVelocity = response.getVelocity(3);
-//        setArmPower(Math.signum(armTargetPos-armTicks)*Math.max(0.0075*(Math.abs(armTicks-armTargetPos))*armPower, 0.15*Math.cos(getArmAngle())) + 0.35*Math.cos(getArmAngle()));
 
     }
 
