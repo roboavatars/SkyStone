@@ -27,7 +27,7 @@ public class Stacker {
     private final double clampPos = 0.4;
     private final double unClampPos = 0.99;
     
-    public final int armPos[] =   {665, 665, 665, 665, 301, 301, 301, 301, 301, 301}; // increases down
+    public final int armPos[] =   {665, 665, 665, 665, 285, 285, 285, 285, 285, 285}; // increases down
     private final int liftPos[] = {-540, -992, -1444, -1896, 0, -452,-904, -1356, -1808, -2260};
 
     private int currentStackHeight = 0;
@@ -36,18 +36,18 @@ public class Stacker {
 
     public boolean stoneClamped = false;
     private final int armOut = 250;
-    private final int armDown = -10;
+    private final int armDown = -20;
     private final int armHome = 25;
     private final int armTolerance = 10;
     private final int liftHome = 0;
     private final int liftTolerance = 10;
-    private final int moveliftUpHeight = 100;
+    private final int moveliftUpHeight = 150;
     //unit is ticks/second
 
     private double armVelocity = 0;
-    private double liftVelocity = 0;
-    private final int armVelocityTolerance = 1;
-    private final int liftVelocityTolerance = 1;
+    public double liftVelocity = 0;
+    private final int armVelocityTolerance = 2;
+    private final int liftVelocityTolerance = 2;
 
     private Spline trajectory;
     private boolean isFollowingTrajectory = false;
@@ -76,7 +76,7 @@ public class Stacker {
         depositMotor.setTargetPosition(0);
         depositMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         depositMotor.setTargetPositionTolerance(0);
-        depositMotor.setPositionPIDFCoefficients(15);
+        depositMotor.setPositionPIDFCoefficients(18);
         depositMotor.setVelocityPIDFCoefficients(2,0.3,0,20);
         op.telemetry.addLine(depositMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).toString());
         op.telemetry.addLine(depositMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION).toString());
@@ -117,7 +117,7 @@ public class Stacker {
             setDepositControls(1,armHome);
         }
         else {
-            setDepositControls(0.25, armHome);
+            setDepositControls(0.35, armHome);
         }
         setLiftControls(0.5,0);
 
@@ -126,12 +126,12 @@ public class Stacker {
         setDepositControls(1.0, armDown);
     }
     public void downStack() {
-        setLiftControls(1.0,liftPos[currentStackHeight]-200);
+        setLiftControls(1.0,liftPos[currentStackHeight]);
     }
 
     public void deposit() {
         setLiftControls(1.0, liftPos[currentStackHeight]-300);
-        setDepositControls(0.3, armPos[currentStackHeight]);
+        setDepositControls(0.35, armPos[currentStackHeight]);
     }
     public void liftUp(){
         setLiftControls(1,liftPos[currentStackHeight]-moveliftUpHeight);
@@ -145,7 +145,7 @@ public class Stacker {
         return Math.abs(getLiftPosition() - liftHome) < liftTolerance;
     }
     public boolean isLiftUp() {
-        return Math.abs(getLiftPosition() - (liftPos[currentStackHeight]-moveliftUpHeight)) < 40;
+        return Math.abs(getLiftPosition() - (liftPos[currentStackHeight]-moveliftUpHeight)) < 100;
     }
     public boolean isArmOut() {
 
@@ -153,7 +153,7 @@ public class Stacker {
     }
     public boolean isArmDown() {
 
-        return Math.abs(getArmPosition()+10) < armTolerance && !isArmMoving();
+        return Math.abs(getArmPosition()+ 15) < armTolerance && !isArmMoving();
     }
 
     public void nextLevel() {
@@ -190,7 +190,7 @@ public class Stacker {
         return Math.abs(liftVelocity) > liftVelocityTolerance;
     }
     public boolean isDownStacked(){
-        return Math.abs(liftTicks - (liftPos[currentStackHeight])-200) < 100 && !isLiftMoving();
+        return Math.abs(liftTicks - (liftPos[currentStackHeight])) < 100 && !isLiftMoving();
     }
 
     public void update() {

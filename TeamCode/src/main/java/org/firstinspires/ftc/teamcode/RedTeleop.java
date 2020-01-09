@@ -14,7 +14,10 @@ public class RedTeleop extends LinearOpMode {
 
     private Robot robot;
     private boolean robotCentric = true;
+    private boolean dpadUp = true;
+    private boolean dpadDown = true;
     private boolean rightBumper = true;
+    private boolean leftBumper = true;
     private boolean a = true;
 
     @Override
@@ -38,6 +41,15 @@ public class RedTeleop extends LinearOpMode {
                 rightBumper = true;
             }
 
+            if (gamepad1.left_bumper && leftBumper) {
+                leftBumper = false;
+            } else if (!leftBumper && !gamepad1.left_bumper) {
+                robot.letGo = true;
+                leftBumper = true;
+            }
+
+
+
             if (gamepad1.b) {robot.intake.setControls(-1);}
 
             if (gamepad1.a && a) {
@@ -45,11 +57,25 @@ public class RedTeleop extends LinearOpMode {
             } else if (!gamepad1.a && !a) {
                 a = true;
                 if (robot.intake.intakeOn()) {robot.intake.setControls(0);}
-                else {robot.intake.setControls(1);}
+                else {robot.intake.setControls(0.6);}
             }
 
             if (gamepad1.dpad_left) robot.grabber.grabFoundation();
             if (gamepad1.dpad_right) robot.grabber.releaseFoundation();
+
+            if (gamepad1.dpad_up && dpadUp) {
+                dpadUp = false;
+            } else if (!dpadUp && !gamepad1.dpad_up) {
+                robot.stacker.nextLevel();
+                dpadUp = true;
+            }
+
+            if (gamepad1.dpad_down && dpadDown) {
+                dpadDown = false;
+            } else if (!dpadDown && !gamepad1.dpad_down) {
+                robot.stacker.lastLevel();
+                dpadDown = true;
+            }
 
             if (robotCentric) {
                 robot.drivetrain.setControls(-gamepad1.left_stick_x, -gamepad1.left_stick_y, -gamepad1.right_stick_x);

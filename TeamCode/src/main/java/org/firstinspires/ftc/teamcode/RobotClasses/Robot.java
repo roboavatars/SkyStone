@@ -28,6 +28,7 @@ public class Robot {
 
     //TODO create clampedOnFoundation methods
     private boolean downStacked = false;
+    public boolean letGo = false;
 
     // Class constants
     private final int stoneSensorUpdatePeriod = 7;
@@ -35,6 +36,7 @@ public class Robot {
     private final int armTicksUpdatePeriod = 5;
     private final int loggerUpdatePeriod = 2;
     private final int flushUpdatePeriod = 5000;
+    private final double AlignDistance = 5.7;
 
     private int cycleCounter = 0;
     private int z = 10;
@@ -90,15 +92,25 @@ public class Robot {
             stacker.goDown();
         }
         //check if we should downstack
-        else if(tryingToDeposit && stacker.isArmOut() && !stacker.isArmMoving() && !stacker.isDownStacked()){
+        else if(tryingToDeposit && stacker.isArmOut() && !stacker.isArmMoving() && !stacker.isDownStacked() && !downStacked){
             stacker.downStack();
+            downStacked = true;
             op.telemetry.addLine("trying to downstack");
         }
-        else if(tryingToDeposit && stacker.isArmOut() && !stacker.isArmMoving()){
+        else if(tryingToDeposit && stacker.isArmOut() && !stacker.isArmMoving() && stacker.isDownStacked() && letGo){
             stacker.unClampStone();
             stacker.liftUp();
+            op.telemetry.addLine("unclamped stone");
+        }
+        else if(tryingToDeposit && stacker.isArmOut() && stacker.isLiftUp() && downStacked && letGo){
             tryingToDeposit = false;
-            op.telemetry.addLine("unclamped that shit");
+            downStacked = false;
+            letGo = false;
+            stacker.nextLevel();
+        }
+
+        if(tryingToDeposit && !letGo && cycleCounter%15==0){
+            drivetrain.setControls(-0.25*(grabber.getDistance()-AlignDistance),-0.05,0);
         }
 
 
@@ -106,9 +118,7 @@ public class Robot {
         if (cycleCounter % loggerUpdatePeriod == 0) {
             logger.logData(System.currentTimeMillis()-startTime,drivetrain.x,drivetrain.y,drivetrain.currentheading,velocityX,velocityY,velocityTh,stoneInRobot,stacker.stoneClamped,stacker.isArmHome(),stacker.isArmDown(),stacker.isArmOut());
         }
-        if (cycleCounter % flushUpdatePeriod == 0) {
-            logger.flush();
-        }
+        if (cycleCounter % flushUpdatePeriod == 0) logger.flush();
 
         double curTime = (double) System.currentTimeMillis() / 1000;
         double timeDiff = curTime - prevTime;
@@ -125,17 +135,17 @@ public class Robot {
         op.telemetry.addData("Robot theta", drivetrain.currentheading);
         op.telemetry.addData("stone in robot", stoneInRobot);
         op.telemetry.addData("arm down", stacker.isArmDown());
+        op.telemetry.addData("is downstacked", stacker.isDownStacked());
+        op.telemetry.addData("is lift up", stacker.isLiftUp());
 
     }
-
 
     public void deposit() {
         if (!stacker.isArmOut()) {
             stacker.deposit();
-            stacker.nextLevel();
+            grabber.extendRangeSensor();
             tryingToDeposit = true;
 
         }
     }
-
 }
