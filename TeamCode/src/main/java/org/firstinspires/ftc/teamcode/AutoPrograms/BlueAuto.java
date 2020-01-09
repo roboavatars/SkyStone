@@ -100,7 +100,7 @@
 ////        ElapsedTime time = new ElapsedTime();
 ////
 ////        robot.intake.setControls(-1);
-////        sleep(333);
+////        sleep(33);
 ////
 ////        // robot move loop
 ////        while (opModeIsActive()) {

@@ -39,8 +39,7 @@ public class Robot {
     private final double AlignDistance = 5.7;
 
     private int cycleCounter = 0;
-    private int z = 10;
-    private int x = 0;
+    public boolean isAutoAlign = false;
 
     private LinearOpMode op;
 
@@ -109,8 +108,12 @@ public class Robot {
             stacker.nextLevel();
         }
 
-        if(tryingToDeposit && !letGo && cycleCounter%15==0){
+        if(tryingToDeposit && !letGo && cycleCounter%2==0 && stacker.currentStackHeight>0){
             drivetrain.setControls(-0.25*(grabber.getDistance()-AlignDistance),-0.05,0);
+            isAutoAlign = true;
+        }
+        else{
+            isAutoAlign = false;
         }
 
 

@@ -77,9 +77,9 @@ public class RedTeleop extends LinearOpMode {
                 dpadDown = true;
             }
 
-            if (robotCentric) {
+            if (robotCentric && !robot.isAutoAlign) {
                 robot.drivetrain.setControls(-gamepad1.left_stick_x, -gamepad1.left_stick_y, -gamepad1.right_stick_x);
-            } else {
+            } else if(!robot.isAutoAlign) {
                 robot.drivetrain.setGlobalControls(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x);
             }
 

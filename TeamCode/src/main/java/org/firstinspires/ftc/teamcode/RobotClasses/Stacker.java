@@ -6,6 +6,7 @@ import com.qualcomm.hardware.lynx.commands.core.LynxGetBulkInputDataResponse;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -21,24 +22,22 @@ public class Stacker {
     private DcMotorEx liftMotor;
     private DcMotorEx depositMotor;
     private Servo stoneClamp;
-
-    public int basepos = 0;
     
     private final double clampPos = 0.4;
     private final double unClampPos = 0.99;
     
-    public final int armPos[] =   {665, 665, 665, 665, 285, 285, 285, 285, 285, 285}; // increases down
+    public final int armPos[] =   {1330, 1330, 1330, 1330, 570, 570, 570, 570, 570, 570}; // increases down
     private final int liftPos[] = {-540, -992, -1444, -1896, 0, -452,-904, -1356, -1808, -2260};
 
-    private int currentStackHeight = 0;
+    public int currentStackHeight = 0;
     private int armTicks = 0;
     private int liftTicks = 0;
 
     public boolean stoneClamped = false;
-    private final int armOut = 250;
-    private final int armDown = -20;
-    private final int armHome = 25;
-    private final int armTolerance = 10;
+    private final int armOut = 500;
+    private final int armDown = -40;
+    private final int armHome = 65;
+    private final int armTolerance = 20;
     private final int liftHome = 0;
     private final int liftTolerance = 10;
     private final int moveliftUpHeight = 150;
@@ -46,7 +45,7 @@ public class Stacker {
 
     private double armVelocity = 0;
     public double liftVelocity = 0;
-    private final int armVelocityTolerance = 2;
+    private final int armVelocityTolerance = 4;
     private final int liftVelocityTolerance = 2;
 
     private Spline trajectory;
@@ -108,12 +107,12 @@ public class Stacker {
     }
     public void setDepositControls(double power, int ticks) {
         liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        depositMotor.setTargetPosition(ticks);
+        depositMotor.setTargetPosition(-ticks);
         depositMotor.setPower(power);
     }
 
     public void goHome() {
-        if(armTicks<20){
+        if(armTicks < 40){
             setDepositControls(1,armHome);
         }
         else {
@@ -131,7 +130,7 @@ public class Stacker {
 
     public void deposit() {
         setLiftControls(1.0, liftPos[currentStackHeight]-300);
-        setDepositControls(0.35, armPos[currentStackHeight]);
+        setDepositControls(0.6, armPos[currentStackHeight]);
     }
     public void liftUp(){
         setLiftControls(1,liftPos[currentStackHeight]-moveliftUpHeight);
@@ -153,7 +152,7 @@ public class Stacker {
     }
     public boolean isArmDown() {
 
-        return Math.abs(getArmPosition()+ 15) < armTolerance && !isArmMoving();
+        return Math.abs(getArmPosition()+ 30) < armTolerance && !isArmMoving();
     }
 
     public void nextLevel() {
@@ -208,6 +207,6 @@ public class Stacker {
         depositMotor.setPower(p);
     }
     public double getArmAngle(){
-        return 2*Math.PI*(armTicks-69.0)/806.4;
+        return 2*Math.PI*(armTicks/2-69.0)/806.4;
     }
 }
