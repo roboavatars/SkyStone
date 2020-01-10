@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.RobotClasses;
 
+import android.util.Log;
+
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.lynx.LynxEmbeddedIMU;
 import com.qualcomm.hardware.lynx.LynxI2cDeviceSynchV2;
@@ -152,9 +154,11 @@ public class MecanumDrivetrain {
         motorBackRight.setPower(-xvelocity+yvelocity+w);
     }
     public void setTargetPoint(double xtarget, double ytarget, double thetatarget){
+        Log.w("auto", "Targets: " + xtarget + " " + ytarget + " " + thetatarget + ", Current Pos: " + x + " " + y + " " + currentheading);
         setGlobalControls(-xk*(x-xtarget),-yk*(y-ytarget),-thetak*(currentheading-thetatarget));
     }
     public void setTargetPoint(double xtarget, double ytarget, double thetatarget, double xK, double yK, double thetaK){
+        Log.w("auto", "Targets: " + xtarget + " " + ytarget + " " + thetatarget + " (" + xK + " " + yK + " " + thetaK + "), Current Pos: " + x + " " + y + " " + currentheading);
         setGlobalControls(-xK*(x-xtarget),-yK*(y-ytarget),-thetaK*(currentheading-thetatarget));
     }
     public void setGlobalControls(double xvelocity, double yvelocity, double w){
