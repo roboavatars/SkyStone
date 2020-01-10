@@ -26,8 +26,8 @@ public class Stacker {
     private final double clampPos = 0.4;
     private final double unClampPos = 0.99;
     
-    public final int armPos[] =   {1360, 1360, 1360, 1360, 600, 600, 600, 600, 600, 600}; // increases down
-    private final int liftPos[] = {-540, -992, -1444, -1896, 0, -350,-800, -1250, -1700, -2150};
+    public final int armPos[] =   {1360, 1360, 1360,  1360,  600, 600,  600,  600,   600,   600}; // increases down
+    private final int liftPos[] = {-540, -992, -1444, -1896, 0,   -350, -850, -1250, -1700, -2150};
 
     private final int liftMin[] = {0, 0, 0, -400, 0, 0, 0, 0, -400, -800};
 
@@ -73,7 +73,6 @@ public class Stacker {
         liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         liftMotor.setVelocityPIDFCoefficients(2,0.5,0, 20);
 
-
         depositMotor.setTargetPosition(0);
         depositMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         depositMotor.setTargetPositionTolerance(0);
@@ -114,7 +113,7 @@ public class Stacker {
     }
 
     public void goHome() {
-        if(armTicks < 40){
+        if (armTicks < 40){
             setDepositControls(1,armHome);
         }
         else {
@@ -131,9 +130,8 @@ public class Stacker {
     }
 
     public void deposit() {
-        if(liftMin[currentStackHeight] > liftTicks){
+        if (liftMin[currentStackHeight] > liftTicks){
             setDepositControls(0.44, armPos[currentStackHeight]);
-
         }
         setLiftControls(1.0, liftPos[currentStackHeight]-300);
 
@@ -143,7 +141,6 @@ public class Stacker {
     }
 
     public boolean isArmHome() {
-
         return Math.abs(getArmPosition() - armHome) < armTolerance;
     }
     public boolean isLiftHome() {
@@ -153,11 +150,9 @@ public class Stacker {
         return Math.abs(getLiftPosition() - (liftPos[currentStackHeight]-moveliftUpHeight)) < 100 && !isLiftMoving();
     }
     public boolean isArmOut() {
-
         return getArmPosition() > armOut;
     }
     public boolean isArmDown() {
-
         return Math.abs(getArmPosition()+ 30) < armTolerance && !isArmMoving();
     }
 

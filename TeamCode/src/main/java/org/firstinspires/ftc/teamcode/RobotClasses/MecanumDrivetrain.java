@@ -210,9 +210,9 @@ public class MecanumDrivetrain {
             double deltapod3 = pod3 - lastpod3;
 
 
-//        opMode.telemetry.addData("pod1 inches", pod1);
-//        opMode.telemetry.addData("pod2 inches", pod2);
-//        opMode.telemetry.addData("pod3 inches", pod3);
+        opMode.telemetry.addData("pod1 inches", pod1);
+        opMode.telemetry.addData("pod2 inches", pod2);
+        opMode.telemetry.addData("pod3 inches", pod3);
 
             deltaheading = (deltapod1 - deltapod2) / 13.74;
 
