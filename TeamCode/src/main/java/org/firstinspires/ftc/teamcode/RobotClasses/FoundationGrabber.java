@@ -62,7 +62,7 @@ public class FoundationGrabber {
     }
 
     public double getGrabberPosition() {
-        return leftGrabber.getPosition();
+        return rightGrabber.getPosition();
     }
 
     public boolean isGrabberHome() {

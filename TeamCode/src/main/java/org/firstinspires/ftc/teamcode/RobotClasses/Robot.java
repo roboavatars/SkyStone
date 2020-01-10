@@ -83,7 +83,7 @@ public class Robot {
             stacker.goHome();
             stacker.unClampStone();
         }
-        else if(stoneInRobot && stacker.isArmDown() ){
+        else if(stoneInRobot && stacker.isArmDown() && !tryingToDeposit){
             stacker.clampStone();
         }
         // check if arm should lower in preparation to clamp stone
@@ -91,7 +91,7 @@ public class Robot {
             stacker.goDown();
         }
         //check if we should downstack
-        else if(tryingToDeposit && stacker.isArmOut() && !stacker.isArmMoving() && !stacker.isDownStacked() && !downStacked){
+        else if(tryingToDeposit && stacker.isArmOut() && !stacker.isArmMoving() && !stacker.isDownStacked() && !downStacked && letGo){
             stacker.downStack();
             downStacked = true;
             op.telemetry.addLine("trying to downstack");
@@ -107,15 +107,27 @@ public class Robot {
             letGo = false;
             stacker.nextLevel();
         }
+        else if(tryingToDeposit && !downStacked){
+            stacker.deposit();
+            grabber.extendRangeSensor();
+
+        }
 
         if(tryingToDeposit && !letGo && cycleCounter%2==0 && stacker.currentStackHeight>0){
-            drivetrain.setControls(-0.25*(grabber.getDistance()-AlignDistance),-0.05,0);
+            grabber.extendRangeSensor();
+            double distance = grabber.getDistance();
+            op.telemetry.addData("align dist", distance);
+            if(Math.abs(distance-AlignDistance)<7){
+                drivetrain.setControls(-0.25*(distance-AlignDistance),-0.05,0);
+            }
+            else{
+                drivetrain.setControls(0,0,0);
+            }
             isAutoAlign = true;
         }
-        else{
+        else if(cycleCounter%2 == 0){
             isAutoAlign = false;
         }
-
 
         drivetrain.updatePose();
         if (cycleCounter % loggerUpdatePeriod == 0) {
@@ -145,8 +157,6 @@ public class Robot {
 
     public void deposit() {
         if (!stacker.isArmOut()) {
-            stacker.deposit();
-            grabber.extendRangeSensor();
             tryingToDeposit = true;
 
         }

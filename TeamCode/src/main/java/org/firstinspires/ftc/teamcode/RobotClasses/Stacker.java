@@ -26,8 +26,10 @@ public class Stacker {
     private final double clampPos = 0.4;
     private final double unClampPos = 0.99;
     
-    public final int armPos[] =   {1330, 1330, 1330, 1330, 570, 570, 570, 570, 570, 570}; // increases down
-    private final int liftPos[] = {-540, -992, -1444, -1896, 0, -452,-904, -1356, -1808, -2260};
+    public final int armPos[] =   {1360, 1360, 1360, 1360, 600, 600, 600, 600, 600, 600}; // increases down
+    private final int liftPos[] = {-540, -992, -1444, -1896, 0, -350,-800, -1250, -1700, -2150};
+
+    private final int liftMin[] = {0, 0, 0, -400, 0, 0, 0, 0, -400, -800};
 
     public int currentStackHeight = 0;
     private int armTicks = 0;
@@ -36,7 +38,7 @@ public class Stacker {
     public boolean stoneClamped = false;
     private final int armOut = 500;
     private final int armDown = -40;
-    private final int armHome = 65;
+    private final int armHome = 90;
     private final int armTolerance = 20;
     private final int liftHome = 0;
     private final int liftTolerance = 10;
@@ -45,8 +47,8 @@ public class Stacker {
 
     private double armVelocity = 0;
     public double liftVelocity = 0;
-    private final int armVelocityTolerance = 4;
-    private final int liftVelocityTolerance = 2;
+    private final int armVelocityTolerance = 2;
+    private final int liftVelocityTolerance = 1;
 
     private Spline trajectory;
     private boolean isFollowingTrajectory = false;
@@ -116,9 +118,9 @@ public class Stacker {
             setDepositControls(1,armHome);
         }
         else {
-            setDepositControls(0.35, armHome);
+            setDepositControls(0.5, armHome);
         }
-        setLiftControls(0.5,0);
+        setLiftControls(1.0,0);
 
     }
     public void goDown() {
@@ -129,8 +131,12 @@ public class Stacker {
     }
 
     public void deposit() {
+        if(liftMin[currentStackHeight] > liftTicks){
+            setDepositControls(0.44, armPos[currentStackHeight]);
+
+        }
         setLiftControls(1.0, liftPos[currentStackHeight]-300);
-        setDepositControls(0.6, armPos[currentStackHeight]);
+
     }
     public void liftUp(){
         setLiftControls(1,liftPos[currentStackHeight]-moveliftUpHeight);
@@ -144,7 +150,7 @@ public class Stacker {
         return Math.abs(getLiftPosition() - liftHome) < liftTolerance;
     }
     public boolean isLiftUp() {
-        return Math.abs(getLiftPosition() - (liftPos[currentStackHeight]-moveliftUpHeight)) < 100;
+        return Math.abs(getLiftPosition() - (liftPos[currentStackHeight]-moveliftUpHeight)) < 100 && !isLiftMoving();
     }
     public boolean isArmOut() {
 
