@@ -42,7 +42,7 @@ public class Stacker {
     private final int armTolerance = 20;
     private final int liftHome = 0;
     private final int liftTolerance = 10;
-    private final int moveliftUpHeight = 150;
+    private final int moveliftUpHeight = 250;
     //unit is ticks/second
 
     private double armVelocity = 0;

@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.AutoPrograms;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -9,7 +10,7 @@ import org.firstinspires.ftc.teamcode.RobotClasses.Robot;
 import org.firstinspires.ftc.teamcode.Splines.Spline;
 import org.firstinspires.ftc.teamcode.Splines.SplineGenerator;
 
-@Autonomous
+@Autonomous @Disabled
 public class BlueAuto extends LinearOpMode {
 
     private Robot robot;
