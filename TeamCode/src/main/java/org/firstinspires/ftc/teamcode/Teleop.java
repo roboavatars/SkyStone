@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.RobotClasses.Robot;
 import java.util.Arrays;
 
 @TeleOp
-public class RedTeleop extends LinearOpMode {
+public class Teleop extends LinearOpMode {
 
     private Robot robot;
     private boolean robotCentric = true;
