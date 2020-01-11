@@ -48,8 +48,8 @@ public class FoundationGrabber {
     }
     public void grabFoundation() {
         Log.w("graph", "grab foundation called");
-        leftGrabber.setPosition(-0.94);
-        rightGrabber.setPosition(0.94);
+        leftGrabber.setPosition(-0.95);
+        rightGrabber.setPosition(0.95);
     }
 
     public void extendRangeSensor(){

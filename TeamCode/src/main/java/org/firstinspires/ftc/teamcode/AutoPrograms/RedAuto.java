@@ -78,11 +78,11 @@ public class RedAuto extends LinearOpMode {
                 20, 0, 0, 0, skystone1Time);
 
         Spline[] backToCenterSpline = splineGenerator.SplineBetweenTwoPoints(45, skystoneY,
-                33, skystoneY - 12, Math.PI / 4, Math.PI / 2, 0, -70,
+                30, skystoneY - 12, Math.PI / 4, Math.PI / 2, 0, -70,
                 -20, -50, 0, 0, backToCenterTime);
         Spline backToCenterThetaSpline = new Spline(Math.PI / 4, 0, 0, Math.PI / 2, 0, 0, backToCenterTime);
 
-        Spline[] toQuarrySpline = splineGenerator.SplineBetweenTwoPoints(35, 29,
+        Spline[] toQuarrySpline = splineGenerator.SplineBetweenTwoPoints(30 , 29,
                 24, skystoneY - 30, Math.PI / 2, Math.PI / 4, 0, 0,
                 20, 0, 0, 0, toQuarryTime);
         Spline toQuarryThetaSpline = new Spline(Math.PI / 2, 0, 0, Math.PI / 4, 0, 0, toQuarryTime);
@@ -121,7 +121,7 @@ public class RedAuto extends LinearOpMode {
                     skystone1 = true;
                     detector.setActive(false);
                     backToCenterSpline = splineGenerator.SplineBetweenTwoPoints(robot.drivetrain.x, robot.drivetrain.y,
-                            33, skystoneY - 15, robot.drivetrain.currentheading, Math.PI / 2, 0, -70,
+                            30, skystoneY - 15.5, robot.drivetrain.currentheading, Math.PI / 2, 0, -70,
                             -20, -50, 0, 0, backToCenterTime);
                     backToCenterThetaSpline = new Spline(robot.drivetrain.currentheading, 0, 0, Math.PI / 2, 0, 0, backToCenterTime);
                     time.reset(); log("backcenter1");
@@ -129,7 +129,7 @@ public class RedAuto extends LinearOpMode {
                 // if skystone has not been clamped, adjust position to try to suck it in
                 else {
                     log("adjusting");
-                    robot.drivetrain.setTargetPoint(robot.drivetrain.x + 1, robot.drivetrain.y + 0.8, robot.drivetrain.currentheading + 0.14);
+                    robot.drivetrain.setTargetPoint(robot.drivetrain.x + 1.4, robot.drivetrain.y + 1.1, robot.drivetrain.currentheading + 0.14);
                 }
             }
 
@@ -139,10 +139,13 @@ public class RedAuto extends LinearOpMode {
                 double currentTime = Math.min(backToCenterTime, time.seconds());
                 robot.drivetrain.setTargetPoint(backToCenterSpline[0].position(currentTime), backToCenterSpline[1].position(currentTime),
                         backToCenterThetaSpline.position(currentTime));
+                robot.intakeManual = true;
+                robot.intake.setControls(-1);
 
                 // if more than allotted time, end segment, reset time
                 if (time.seconds() > backToCenterTime) {
                     backToCenter1 = true;
+                    robot.intakeManual = false;
                     time.reset(); log("tofound1");
                 }
             }
@@ -150,7 +153,7 @@ public class RedAuto extends LinearOpMode {
             // get near the foundation
             else if (!toFoundation1) {
                 // if not at position continue moving
-                robot.drivetrain.setTargetPoint(36, 55, Math.PI / 2);
+                robot.drivetrain.setTargetPoint(26, 55, Math.PI / 2);
 
                 // if at position, end segment, recalc splines, reset time
                 if (robot.drivetrain.y < 58) {
@@ -162,26 +165,27 @@ public class RedAuto extends LinearOpMode {
             // turn robot to align with foundation
             else if (!foundationTurn) {
                 // if less than moving time or not at position, continue moving
-                robot.drivetrain.setTargetPoint(38,33,Math.PI);
+                robot.drivetrain.setTargetPoint(26,21,Math.PI);
 
                 // if at position or time met, end segment, reset time
-                if (time.seconds() > foundationTurnTime || robot.drivetrain.isAtPose(38, 33, Math.PI)) {
+                if (time.seconds() > foundationTurnTime + 1 || robot.drivetrain.isAtPose(38, 33, Math.PI)) {
                     foundationTurn = true;
                     // if stone clamped, deposit it
                     if (robot.stacker.stoneClamped) {
                         robot.depositAuto();
                     }
                     robot.grabber.grabFoundation();
+
                     time.reset(); log("pullfound");
                 }
             }
 
             // approach and align robot with foundation
             else if (!approachFoundation) {
-                robot.drivetrain.setTargetPoint(44, 23.5, Math.PI);
+                robot.drivetrain.setTargetPoint(42, 23.5, 0,0.2,0.2,1);
 
                 // extend arm with skystone over the foundation
-                if (robot.drivetrain.isAtPose(44, 23.5, Math.PI) || time.seconds() > 2.5) {
+                if (robot.drivetrain.isAtPose(42, 20, Math.PI) || time.seconds() > 3) {
                     approachFoundation = true;
                     time.reset();
                 }
@@ -242,7 +246,7 @@ public class RedAuto extends LinearOpMode {
                 if (time.seconds() > toQuarryTime + 1 || robot.drivetrain.y>(skystoneY - 30)) {
                     toQuarry1 = true;
                     skystone2Spline = splineGenerator.SplineBetweenTwoPoints(robot.drivetrain.x, robot.drivetrain.y,
-                            45, skystoneY - 24, robot.drivetrain.currentheading, Math.PI / 4, 30, 0,
+                            45, skystoneY - 26, robot.drivetrain.currentheading, Math.PI / 4, 30, 0,
                             20, 0, 0, 0, skystone2Time);
                     time.reset(); log("ss2");
                 }
@@ -282,10 +286,13 @@ public class RedAuto extends LinearOpMode {
                 // if robot position is greater than 95, continue moving
                 robot.drivetrain.setTargetPoint(33, 91, Math.PI / 2, 0.2, 0.2, 0.8);
                 robot.grabber.extendRangeSensor();
+                robot.intakeManual = true;
+                robot.intake.setControls(-1);
 
                 // if robot position is less than 95, end segment, reset time
                 if (robot.drivetrain.y < 95) {
                     backToCenter2 = true;
+                    robot.intakeManual = false;
                     time.reset(); log("tofound2");
                 }
             }

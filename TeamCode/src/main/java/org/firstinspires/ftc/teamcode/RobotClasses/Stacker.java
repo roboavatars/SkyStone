@@ -26,7 +26,7 @@ public class Stacker {
     private final double clampPos = 0.4;
     private final double unClampPos = 0.99;
     
-    public final int armPos[] =   {1360, 1360, 1360,  1360,  625, 625, 625, 625, 625, 625}; // increases down
+    public final int armPos[] =   {1370, 1370, 1370,  1370,  635, 635, 635, 635, 635, 635}; // increases down
     private final int liftPos[] = {-540, -992, -1444, -1896, 0, -500, -1050, -1430, -1850, -2330};
 
     private final int liftMin[] = {0, 0, 0, -400, 0, 0, -400, -800, -1200, -1600};
