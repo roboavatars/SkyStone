@@ -29,12 +29,17 @@ public class locatorTest extends LinearOpMode {
             loc = locator.getLocation();
             time = locator.getTime();
 
-            telemetry.addData("Local X", loc[0]);
-            telemetry.addData("Local Y", loc[1]);
+            double x = loc[0];
+            double y = loc[1];
+            double r = Math.sqrt(Math.pow(x,2) + Math.pow(y,2));
+            double theta = robot.drivetrain.currentheading - Math.atan(x/y);
+
+            telemetry.addData("Local X", x);
+            telemetry.addData("Local Y", y);
             telemetry.addData("Local Theta", loc[2]);
             telemetry.addData("FPS", 1000 / time);
-            telemetry.addData("Global X", loc[0] + robot.drivetrain.x);
-            telemetry.addData("Global Y", loc[1] + robot.drivetrain.y);
+            telemetry.addData("Global X", robot.drivetrain.x + r*Math.cos(theta));
+            telemetry.addData("Global Y", robot.drivetrain.y + r*Math.sin(theta));
             telemetry.addData("Global Theta", loc[2] + robot.drivetrain.currentheading);
             telemetry.update();
         }
