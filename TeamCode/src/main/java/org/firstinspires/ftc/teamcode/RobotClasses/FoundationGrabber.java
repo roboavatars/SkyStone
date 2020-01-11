@@ -50,12 +50,12 @@ public class FoundationGrabber {
     }
     public void grabFoundation() {
         Log.w("graph", "grab foundation called");
-        leftGrabber.setPosition(-0.86);
-        rightGrabber.setPosition(0.86);
+        leftGrabber.setPosition(-0.94);
+        rightGrabber.setPosition(0.94);
     }
 
     public void extendRangeSensor(){
-        rightGrabber.setPosition(0.78);
+        rightGrabber.setPosition(0.75);
     }
     public double getDistance(){
         return autoAlighSensor.getDistance(DistanceUnit.INCH);

@@ -40,9 +40,9 @@ public class Stacker {
     private final int armDown = -40;
     private final int armHome = 90;
     private final int armTolerance = 20;
-    private final int liftHome = 0;
+    private final int liftHome = 50;
     private final int liftTolerance = 10;
-    private final int moveliftUpHeight = 250;
+    private final int moveliftUpHeight = 150;
     //unit is ticks/second
 
     private double armVelocity = 0;
@@ -70,8 +70,10 @@ public class Stacker {
         depositMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         
         liftMotor.setTargetPosition(0);
+        liftMotor.setTargetPositionTolerance(0);
         liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        liftMotor.setVelocityPIDFCoefficients(2,0.5,0, 20);
+        liftMotor.setVelocityPIDFCoefficients(2,0.5,0, 15);
+        op.telemetry.addLine(depositMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION).toString());
 
         depositMotor.setTargetPosition(0);
         depositMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -79,7 +81,7 @@ public class Stacker {
         depositMotor.setPositionPIDFCoefficients(18);
         depositMotor.setVelocityPIDFCoefficients(2,0.3,0,20);
         op.telemetry.addLine(depositMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).toString());
-        op.telemetry.addLine(depositMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION).toString());
+
 
         liftMotor.setPower(0);
         depositMotor.setPower(0);
@@ -119,8 +121,13 @@ public class Stacker {
         else {
             setDepositControls(0.5, armHome);
         }
-        setLiftControls(1.0,0);
-
+        if(liftTicks>-50){
+            liftMotor.setPositionPIDFCoefficients(18);
+        }
+        else{
+            liftMotor.setPositionPIDFCoefficients(5);
+        }
+        setLiftControls(1.0,liftHome);
     }
     public void goDown() {
         setDepositControls(1.0, armDown);

@@ -74,6 +74,10 @@ public class MecanumDrivetrain {
     private final double xyTolerance = 1;
     private final double thetaTolerance = Math.PI/35;
 
+    public double lastx = 0;
+    public double lasty = 0;
+
+
     //Constructor
     public MecanumDrivetrain(LinearOpMode opMode, double initialx, double
                              initialy, double initialtheta){
@@ -210,9 +214,9 @@ public class MecanumDrivetrain {
             double deltapod3 = pod3 - lastpod3;
 
 
-        opMode.telemetry.addData("pod1 inches", pod1);
-        opMode.telemetry.addData("pod2 inches", pod2);
-        opMode.telemetry.addData("pod3 inches", pod3);
+            lastx = x;
+            lasty = y;
+
 
             deltaheading = (deltapod1 - deltapod2) / 13.74;
 

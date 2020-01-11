@@ -30,6 +30,7 @@ public class skyStoneDetector extends Thread {
 
     // File Paths
     private final static String basePath = "/sdcard/FIRST/procFiles/";
+    private final static String inputPath = "/sdcard/FIRST/input/input";
     private final static String satFilteredPath = basePath + "sFiltered";
     private final static String openClosePath = basePath + "openClose";
     private final static String croppedPath = basePath + "croppedImage";
@@ -118,6 +119,7 @@ public class skyStoneDetector extends Thread {
      */
     private double detectSkyStone (Mat input) {
         double ssPosValue = -1;
+        Imgcodecs.imwrite(inputPath + (frameNum % 200) + ".jpg", input);
 
         // Convert to HSV (Saturation)
         Mat HSV = new Mat();
@@ -129,13 +131,13 @@ public class skyStoneDetector extends Thread {
         // Filter Saturation Image
         Mat satFiltered = new Mat();
         Core.inRange(satUnfiltered, new Scalar(190, 120, 0), new Scalar(255, 135, 10), satFiltered);
-        // if (frameNum < 50) Imgcodecs.imwrite(satFilteredPath + frameNum + ".jpg", satFiltered);
+        // Imgcodecs.imwrite(satFilteredPath + (frameNum % 200) + ".jpg", satFiltered);
 
         // Remove extra noise in image
         Mat openClose = new Mat();
         Imgproc.morphologyEx(satFiltered, openClose, Imgproc.MORPH_OPEN, new Mat());
         Imgproc.morphologyEx(openClose, openClose, Imgproc.MORPH_CLOSE, new Mat());
-        //if (frameNum < 50) Imgcodecs.imwrite(openClosePath + frameNum + ".jpg", openClose);
+        //Imgcodecs.imwrite(openClosePath + (frameNum % 200) + ".jpg", openClose);
 
         // Crop Image to where quarry row is
         double horAvg;
@@ -147,7 +149,7 @@ public class skyStoneDetector extends Thread {
 
         // Vertical Analysis
         if (!(SCropped.cols() == 0)) {
-            if (frameNum < 50) Imgcodecs.imwrite(croppedPath + frameNum + ".jpg", SCropped);
+            Imgcodecs.imwrite(croppedPath + (frameNum % 200) + ".jpg", SCropped);
 
             // Makes image black(stone) and white(skyStone)
             //String preList = ""; // for printing pre-binary vertical averages
@@ -161,7 +163,7 @@ public class skyStoneDetector extends Thread {
                 verImage.col(col).setTo(new Scalar(verAvg)); //postList += verAvg + " ";
             }
             Imgproc.morphologyEx(verImage, verImage, Imgproc.MORPH_OPEN, new Mat());
-            if (frameNum < 50) Imgcodecs.imwrite(verViewPath + frameNum + ".jpg", verImage);
+            Imgcodecs.imwrite(verViewPath + (frameNum % 200) + ".jpg", verImage);
 
             //log("pre-binary ver avg: " + preList);
             //log("post-binary ver val: " + postList);

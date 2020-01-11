@@ -34,54 +34,45 @@ public class RedTeleop extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-            if (gamepad1.right_bumper && rightBumper) {
-                rightBumper = false;
-            } else if (!rightBumper && !gamepad1.right_bumper) {
+            if (gamepad2.right_bumper && rightBumper) rightBumper = false;
+            else if (!rightBumper && !gamepad2.right_bumper) {
                 robot.deposit();
                 rightBumper = true;
             }
 
-            if (gamepad1.left_bumper && leftBumper) {
+            if (gamepad2.left_bumper && leftBumper) {
                 leftBumper = false;
-            } else if (!leftBumper && !gamepad1.left_bumper) {
+            } else if (!leftBumper && !gamepad2.left_bumper) {
                 robot.letGo = true;
                 leftBumper = true;
             }
 
-
-
-            if (gamepad1.b) {robot.intake.setControls(-1);}
-
-            if (gamepad1.a && a) {
-                a = false;
-            } else if (!gamepad1.a && !a) {
-                a = true;
-                if (robot.intake.intakeOn()) {robot.intake.setControls(0);}
-                else {robot.intake.setControls(0.6);}
+            if (gamepad1.b) {
+                robot.intake.setControls(-1);
+                robot.intakeManual = true;
             }
+            else robot.intakeManual = false;
 
             if (gamepad1.dpad_left) robot.grabber.grabFoundation();
             if (gamepad1.dpad_right) robot.grabber.releaseFoundation();
 
-            if (gamepad1.dpad_up && dpadUp) {
-                dpadUp = false;
-            } else if (!dpadUp && !gamepad1.dpad_up) {
+            if (gamepad2.a) robot.capstoneDeposit.attachCapstone();
+            else robot.capstoneDeposit.goHome();
+
+            if (gamepad2.dpad_up && dpadUp) dpadUp = false;
+            else if (!dpadUp && !gamepad2.dpad_up) {
                 robot.stacker.nextLevel();
                 dpadUp = true;
             }
 
-            if (gamepad1.dpad_down && dpadDown) {
-                dpadDown = false;
-            } else if (!dpadDown && !gamepad1.dpad_down) {
+            if (gamepad2.dpad_down && dpadDown) dpadDown = false;
+            else if (!dpadDown && !gamepad2.dpad_down) {
                 robot.stacker.lastLevel();
                 dpadDown = true;
             }
 
-            if (robotCentric && !robot.isAutoAlign) {
-                robot.drivetrain.setControls(-gamepad1.left_stick_x, -gamepad1.left_stick_y, -gamepad1.right_stick_x);
-            } else if(!robot.isAutoAlign) {
-                robot.drivetrain.setGlobalControls(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x);
-            }
+            if (robotCentric && !robot.isAutoAlign) robot.drivetrain.setControls(-gamepad1.left_stick_x, -gamepad1.left_stick_y, -gamepad1.right_stick_x);
+            else if(!robot.isAutoAlign) robot.drivetrain.setGlobalControls(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x);
 
             double prev = time.milliseconds();
             robot.update();
@@ -89,6 +80,7 @@ public class RedTeleop extends LinearOpMode {
             telemetry.addData("loop time", now-prev);
             telemetry.addData("arm ticks", robot.stacker.getArmPosition());
             telemetry.addData("slide ticks", robot.stacker.getLiftPosition());
+            telemetry.addData("stack height", robot.stacker.currentStackHeight);
             telemetry.update();
         }
     }

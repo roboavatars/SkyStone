@@ -40,6 +40,7 @@ public class Robot {
 
     private int cycleCounter = 0;
     public boolean isAutoAlign = false;
+    public boolean intakeManual = false;
 
     private LinearOpMode op;
 
@@ -76,18 +77,32 @@ public class Robot {
         if ((cycleCounter + 3) % armTicksUpdatePeriod == 0) {
             stacker.update();
         }
-
-        // if depositing in auto, set letGo to true
-        if (depositAuto) letGo = true;
+        if(depositAuto && stacker.currentStackHeight == 0){
+            letGo = true;
+        }
 
         // check states----------------------
         // check if ready to collect stones
         if (!stoneInRobot && !tryingToDeposit) {
             stacker.goHome();
             stacker.unClampStone();
+            if(!intakeManual){
+                intake.setControls(0.6);
+            }
+        }
+        else if (stacker.isArmOut() && stoneInRobot && !depositAuto){
+            tryingToDeposit = false;
+            downStacked = false;
+            letGo = false;
+            depositAuto = false;
+            stacker.goHome();
+            stacker.unClampStone();
         }
         else if (stoneInRobot && stacker.isArmDown() && !tryingToDeposit) {
             stacker.clampStone();
+            if(!intakeManual){
+                intake.setControls(0);
+            }
         }
         // check if arm should lower in preparation to clamp stone
         else if (stoneInRobot && !tryingToDeposit && !stacker.isArmOut()) {
@@ -119,21 +134,28 @@ public class Robot {
 
         }
 
-        if (tryingToDeposit && !letGo && cycleCounter % 2 == 0 && stacker.currentStackHeight > 0) {
+        if (tryingToDeposit && (!letGo || depositAuto) && cycleCounter % 2 == 0 && stacker.currentStackHeight > 0) {
             grabber.extendRangeSensor();
             double distance = grabber.getDistance();
             op.telemetry.addData("align dist", distance);
             if (Math.abs(distance-AlignDistance) < 7) {
-                drivetrain.setControls(-0.25*(distance-AlignDistance),-0.05,0);
+                drivetrain.setControls(-0.25*(distance-AlignDistance),-0.15,0);
             }
             else {
                 drivetrain.setControls(0,0,0);
             }
             isAutoAlign = true;
+
+            if(depositAuto){
+                if(Math.abs(distance-AlignDistance)<0.5){
+                    letGo = true;
+                }
+            }
         }
         else if (cycleCounter % 2 == 0) {
             isAutoAlign = false;
         }
+
 
         drivetrain.updatePose();
         if (cycleCounter % loggerUpdatePeriod == 0) {
@@ -152,8 +174,6 @@ public class Robot {
         op.telemetry.addData("Robot y", drivetrain.y);
         op.telemetry.addData("Robot theta", drivetrain.currentheading);
         op.telemetry.addData("is stone in robot", stoneInRobot);
-        op.telemetry.addData("is arm down", stacker.isArmDown());
-        op.telemetry.addData("is downstacked", stacker.isDownStacked());
         op.telemetry.addData("is lift up", stacker.isLiftUp());
 
     }
@@ -169,5 +189,9 @@ public class Robot {
             tryingToDeposit = true;
             depositAuto = true;
         }
+    }
+    public void log(String message) {
+        Log.w("robot", " ");
+        Log.w("robot", message + " -------------------------------------------------------------------------");
     }
 }
