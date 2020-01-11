@@ -41,17 +41,21 @@ public class stoneLocator2 extends Thread {
     private final static String circlePath = basePath + "circle";
     private final static String ellipsePath = basePath + "ellipse";
     private final static String testPath = "/sdcard/FIRST/testFiles2/";
-    private ElapsedTime timer = new ElapsedTime();
 
     private FrameGrabber frameGrabber;
     private final boolean usingCamera = true; // <<<----------------------
     private final boolean debug = true;
+    private boolean active = false;
+
+    private final static double hpg = 8.5;
+    private final static double phi = Math.toRadians(15);
+    private final static double verticalFOV = Math.toRadians(57);
+    private final static double horizontalFOV = Math.toRadians(71);
 
     private int frameNum = 1;
     private double[] sPos = {-1, -1, -1};
     private double time = -1;
-
-    private boolean active = false;
+    private ElapsedTime timer = new ElapsedTime();
 
     private LinearOpMode op;
     public stoneLocator2(LinearOpMode opMode) {op = opMode;}
@@ -65,9 +69,9 @@ public class stoneLocator2 extends Thread {
      * Enables the camera view
      */
     public void initializeCamera() {
-        telemetry2("Initializing OpenCV", "v" + OpenCVLoader.OPENCV_VERSION);
+        telemetry("Initializing OpenCV", "v" + OpenCVLoader.OPENCV_VERSION);
         if (usingCamera) FtcRobotControllerActivity.enableCameraView();
-        telemetry2("Status", "Ready");
+        telemetry("Status", "Ready");
     }
     
     /**
@@ -120,8 +124,10 @@ public class stoneLocator2 extends Thread {
     private double[] detectSkyStone (Mat input) {
         // Log Input Image and Reset Variables and Timer
         timer.reset();
-        double stoneX = -1;
-        double stoneY = -1;
+        double xpix = -1;
+        double ypix = -1;
+        double stoneX;
+        double stoneY;
         double stoneTheta = -1;
         if (debug) {Imgcodecs.imwrite(inputPath + (frameNum % 100) + ".jpg", input);}
 
@@ -146,29 +152,42 @@ public class stoneLocator2 extends Thread {
         int contourIndex = 0;
         for (int i = 0; i < contours.size(); i++) {
             for (int j = 0; j < contours.get(i).rows(); j++) {
-                if (contours.get(i).get(j, 0)[1] >= stoneY) {
-                    stoneX = contours.get(i).get(j, 0)[0];
-                    stoneY = contours.get(i).get(j, 0)[1];
+                if (contours.get(i).get(j, 0)[1] >= ypix) {
+                    xpix = contours.get(i).get(j, 0)[0];
+                    ypix = contours.get(i).get(j, 0)[1];
                 }
             }
         }
-        Imgproc.circle(input, new Point(stoneX, stoneY), 2, new Scalar(0, 0, 255), 2);
+        Imgproc.circle(input, new Point(xpix, ypix), 2, new Scalar(0, 0, 255), 2);
         if (debug) Imgcodecs.imwrite(circlePath + (frameNum % 100) + ".jpg", input);
 
         // Find Ellipse Using Contour Index
         Mat ellipseOnly = new Mat();
         RotatedRect ellipse;
         ellipse = Imgproc.fitEllipse(new MatOfPoint2f(contours.get(contourIndex).toArray()));
-        stoneTheta = ellipse.angle;
+        stoneTheta = Math.toRadians(ellipse.angle);
         Imgproc.ellipse(ellipseOnly, ellipse, new Scalar(0), 1);
         if (debug) Imgcodecs.imwrite(ellipsePath + (frameNum % 100) + ".jpg", ellipseOnly);
+
+        // Change Perspective
+        Mat changed = new Mat();
+        MatOfPoint2f originalPoints = new MatOfPoint2f(new Point(), new Point(), new Point(), new Point());
+        MatOfPoint2f cornerPoints = new MatOfPoint2f(new Point(0,0), new Point(449,0), new Point(0,449), new Point(449,449));
+        Mat warpMat = Imgproc.getPerspectiveTransform(originalPoints,cornerPoints);
+        Imgproc.warpPerspective(input, changed, warpMat, input.size());
+
+        // Convert Local Coordinates to Field Coordinates
+        ypix = 1 - ypix/180;
+        stoneY = -hpg * (Math.cos(-phi-verticalFOV/2)/(2*Math.sin(verticalFOV/2)) + ypix * Math.sin(phi)) / (Math.sin(-phi-verticalFOV/2)/(2*Math.sin(verticalFOV/2)) + ypix * Math.cos(phi));
+        stoneX = Math.tan(horizontalFOV/2) * Math.sqrt(Math.pow(hpg,2) + Math.pow(stoneY,2));
 
         // Log and Return Data
         time = timer.milliseconds();
         log("x: " + stoneX);
-        log("y: " + stoneY);
+        log("y: " + (stoneY + 8));
         log("theta: " + stoneTheta);
         log("ms: " + time);
+
         return new double[] {stoneX, stoneY, stoneTheta};
     }
     
@@ -190,7 +209,7 @@ public class stoneLocator2 extends Thread {
      */
     public void setActive(boolean active) {this.active = active;}
 
-    private void telemetry2(String caption, String value) {
+    private void telemetry(String caption, String value) {
         op.telemetry.addData(caption, value);
         op.telemetry.update();
     }
