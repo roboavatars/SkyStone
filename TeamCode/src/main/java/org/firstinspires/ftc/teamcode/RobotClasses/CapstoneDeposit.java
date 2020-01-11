@@ -30,11 +30,11 @@ public class CapstoneDeposit {
 
 
     public void attachCapstone() {
-        capstoneDeposit.setPosition(0.25);
+        capstoneDeposit.setPosition(0.55);
     }
 
     public void goHome(){
-        capstoneDeposit.setPosition(0.7);
+        capstoneDeposit.setPosition(0.75);
     }
 
 }

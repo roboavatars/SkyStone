@@ -27,6 +27,7 @@ public class Robot {
     private boolean tryingToDeposit = false;
     private boolean downStacked = false;
     public boolean letGo = false;
+    private boolean liftedUp = false;
 
     private boolean depositAuto = false;
 
@@ -41,6 +42,7 @@ public class Robot {
     private int cycleCounter = 0;
     public boolean isAutoAlign = false;
     public boolean intakeManual = false;
+    public boolean isManualAlign = false;
 
     private LinearOpMode op;
 
@@ -87,7 +89,7 @@ public class Robot {
             stacker.goHome();
             stacker.unClampStone();
             if(!intakeManual){
-                intake.setControls(0.6);
+                intake.setControls(0.5);
             }
         }
         else if (stacker.isArmOut() && stoneInRobot && !depositAuto){
@@ -117,13 +119,15 @@ public class Robot {
         else if (tryingToDeposit && stacker.isArmOut() && !stacker.isArmMoving() && stacker.isDownStacked() && letGo) {
             stacker.unClampStone();
             stacker.liftUp();
+            liftedUp = true;
             op.telemetry.addLine("unclamped stone");
         }
-        else if (tryingToDeposit && stacker.isArmOut() && stacker.isLiftUp() && downStacked && letGo) {
+        else if (tryingToDeposit && stacker.isArmOut() && stacker.isLiftUp() && downStacked && letGo && liftedUp) {
             tryingToDeposit = false;
             downStacked = false;
             letGo = false;
             depositAuto = false;
+            liftedUp = false;
             stacker.nextLevel();
         }
         else if (tryingToDeposit && !downStacked) {
@@ -134,7 +138,7 @@ public class Robot {
 
         }
 
-        if (tryingToDeposit && (!letGo || depositAuto) && cycleCounter % 2 == 0 && stacker.currentStackHeight > 0) {
+        if (tryingToDeposit && (!letGo || depositAuto) && cycleCounter % 2 == 0 && stacker.currentStackHeight > 0 && !isManualAlign) {
             grabber.extendRangeSensor();
             double distance = grabber.getDistance();
             op.telemetry.addData("align dist", distance);

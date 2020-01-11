@@ -26,10 +26,10 @@ public class Stacker {
     private final double clampPos = 0.4;
     private final double unClampPos = 0.99;
     
-    public final int armPos[] =   {1360, 1360, 1360,  1360,  600, 600,  600,  600,   600,   600}; // increases down
-    private final int liftPos[] = {-540, -992, -1444, -1896, 0,   -350, -850, -1250, -1700, -2150};
+    public final int armPos[] =   {1360, 1360, 1360,  1360,  625, 625, 625, 625, 625, 625}; // increases down
+    private final int liftPos[] = {-540, -992, -1444, -1896, 0, -500, -1050, -1430, -1850, -2330};
 
-    private final int liftMin[] = {0, 0, 0, -400, 0, 0, 0, 0, -400, -800};
+    private final int liftMin[] = {0, 0, 0, -400, 0, 0, -400, -800, -1200, -1600};
 
     public int currentStackHeight = 0;
     private int armTicks = 0;
@@ -37,18 +37,18 @@ public class Stacker {
 
     public boolean stoneClamped = false;
     private final int armOut = 500;
-    private final int armDown = -40;
+    private final int armDown = -30;
     private final int armHome = 90;
     private final int armTolerance = 20;
     private final int liftHome = 50;
     private final int liftTolerance = 10;
-    private final int moveliftUpHeight = 150;
+    private final int moveliftUpHeight = 300;
     //unit is ticks/second
 
     private double armVelocity = 0;
     public double liftVelocity = 0;
     private final int armVelocityTolerance = 2;
-    private final int liftVelocityTolerance = 1;
+    private final int liftVelocityTolerance = 5;
 
     private Spline trajectory;
     private boolean isFollowingTrajectory = false;
@@ -144,7 +144,7 @@ public class Stacker {
 
     }
     public void liftUp(){
-        setLiftControls(1,liftPos[currentStackHeight]-moveliftUpHeight);
+        setLiftControls(1, liftPos[currentStackHeight] - moveliftUpHeight);
     }
 
     public boolean isArmHome() {
@@ -154,7 +154,8 @@ public class Stacker {
         return Math.abs(getLiftPosition() - liftHome) < liftTolerance;
     }
     public boolean isLiftUp() {
-        return Math.abs(getLiftPosition() - (liftPos[currentStackHeight]-moveliftUpHeight)) < 100 && !isLiftMoving();
+        return Math.abs(getLiftPosition() - (liftPos[currentStackHeight]-moveliftUpHeight)) < 40 && !isLiftMoving();
+
     }
     public boolean isArmOut() {
         return getArmPosition() > armOut;

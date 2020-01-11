@@ -17,7 +17,7 @@ public class FoundationGrabber {
     //Electronics
     private Servo leftGrabber;
     private Servo rightGrabber;
-    private Rev2mDistanceSensor autoAlighSensor;
+    private Rev2mDistanceSensor autoAlignSensor;
 
     private final double grabberHome = 1;
     private final double grabberTolerance = 0.1;
@@ -33,11 +33,9 @@ public class FoundationGrabber {
 
         leftGrabber = hardwareMap.get(Servo.class, "leftGrabber");
         rightGrabber = hardwareMap.get(Servo.class, "rightGrabber");
-        autoAlighSensor = hardwareMap.get(Rev2mDistanceSensor.class, "autoAlignSensor");
+        autoAlignSensor = hardwareMap.get(Rev2mDistanceSensor.class, "autoAlignSensor");
 
-        autoAlighSensor.initialize();
-
-        releaseFoundation();
+        autoAlignSensor.initialize();
 
         op.telemetry.addData("Status", "Grabbers Initialized");
         op.telemetry.update();
@@ -58,7 +56,7 @@ public class FoundationGrabber {
         rightGrabber.setPosition(0.75);
     }
     public double getDistance(){
-        return autoAlighSensor.getDistance(DistanceUnit.INCH);
+        return autoAlignSensor.getDistance(DistanceUnit.INCH);
     }
 
     public double getGrabberPosition() {

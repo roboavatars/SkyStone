@@ -71,8 +71,13 @@ public class Teleop extends LinearOpMode {
                 dpadDown = true;
             }
 
-            if (robotCentric && !robot.isAutoAlign) robot.drivetrain.setControls(-gamepad1.left_stick_x, -gamepad1.left_stick_y, -gamepad1.right_stick_x);
-            else if(!robot.isAutoAlign) robot.drivetrain.setGlobalControls(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x);
+            if (robotCentric && (gamepad1.left_stick_x!=0 || gamepad1.right_stick_x!=0 || gamepad1.left_stick_y !=0)) {
+                robot.drivetrain.setControls(-gamepad1.left_stick_x, -gamepad1.left_stick_y, -gamepad1.right_stick_x);
+                robot.isManualAlign = true;
+            }
+            else  {
+                robot.isManualAlign = false;
+            }
 
             double prev = time.milliseconds();
             robot.update();
