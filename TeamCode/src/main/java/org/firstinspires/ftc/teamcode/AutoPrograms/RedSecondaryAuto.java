@@ -6,8 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.RobotClasses.Robot;
-
-@Autonomous @Disabled
+@Autonomous
 public class RedSecondaryAuto extends LinearOpMode {
 
     private Robot robot;
@@ -16,10 +15,10 @@ public class RedSecondaryAuto extends LinearOpMode {
     public void runOpMode() {
 
         // initialize robot
-        robot = new Robot(this, 9, 58, 0);
+        robot = new Robot(this, 9, 73, Math.PI/2);
         robot.logger.startLogging();
         robot.grabber.releaseFoundation();
-        robot.intake.setControls(0);
+
         robot.stacker.unClampStone();
         robot.stacker.goHome();
 
@@ -32,9 +31,9 @@ public class RedSecondaryAuto extends LinearOpMode {
         while (opModeIsActive()) {
             robot.update();
 
-            if (time.seconds() > 20){
-                robot.drivetrain.setTargetPoint(36,73,0);
-            }
+            robot.drivetrain.setTargetPoint(9,65,Math.PI/2);
+            robot.intakeManual = true;
+            robot.intake.setControls(0);
         }
 
         robot.update();

@@ -153,7 +153,7 @@ public class RedAuto extends LinearOpMode {
             // get near the foundation
             else if (!toFoundation1) {
                 // if not at position continue moving
-                robot.drivetrain.setTargetPoint(26, 55, Math.PI / 2);
+                robot.drivetrain.setTargetPoint(36, 55, Math.PI / 2);
 
                 // if at position, end segment, recalc splines, reset time
                 if (robot.drivetrain.y < 58) {
@@ -165,10 +165,10 @@ public class RedAuto extends LinearOpMode {
             // turn robot to align with foundation
             else if (!foundationTurn) {
                 // if less than moving time or not at position, continue moving
-                robot.drivetrain.setTargetPoint(26,21,Math.PI);
+                robot.drivetrain.setTargetPoint(38,33,Math.PI);
 
                 // if at position or time met, end segment, reset time
-                if (time.seconds() > foundationTurnTime + 1 || robot.drivetrain.isAtPose(38, 33, Math.PI)) {
+                if (time.seconds() > foundationTurnTime || robot.drivetrain.isAtPose(38, 33, Math.PI)) {
                     foundationTurn = true;
                     // if stone clamped, deposit it
                     if (robot.stacker.stoneClamped) {
@@ -182,10 +182,10 @@ public class RedAuto extends LinearOpMode {
 
             // approach and align robot with foundation
             else if (!approachFoundation) {
-                robot.drivetrain.setTargetPoint(42, 23.5, 0,0.2,0.2,1);
+                robot.drivetrain.setTargetPoint(44, 23.5, Math.PI);
 
                 // extend arm with skystone over the foundation
-                if (robot.drivetrain.isAtPose(42, 20, Math.PI) || time.seconds() > 3) {
+                if (robot.drivetrain.isAtPose(44, 23.5, Math.PI) || time.seconds() > 2.5) {
                     approachFoundation = true;
                     time.reset();
                 }
@@ -284,7 +284,7 @@ public class RedAuto extends LinearOpMode {
             // go to the center of the tile closet to the neutral skybridge to avoid hitting alliance partner's robot
             else if (!backToCenter2) {
                 // if robot position is greater than 95, continue moving
-                robot.drivetrain.setTargetPoint(33, 91, Math.PI / 2, 0.2, 0.2, 0.8);
+                robot.drivetrain.setTargetPoint(29, 88, Math.PI / 2, 0.2, 0.2, 0.8);
                 robot.grabber.extendRangeSensor();
                 robot.intakeManual = true;
                 robot.intake.setControls(-1);
@@ -301,7 +301,7 @@ public class RedAuto extends LinearOpMode {
             else if (!toFoundation2) {
                 // if not at position, continue moving
                 if(!robot.isAutoAlign){
-                    robot.drivetrain.setTargetPoint(depositX-4, depositY-2, depositTheta);
+                    robot.drivetrain.setTargetPoint(depositX-6, depositY-2, depositTheta);
                 }
 
                 // if robot is at foundation, deposit stone
@@ -318,7 +318,10 @@ public class RedAuto extends LinearOpMode {
             // park at tape under the alliance skybridge
             else if (!toTape) {
                 if(robot.stacker.isArmHome() && !robot.stacker.stoneClamped){
-                    robot.drivetrain.setTargetPoint(36, 72, Math.PI / 2, 0.2, 0.2, 0.8);
+                    robot.drivetrain.setTargetPoint(30, 72, Math.PI / 2, 0.2, 0.2, 0.8);
+                }
+                else if(time.seconds()>3){
+                    robot.letGo = true;
                 }
             }
 

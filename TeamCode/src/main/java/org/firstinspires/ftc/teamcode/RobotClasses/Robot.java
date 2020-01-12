@@ -151,7 +151,7 @@ public class Robot {
             isAutoAlign = true;
 
             if(depositAuto){
-                if(Math.abs(distance-AlignDistance)<0.5){
+                if(Math.abs(distance-AlignDistance)<0.5 || Math.abs(distance-AlignDistance)>12){
                     letGo = true;
                 }
             }
