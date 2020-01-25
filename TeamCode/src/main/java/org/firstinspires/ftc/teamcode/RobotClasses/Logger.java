@@ -14,7 +14,7 @@ import java.util.Date;
 public class Logger {
 
     private static File robotDataLog;
-    /*!!!!  create folder */private static String basePath = "/sdcard/FIRST/RobotLogs/RobotData";
+    private static String basePath = "/sdcard/FIRST/robotLogs/RobotData";
     //private static String basePath = "TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Tests/testLogs/TestLog";
     private static FileWriter fileWriter;
     private static BufferedReader bufferedReader;

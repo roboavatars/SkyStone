@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Tests;
 
+import android.util.Log;
+
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -10,15 +12,15 @@ import org.firstinspires.ftc.teamcode.RobotClasses.MecanumDrivetrain;
 @TeleOp
 public class MecanumTest extends LinearOpMode {
 
-    MecanumDrivetrain drivetrain;
-    ElapsedTime time = new ElapsedTime();
+    private MecanumDrivetrain drivetrain;
+    private ElapsedTime time = new ElapsedTime();
+
     @Override
     public void runOpMode() throws InterruptedException {
-        drivetrain = new MecanumDrivetrain(this,9,111,0);
+        drivetrain = new MecanumDrivetrain(this,0,0,0, false);
+
         waitForStart();
-        double thetaerror = 0;
-        double xerror = 0;
-        double yerror = 0;
+
         time.reset();
         while(opModeIsActive()){
             drivetrain.updatePose();
@@ -27,6 +29,8 @@ public class MecanumTest extends LinearOpMode {
             telemetry.addData("y", drivetrain.y);
             telemetry.addData("theta", drivetrain.currentheading);
             telemetry.update();
+
+            Log.w("auto", String.format("%.5f", drivetrain.x) + " " + String.format("%.5f", drivetrain.y) + " " + String.format("%.5f", drivetrain.currentheading));
         }
     }
 }

@@ -21,24 +21,13 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-/*
-Methods in the class:
-Changing motor power
-Setting constant velocity
-Lynx firmware stuff
-Getting current position
-Sets motors to RUN_USING_ENCODER
-Gets angle
-Resets angle
-45 degree strafe (2 wheel)
-Strafe in any direction (4 wheel)
- */
-
-//1440 ticks per encoder revolution
-//4.3289 inches per wheel revolution
-
+@SuppressWarnings("FieldCanBeLocal")
 public class MecanumDrivetrain {
+
+    //1440 ticks per encoder revolution
+    //4.3289 inches per wheel revolution
     double encoderCountsPerRevolution = 537.6;
+
     //Motors of the drivetrain
     private DcMotorEx motorFrontRight;
     private DcMotorEx motorFrontLeft;
@@ -73,14 +62,17 @@ public class MecanumDrivetrain {
 
     private final double xyTolerance = 1;
     private final double thetaTolerance = Math.PI/35;
+    private final double OdometryTrackWidth = 13.74;
+    private final double OdometryHorizontalOffset = 2.535;
+    private final double OdometryHeadingThreshold = Math.PI/8;
 
     public double lastx = 0;
     public double lasty = 0;
 
+    private boolean isRed;
 
     //Constructor
-    public MecanumDrivetrain(LinearOpMode opMode, double initialx, double
-                             initialy, double initialtheta){
+    public MecanumDrivetrain(LinearOpMode opMode, double initialx, double initialy, double initialtheta, boolean isRedAuto) {
 
         this.opMode = opMode;
         this.hardwareMap = opMode.hardwareMap;
@@ -102,10 +94,8 @@ public class MecanumDrivetrain {
         motorBackLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motorBackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-
         motorFrontRight.setDirection(DcMotorSimple.Direction.REVERSE);
         motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
-     
 
         imu = new LynxEmbeddedIMU(new MecanumDrivetrain.BetterI2cDeviceSynchImplOnSimple(
                 new LynxI2cDeviceSynchV2(hardwareMap.appContext, module, 0), true
@@ -118,6 +108,7 @@ public class MecanumDrivetrain {
         lastheading = initialtheta;
         currentheading = initialtheta;
 
+        isRed = isRedAuto;
 
         opMode.telemetry.addLine("ExH Version: " + getConciseLynxFirmwareVersion(module));
         opMode.telemetry.update();
@@ -157,14 +148,33 @@ public class MecanumDrivetrain {
         motorFrontLeft.setPower(-xvelocity+yvelocity-w);
         motorBackRight.setPower(-xvelocity+yvelocity+w);
     }
+
     public void setTargetPoint(double xtarget, double ytarget, double thetatarget){
+        setGlobalControls(-xk*(x-xtarget),-yk*(y-ytarget),-thetak*(currentheading-thetatarget));
+    }
+
+    public void setTargetPoint(double xtarget, double ytarget, double thetatarget, double xK, double yK, double thetaK){
+       setGlobalControls(-xK*(x-xtarget),-yK*(y-ytarget),-thetaK*(currentheading-thetatarget));
+    }
+
+    public void setTargetPointAuto(double xtarget, double ytarget, double thetatarget){
+        if (!isRed) {
+            xtarget = 144 - xtarget;
+            thetatarget = (Math.PI) - thetatarget;
+        }
         Log.w("auto", "Targets: " + xtarget + " " + ytarget + " " + thetatarget + ", Current Pos: " + x + " " + y + " " + currentheading);
         setGlobalControls(-xk*(x-xtarget),-yk*(y-ytarget),-thetak*(currentheading-thetatarget));
     }
-    public void setTargetPoint(double xtarget, double ytarget, double thetatarget, double xK, double yK, double thetaK){
+
+    public void setTargetPointAuto(double xtarget, double ytarget, double thetatarget, double xK, double yK, double thetaK) {
+        if (!isRed) {
+            xtarget = 144 - xtarget;
+            thetatarget = (Math.PI) - thetatarget;
+        }
         Log.w("auto", "Targets: " + xtarget + " " + ytarget + " " + thetatarget + " (" + xK + " " + yK + " " + thetaK + "), Current Pos: " + x + " " + y + " " + currentheading);
-        setGlobalControls(-xK*(x-xtarget),-yK*(y-ytarget),-thetaK*(currentheading-thetatarget));
+        setGlobalControls(-xK * (x - xtarget), -yK * (y - ytarget), -thetaK * (currentheading - thetatarget));
     }
+
     public void setGlobalControls(double xvelocity, double yvelocity, double w){
 
         double xdot = xvelocity*Math.cos(-currentheading) - yvelocity*Math.sin(-currentheading);
@@ -190,6 +200,7 @@ public class MecanumDrivetrain {
         motorFrontLeft.setPower(FLpower);
         motorBackRight.setPower(BRpower);
     }
+
     public LynxGetBulkInputDataResponse RevBulkData(){
         LynxGetBulkInputDataResponse response;
         try {
@@ -202,6 +213,7 @@ public class MecanumDrivetrain {
         }
         return response;
     }
+
     public void updatePose(){
         try {
             LynxGetBulkInputDataResponse response = RevBulkData();
@@ -213,17 +225,15 @@ public class MecanumDrivetrain {
             double deltapod2 = pod2 - lastpod2;
             double deltapod3 = pod3 - lastpod3;
 
-
             lastx = x;
             lasty = y;
 
-
-            deltaheading = (deltapod1 - deltapod2) / 13.74;
+            deltaheading = (deltapod1 - deltapod2) / OdometryTrackWidth;
 
             double localx = (deltapod1 + deltapod2) / 2;
-            double localy = deltapod3 - deltaheading * 2.54;
+            double localy = deltapod3 - deltaheading * OdometryHorizontalOffset;
 
-            if (deltaheading < Math.PI / 8) {
+            if (deltaheading < OdometryHeadingThreshold) {
                 x += localx * Math.cos(currentheading) - localy * Math.sin(currentheading);
                 y += localy * Math.cos(currentheading) + localx * Math.sin(currentheading);
 
@@ -250,7 +260,7 @@ public class MecanumDrivetrain {
         angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
         deltaheading = angles.firstAngle - lastheading;
 
-//        opMode.telemetry.addData("delta", deltaheading);
+        //opMode.telemetry.addData("delta", deltaheading);
 
         if (deltaheading < -Math.PI)
             deltaheading += 2*Math.PI ;
@@ -264,17 +274,26 @@ public class MecanumDrivetrain {
         return currentheading;
 
     }
+
     public void resetAngle(){
         angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
         lastheading = angles.firstAngle;
         currentheading = 0;
     }
 
-    public boolean isAtPose(double targetx, double targety, double targettheta) {
+    public boolean isAtPoseAuto(double targetx, double targety, double targettheta) {
+        if (!isRed) {
+            targetx = 144 - targetx;
+            targettheta = Math.PI - targettheta;
+        }
         return (Math.abs(x - targetx) < xyTolerance && Math.abs(y - targety) < xyTolerance
                 && Math.abs(currentheading - targettheta) < thetaTolerance);
     }
-    public boolean isAtPose(double targetx, double targety, double targettheta, double xtolerance, double ytolerance, double thetatolerance) {
+    public boolean isAtPoseAuto(double targetx, double targety, double targettheta, double xtolerance, double ytolerance, double thetatolerance) {
+        if (!isRed) {
+            targetx = 144 - targetx;
+            targettheta = Math.PI - targettheta;
+        }
         return (Math.abs(x - targetx) < xtolerance && Math.abs(y - targety) < ytolerance
                 && Math.abs(currentheading - targettheta) < thetatolerance);
     }

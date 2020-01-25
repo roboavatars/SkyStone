@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.RobotClasses;
 
 import android.util.Log;
 
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsAnalogOpticalDistanceSensor;
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -17,7 +18,7 @@ public class Robot {
     public Stacker stacker;
     public FoundationGrabber grabber;
     public CapstoneDeposit capstoneDeposit;
-    private Rev2mDistanceSensor stoneSensor;
+    private ModernRoboticsAnalogOpticalDistanceSensor stoneSensor;
     public Logger logger;
 
     private double prevX, prevY, prevTh, velocityX, velocityY, velocityTh, prevTime;
@@ -29,7 +30,6 @@ public class Robot {
     private boolean downStacked = false;
     public boolean letGo = false;
     private boolean liftedUp = false;
-
     private boolean depositAuto = false;
 
     // Class constants
@@ -47,8 +47,8 @@ public class Robot {
 
     private LinearOpMode op;
 
-    public Robot(LinearOpMode op, double initX, double initY, double initTheta) {
-        drivetrain = new MecanumDrivetrain(op, initX, initY, initTheta);
+    public Robot(LinearOpMode op, double initX, double initY, double initTheta, boolean isRedAuto) {
+        drivetrain = new MecanumDrivetrain(op, initX, initY, initTheta, isRedAuto);
         intake = new Intake(op);
         stacker = new Stacker(op);
         grabber = new FoundationGrabber(op);
@@ -58,12 +58,12 @@ public class Robot {
 
         this.op = op;
 
-        stoneSensor = op.hardwareMap.get(Rev2mDistanceSensor.class, "stoneSensor");
+        stoneSensor = op.hardwareMap.get(ModernRoboticsAnalogOpticalDistanceSensor.class, "stoneSensor");
 
-        if (stoneSensor.getDistance(DistanceUnit.INCH) > 18) {
-            op.telemetry.addData("DISTANCE SENSOR VALUE TOO HIGH", stoneSensor.getDistance(DistanceUnit.INCH));
-            op.telemetry.update();
-        }
+//        if (stoneSensor.getDistance(DistanceUnit.INCH) > 18) {
+//            op.telemetry.addData("DISTANCE SENSOR VALUE TOO HIGH", stoneSensor.getDistance(DistanceUnit.INCH));
+//            op.telemetry.update();
+//        }
     }
 
     public void update() {
@@ -72,9 +72,9 @@ public class Robot {
         cycleCounter++;
 
         // update stoneInRobot boolean
-        if (cycleCounter % stoneSensorUpdatePeriod == 0) {
-            stoneInRobot = stoneSensor.getDistance(DistanceUnit.INCH) < stoneValidationDistance;
-        }
+//        if (cycleCounter % stoneSensorUpdatePeriod == 0) {
+//            stoneInRobot = stoneSensor.getDistance(DistanceUnit.INCH) < stoneValidationDistance;
+//        }
 
         // update arm
         if ((cycleCounter + 3) % armTicksUpdatePeriod == 0) {
@@ -180,7 +180,6 @@ public class Robot {
         op.telemetry.addData("Robot theta", drivetrain.currentheading);
         op.telemetry.addData("is stone in robot", stoneInRobot);
         op.telemetry.addData("is lift up", stacker.isLiftUp());
-
     }
 
     public void deposit() {

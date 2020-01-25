@@ -15,7 +15,7 @@ public class locatorTest extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        Robot robot = new Robot(this, 0, 0, 0);
+        Robot robot = new Robot(this, 0, 0, 0, false);
         stoneLocator2 locator = new stoneLocator2(this);
         locator.initializeCamera();
         locator.start();
