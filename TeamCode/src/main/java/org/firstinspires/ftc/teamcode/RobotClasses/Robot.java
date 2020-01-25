@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
+@SuppressWarnings("FieldCanBeLocal")
 public class Robot {
 
     // Subsystems

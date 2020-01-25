@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.graph;
+package org.firstinspires.ftc.teamcode.Tests.graph;
 
 import org.firstinspires.ftc.teamcode.Splines.Spline;
 import org.firstinspires.ftc.teamcode.Splines.SplineGenerator;
