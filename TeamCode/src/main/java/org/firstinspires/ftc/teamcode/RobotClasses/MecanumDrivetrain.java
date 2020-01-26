@@ -8,6 +8,7 @@ import com.qualcomm.hardware.lynx.LynxI2cDeviceSynchV2;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.lynx.commands.core.LynxGetBulkInputDataCommand;
 import com.qualcomm.hardware.lynx.commands.core.LynxGetBulkInputDataResponse;
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsAnalogOpticalDistanceSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -33,6 +34,7 @@ public class MecanumDrivetrain {
     private DcMotorEx motorFrontLeft;
     private DcMotorEx motorBackRight;
     private DcMotorEx motorBackLeft;
+    private ModernRoboticsAnalogOpticalDistanceSensor stoneSensor;
 
     //copy of opmode related objects
     private LinearOpMode opMode;
@@ -68,6 +70,7 @@ public class MecanumDrivetrain {
 
     public double lastx = 0;
     public double lasty = 0;
+    public boolean stoneInRobot = false;
 
     private boolean isRed;
 
@@ -83,6 +86,7 @@ public class MecanumDrivetrain {
         motorFrontLeft = hardwareMap.get(DcMotorEx.class,"motorFrontLeft");
         motorBackRight = hardwareMap.get(DcMotorEx.class,"motorBackRight");
         motorBackLeft = hardwareMap.get(DcMotorEx.class,"motorBackLeft");
+        stoneSensor = hardwareMap.get(ModernRoboticsAnalogOpticalDistanceSensor.class, "stoneSensor");
 
         motorFrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorFrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -220,6 +224,10 @@ public class MecanumDrivetrain {
             double pod1 = -response.getEncoder(0) * 0.00300622055 * 2;
             double pod2 = response.getEncoder(1) * 0.00300622055 * 2;
             double pod3 = response.getEncoder(2) * 0.00300622055 * 2;
+
+            double distance = response.getAnalogInput(0);
+            stoneInRobot = distance > 1000;
+            opMode.telemetry.addData("distance", distance);
 
             double deltapod1 = pod1 - lastpod1;
             double deltapod2 = pod2 - lastpod2;

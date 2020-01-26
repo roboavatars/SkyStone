@@ -18,7 +18,6 @@ public class Robot {
     public Stacker stacker;
     public FoundationGrabber grabber;
     public CapstoneDeposit capstoneDeposit;
-    private ModernRoboticsAnalogOpticalDistanceSensor stoneSensor;
     public Logger logger;
 
     private double prevX, prevY, prevTh, velocityX, velocityY, velocityTh, prevTime;
@@ -57,8 +56,6 @@ public class Robot {
         startTime = System.currentTimeMillis();
 
         this.op = op;
-
-        stoneSensor = op.hardwareMap.get(ModernRoboticsAnalogOpticalDistanceSensor.class, "stoneSensor");
 
 //        if (stoneSensor.getDistance(DistanceUnit.INCH) > 18) {
 //            op.telemetry.addData("DISTANCE SENSOR VALUE TOO HIGH", stoneSensor.getDistance(DistanceUnit.INCH));
@@ -106,6 +103,12 @@ public class Robot {
             if(!intakeManual){
                 intake.setControls(0);
             }
+        }
+        else if(stoneInRobot && !tryingToDeposit){
+            if(!intakeManual){
+                intake.setControls(0);
+            }
+
         }
         // check if arm should lower in preparation to clamp stone
         else if (stoneInRobot && !tryingToDeposit && !stacker.isArmOut()) {
@@ -163,6 +166,8 @@ public class Robot {
 
 
         drivetrain.updatePose();
+        stoneInRobot = drivetrain.stoneInRobot;
+
         if (cycleCounter % loggerUpdatePeriod == 0) {
             logger.logData(System.currentTimeMillis()-startTime,drivetrain.x,drivetrain.y,drivetrain.currentheading,velocityX,velocityY,velocityTh,stoneInRobot,stacker.stoneClamped,stacker.isArmHome(),stacker.isArmDown(),stacker.isArmOut());
         }

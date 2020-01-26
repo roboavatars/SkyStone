@@ -53,6 +53,7 @@ public class RedAuto extends LinearOpMode {
         boolean pullFoundation = false;
         boolean turnFoundation = false;
         boolean pushFoundation = false;
+        boolean bringFoundation = false;
         boolean toQuarry1 = false;
         boolean skystone2 = false;
         boolean backToCenter2 = false;
@@ -63,6 +64,7 @@ public class RedAuto extends LinearOpMode {
         double skystone1Time = 2;
         double backToCenterTime = 0.75;
         double foundationTurnTime = 1.5;
+        double foundationPullTime = 2;
         double toQuarryTime = 2;
         double skystone2Time = 2;
 
@@ -75,18 +77,23 @@ public class RedAuto extends LinearOpMode {
         // generate splines
         SplineGenerator splineGenerator = new SplineGenerator();
         Spline[] skystone1Spline = splineGenerator.SplineBetweenTwoPoints(9, 111,
-                45, skystoneY, 0, Math.PI / 4 + 0.2, 50, 25,
-                100, -30, 0, 0, skystone1Time);
-        Spline skystone1ThetaSpline = new Spline(0, 3, 5, Math.PI / 4 + 0.2, 0, 0, skystone1Time);
+                45, skystoneY, 0, Math.PI / 4 + 0.2, 0, 0,
+                100, -100, 0, 0, skystone1Time);
+        Spline skystone1ThetaSpline = new Spline(0, 0, 8, Math.PI / 4 + 0.2, 0, 0, skystone1Time);
 
         Spline[] backToCenterSpline = splineGenerator.SplineBetweenTwoPoints(45, skystoneY,
                 30, skystoneY - 12, Math.PI / 4, Math.PI / 2, 0, -70,
                 -20, -50, 0, 0, backToCenterTime);
         Spline backToCenterThetaSpline = new Spline(Math.PI / 4, 0, 0, Math.PI / 2, 0, 0, backToCenterTime);
 
+        Spline[] foundationPullSpline = splineGenerator.SplineBetweenTwoPoints(44, 35,
+                24, 28, Math.PI, Math.PI / 2, 0, 40,
+                0, 100, 0, 0, foundationPullTime);
+        Spline foundationPullThetaSpline = new Spline(Math.PI, 0, 8, Math.PI / 2, 0, 0, foundationPullTime);
+
         Spline[] toQuarrySpline = splineGenerator.SplineBetweenTwoPoints(30 , 29,
-                24, skystoneY - 30, Math.PI / 2, Math.PI / 4, 0, 0,
-                20, 0, 0, 0, toQuarryTime);
+                24, skystoneY - 30, Math.PI / 2, Math.PI / 4, -70, 0,
+                -20, 0, 0, 0, toQuarryTime);
         Spline toQuarryThetaSpline = new Spline(Math.PI / 2, 0, 0, Math.PI / 4, 0, 0, toQuarryTime);
 
         Spline[] skystone2Spline = splineGenerator.SplineBetweenTwoPoints(24, skystoneY - 30,
@@ -118,7 +125,7 @@ public class RedAuto extends LinearOpMode {
                             skystone1ThetaSpline.position(currentTime));
                 }
                 // if skystone is clamped or robot has been trying to intake stone for too long, move on
-                else if (robot.stacker.stoneClamped || time.seconds() > skystone1Time + 3) {
+                else if (robot.stoneInRobot || time.seconds() > skystone1Time + 2) {
                     skystone1 = true;
                     backToCenterSpline = splineGenerator.SplineBetweenTwoPoints(robot.drivetrain.x, robot.drivetrain.y,
                             30, skystoneY - 15.5, robot.drivetrain.currentheading, Math.PI / 2, 0, -70,
@@ -133,13 +140,11 @@ public class RedAuto extends LinearOpMode {
                 }
             }
 
-            // go to the center of the tile closet to the neutral skybridge to avoid hitting alliance partner's robot
-            /*else if (!backToCenter1) {
+            // go to the center of the tile closest to the neutral skybridge to avoid hitting alliance partner's robot
+            else if (!backToCenter1) {
                 double currentTime = Math.min(backToCenterTime, time.seconds());
                 robot.drivetrain.setTargetPointAuto(backToCenterSpline[0].position(currentTime), backToCenterSpline[1].position(currentTime),
                         backToCenterThetaSpline.position(currentTime));
-                robot.intakeManual = true;
-                robot.intake.setControls(-1);
 
                 // if more than allotted time, end segment
                 if (time.seconds() > backToCenterTime) {
@@ -189,7 +194,7 @@ public class RedAuto extends LinearOpMode {
             }
 
             // pull the foundation so that it is in front of the building site
-            else if (!pullFoundation) {
+            /*else if (!pullFoundation) {
                 robot.drivetrain.setTargetPointAuto(26, 30, Math.PI, 0.6, 0.6, 0.4);
 
                 // if at position or time met, end segment
@@ -220,6 +225,29 @@ public class RedAuto extends LinearOpMode {
                     Log.w("auto", "Deposit Cor: " + depositX + " " + depositY + " " + depositTheta);
 
                     pushFoundation = true;
+                    robot.grabber.releaseFoundation();
+                    toQuarrySpline = splineGenerator.SplineBetweenTwoPoints(robot.drivetrain.x, robot.drivetrain.y,
+                            26.5, skystoneY - 30, robot.drivetrain.currentheading, Math.PI / 2.5, 0, 0,
+                            20, 0, 0, 0, toQuarryTime);
+                    toQuarryThetaSpline = new Spline(robot.drivetrain.currentheading, 0, 0, Math.PI / 2.5, 0, 0, toQuarryTime);
+                    time.reset(); log("toquarry1");
+                }
+            }*/
+
+            // go to the center of the tile closest to the neutral skybridge to avoid hitting alliance partner's robot
+            else if (!bringFoundation) {
+                double currentTime = Math.min(foundationPullTime, time.seconds());
+
+                // if less than moving time, continue moving
+                if (time.seconds() < skystone1Time) {
+                    robot.drivetrain.setTargetPointAuto(skystone1Spline[0].position(currentTime), skystone1Spline[1].position(currentTime),
+                            skystone1ThetaSpline.position(currentTime));
+                }
+
+                // if arm is home or time met, release foundation, end segment
+                else if (robot.stacker.isArmHome() || time.seconds() > foundationPullTime) {
+                    bringFoundation = true;
+
                     robot.grabber.releaseFoundation();
                     toQuarrySpline = splineGenerator.SplineBetweenTwoPoints(robot.drivetrain.x, robot.drivetrain.y,
                             26.5, skystoneY - 30, robot.drivetrain.currentheading, Math.PI / 2.5, 0, 0,
@@ -313,7 +341,7 @@ public class RedAuto extends LinearOpMode {
                 else if(time.seconds()>3){
                     robot.letGo = true;
                 }
-            }*/
+            }
 
             else {
                 robot.drivetrain.setControls(0,0,0);

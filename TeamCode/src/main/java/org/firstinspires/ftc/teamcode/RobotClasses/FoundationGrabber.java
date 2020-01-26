@@ -39,7 +39,7 @@ public class FoundationGrabber {
 
     public void releaseFoundation() {
         leftGrabber.setPosition(1);
-        rightGrabber.setPosition(-1);
+        rightGrabber.setPosition(-0.995);
     }
     public void grabFoundation() {
         leftGrabber.setPosition(-0.95);
