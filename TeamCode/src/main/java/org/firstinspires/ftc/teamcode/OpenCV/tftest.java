@@ -9,6 +9,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+import org.firstinspires.ftc.robotcore.internal.tfod.AnnotatedYuvRgbFrame;
 
 import java.util.List;
 
@@ -21,6 +22,13 @@ public class tftest extends LinearOpMode {
 
     private VuforiaLocalizer vuforia;
     private TFObjectDetector tfod;
+    double stoneY;
+    double stoneX;
+    private final static double hpg = 8.5;
+    private final static double phi = Math.toRadians(15);
+    private final static double verticalFOV = Math.toRadians(57);
+    private final static double horizontalFOV = Math.toRadians(71);
+
 
     @Override
     public void runOpMode() {
@@ -40,11 +48,21 @@ public class tftest extends LinearOpMode {
                   telemetry.addData("# Object Detected", updatedRecognitions.size());
 
                   int i = 0;
-                  for (Recognition recognition : updatedRecognitions) {
-                    telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
-                    telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f", recognition.getLeft(), recognition.getTop());
-                    telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f", recognition.getRight(), recognition.getBottom());
+                  if(updatedRecognitions.size()>0){
+                      Recognition recognition = updatedRecognitions.get(0);
+
+//                      xpix = xpix / 120 - 1;
+//                      ypix = 1 - ypix / 180;
+//                      stoneY = -hpg * (Math.cos(-phi - verticalFOV / 2) / (2 * Math.sin(verticalFOV / 2)) + ypix * Math.sin(phi)) / (Math.sin(-phi - verticalFOV / 2) / (2 * Math.sin(verticalFOV / 2)) + ypix * Math.cos(phi));
+//                      stoneX = Math.tan(horizontalFOV / 2) * xpix * Math.sqrt(Math.pow(hpg, 2) + Math.pow(stoneY, 2));
+
+                      telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
+                      telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f", recognition.getLeft(), recognition.getTop());
+                      telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f", recognition.getRight(), recognition.getBottom());
+
                   }
+
+
                   telemetry.update();
                 }
             }
@@ -60,6 +78,7 @@ public class tftest extends LinearOpMode {
         parameters.cameraDirection = CameraDirection.BACK;
 
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
+
     }
 
     private void initTfod() {
@@ -69,4 +88,5 @@ public class tftest extends LinearOpMode {
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
     }
+
 }
