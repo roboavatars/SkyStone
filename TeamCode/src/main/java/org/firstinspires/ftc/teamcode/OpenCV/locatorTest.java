@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.OpenCV;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.RobotClasses.Robot;
@@ -15,7 +14,7 @@ public class locatorTest extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        Robot robot = new Robot(this, 0, 0, 0);
+        Robot robot = new Robot(this, 0, 0, 0, false);
         stoneLocator2 locator = new stoneLocator2(this);
         locator.initializeCamera();
         locator.start();
@@ -32,7 +31,9 @@ public class locatorTest extends LinearOpMode {
             double x = loc[0];
             double y = loc[1];
             double r = Math.sqrt(Math.pow(x,2) + Math.pow(y,2));
-            double theta = robot.drivetrain.currentheading - Math.atan(x/y);
+            double theta = robot.drivetrain.currentheading;
+            robot.drivetrain.setTargetPoint(robot.drivetrain.x + r*Math.cos(theta),robot.drivetrain.y + r*Math.sin(theta),loc[2] + robot.drivetrain.currentheading);
+
 
             telemetry.addData("Local X", x);
             telemetry.addData("Local Y", y);
@@ -42,6 +43,7 @@ public class locatorTest extends LinearOpMode {
             telemetry.addData("Global Y", robot.drivetrain.y + r*Math.sin(theta));
             telemetry.addData("Global Theta", loc[2] + robot.drivetrain.currentheading);
             telemetry.update();
+            robot.update();
         }
 
         locator.setActive(false);

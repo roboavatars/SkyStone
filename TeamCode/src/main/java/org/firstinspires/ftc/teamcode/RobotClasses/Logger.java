@@ -4,10 +4,8 @@ import android.annotation.SuppressLint;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -15,21 +13,30 @@ import java.util.Date;
 @SuppressWarnings("FieldCanBeLocal") @SuppressLint("SdCardPath")
 public class Logger {
 
-    private static File robotPositionLog = new File("/sdcard/FIRST/RobotPosition.csv");
-    //private static File robotPositionLog = new File("TeamCode/src/main/java/org/firstinspires/ftc/teamcode/LogTest.csv");
+    private static File robotDataLog;
+    private static String basePath = "/sdcard/FIRST/robotLogs/RobotData";
+    //private static String basePath = "TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Tests/testLogs/TestLog";
     private static FileWriter fileWriter;
     private static BufferedReader bufferedReader;
 
-    public Logger() {}
-
     public void startLogging() {
         try {
-            fileWriter = new FileWriter(robotPositionLog);
+            robotDataLog = new File(getLogName(true));
+            fileWriter = new FileWriter(robotDataLog);
             fileWriter.write("Timestamp,SinceStart,X,Y,Theta,VelocityX,VelocityY,VelocityTheta,StoneInRobot,StoneClamped,ArmIsHome,ArmIsDown,ArmIsOut\n");
         } catch (Exception e) {e.printStackTrace();}
     }
 
-    public void stopLogging() {try {fileWriter.close();} catch (Exception e) {e.printStackTrace();}}
+    public static String getLogName(boolean fileWrite) {
+        int logNum = 1;
+        while (true) {
+            File currentFile = new File(basePath + logNum + ".csv");
+            if (!currentFile.exists()) break;
+            logNum++;
+        }
+        if (fileWrite) return basePath + logNum + ".csv";
+        else return basePath + (logNum-1) + ".csv";
+    }
 
     public void logData(double timeSinceSt, double x, double y, double theta, double velocityx, double velocityy, double velocitytheta, boolean stoneInRobot, boolean stoneClamped, boolean armIsHome, boolean armIsDown, boolean armIsOut) {
         @SuppressLint("SimpleDateFormat")
@@ -44,12 +51,17 @@ public class Logger {
         catch (Exception e) {e.printStackTrace();}
     }
 
+    public void stopLogging() {
+        try {fileWriter.close();}
+        catch (Exception e) {e.printStackTrace();}
+    }
+
     public static double[] readPos() {
         String curLine; int lineNum = 0;
         double[] robotPos = new double[3];
 
         try {
-            bufferedReader = new BufferedReader(new FileReader(robotPositionLog));
+            bufferedReader = new BufferedReader(new FileReader(getLogName(false)));
             while ((curLine = bufferedReader.readLine()) != null) {
 
                 if (lineNum != 0) {
@@ -64,9 +76,21 @@ public class Logger {
             bufferedReader.close();
         } catch (Exception ex) {
             robotPos[0] = 0; robotPos[1] = 0; robotPos[2] = 0;
+            System.out.println("read error, using default values :-(");
             ex.printStackTrace();
         }
 
         return robotPos;
     }
+
+//    public static void main(String[] args) {
+//        double[] initialPosition = Logger.readPos();
+//        System.out.println("Starting Position: " + Arrays.toString(initialPosition));
+//
+//        Logger logger = new Logger();
+//        logger.startLogging();
+//        logger.logData(0,-1,-1,-1,-100,-100,-100,false,false,false,false,false);
+//        logger.flush();
+//        logger.stopLogging();
+//    }
 }

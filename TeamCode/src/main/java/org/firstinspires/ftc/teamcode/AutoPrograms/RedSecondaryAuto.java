@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.AutoPrograms;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -15,7 +14,7 @@ public class RedSecondaryAuto extends LinearOpMode {
     public void runOpMode() {
 
         // initialize robot
-        robot = new Robot(this, 9, 73, Math.PI/2);
+        robot = new Robot(this, 9, 73, Math.PI/2, true);
         robot.logger.startLogging();
         robot.grabber.releaseFoundation();
 
@@ -31,7 +30,7 @@ public class RedSecondaryAuto extends LinearOpMode {
         while (opModeIsActive()) {
             robot.update();
 
-            robot.drivetrain.setTargetPoint(9,65,Math.PI/2);
+            robot.drivetrain.setTargetPointAuto(9,65,Math.PI/2);
             robot.intakeManual = true;
             robot.intake.setControls(0);
         }

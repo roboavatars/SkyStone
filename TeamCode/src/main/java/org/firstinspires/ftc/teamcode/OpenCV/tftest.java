@@ -50,15 +50,18 @@ public class tftest extends LinearOpMode {
                   int i = 0;
                   if(updatedRecognitions.size()>0){
                       Recognition recognition = updatedRecognitions.get(0);
-
-//                      xpix = xpix / 120 - 1;
-//                      ypix = 1 - ypix / 180;
-//                      stoneY = -hpg * (Math.cos(-phi - verticalFOV / 2) / (2 * Math.sin(verticalFOV / 2)) + ypix * Math.sin(phi)) / (Math.sin(-phi - verticalFOV / 2) / (2 * Math.sin(verticalFOV / 2)) + ypix * Math.cos(phi));
-//                      stoneX = Math.tan(horizontalFOV / 2) * xpix * Math.sqrt(Math.pow(hpg, 2) + Math.pow(stoneY, 2));
-
-                      telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
-                      telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f", recognition.getLeft(), recognition.getTop());
-                      telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f", recognition.getRight(), recognition.getBottom());
+                      double xpix = recognition.getBottom() / (recognition.getImageHeight()/2) - 1;
+                      double ypix = recognition.getLeft() / recognition.getImageWidth();
+                      stoneY = -hpg * (Math.cos(-phi - verticalFOV / 2) / (2 * Math.sin(verticalFOV / 2)) + ypix * Math.sin(phi)) / (Math.sin(-phi - verticalFOV / 2) / (2 * Math.sin(verticalFOV / 2)) + ypix * Math.cos(phi));
+                      stoneX = Math.tan(horizontalFOV / 2) * xpix * Math.sqrt(Math.pow(hpg, 2) + Math.pow(stoneY, 2));
+//                      telemetry.addData("xmax: ", recognition.getImageWidth());
+//                      telemetry.addData("ymax: ", recognition.getImageHeight());
+//                      telemetry.addData("x: ", recognition.getBottom());
+//                      telemetry.addData("y: ", recognition.getRight());
+//                      telemetry.addData("xpix: ", xpix);
+//                      telemetry.addData("ypix: ", ypix);
+                      telemetry.addData("stonex: ", stoneX);
+                      telemetry.addData("stoney: ", stoneY);
 
                   }
 

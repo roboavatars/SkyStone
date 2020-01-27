@@ -43,7 +43,7 @@ public class stoneLocator2 extends Thread {
     private final static String testPath = "/sdcard/FIRST/input/";
 
     private FrameGrabber frameGrabber;
-    private final boolean usingCamera = false; // <<<----------------------
+    private final boolean usingCamera = true; // <<<----------------------
     private final boolean debug = true;
     private boolean active = false;
 
@@ -51,6 +51,9 @@ public class stoneLocator2 extends Thread {
     private final static double phi = Math.toRadians(15);
     private final static double verticalFOV = Math.toRadians(57);
     private final static double horizontalFOV = Math.toRadians(71);
+    private final static double minimumYDistance = 8;
+    private final static double maximumYDistance = 40;
+    private final static double numberOfFrames = 500;
 
     private int frameNum = 1;
     private double[] sPos = {-1, -1, -1};
@@ -99,9 +102,9 @@ public class stoneLocator2 extends Thread {
             }
             FtcRobotControllerActivity.disableCameraView();
         } else {
-            for (int i = 0; i < 200; i++) {
+            for (int i = 0; i < numberOfFrames; i++) {
                 Mat input = Imgcodecs.imread(testPath + "input" + i + ".jpg", Imgcodecs.IMREAD_COLOR);
-                Imgproc.resize(input, input, new Size(240, 180));
+                Imgproc.resize(input, input, new Size(200, 150));
                 sPos = detectSkyStone(input);
                 frameNum++;
             }
@@ -122,19 +125,19 @@ public class stoneLocator2 extends Thread {
         double stoneX = -1;
         double stoneY = -1;
         double stoneTheta = -1;
-        if (debug) {Imgcodecs.imwrite(inputPath + (frameNum % 200) + ".jpg", input);}
+        if (debug) {Imgcodecs.imwrite(inputPath + (frameNum % numberOfFrames) + ".jpg", input);}
 
         // Process Image
-        Mat filtered = new Mat(180, 240, CvType.CV_8UC1, new Scalar(255));
+        Mat filtered = new Mat(input.rows(), input.cols(), CvType.CV_8UC1, new Scalar(255));
         Imgproc.cvtColor(input, filtered, Imgproc.COLOR_RGB2HSV);
-        Core.inRange(filtered, new Scalar(85, 90, 90), new Scalar(115, 255, 255), filtered);
+        Core.inRange(filtered, new Scalar(85, 95, 95), new Scalar(115, 255, 255), filtered);
         Imgproc.morphologyEx(filtered, filtered, Imgproc.MORPH_OPEN, new Mat());
         Imgproc.morphologyEx(filtered, filtered, Imgproc.MORPH_CLOSE, new Mat());
-        if (debug) Imgcodecs.imwrite(filteredPath + (frameNum % 200) + ".jpg", filtered);
+        if (debug) Imgcodecs.imwrite(filteredPath + (frameNum % numberOfFrames) + ".jpg", filtered);
 
         // Further Process Image
         Imgproc.Canny(filtered, filtered, 0, 0, 3, false);
-        if (debug) Imgcodecs.imwrite(contoursPath + (frameNum % 200) + ".jpg", filtered);
+        if (debug) Imgcodecs.imwrite(contoursPath + (frameNum % numberOfFrames) + ".jpg", filtered);
 
         // Find Contours
         Mat heirarchyMat = new Mat();
@@ -153,7 +156,7 @@ public class stoneLocator2 extends Thread {
                 }
             }
             Imgproc.circle(input, new Point(xpix, ypix), 2, new Scalar(0, 0, 255), 2);
-            if (debug) Imgcodecs.imwrite(circlePath + (frameNum % 200) + ".jpg", input);
+            if (debug) Imgcodecs.imwrite(circlePath + (frameNum % numberOfFrames) + ".jpg", input);
 
             // Find Ellipse Using Contour Index
             Mat ellipseOnly = new Mat();
@@ -161,20 +164,20 @@ public class stoneLocator2 extends Thread {
             ellipse = Imgproc.fitEllipse(new MatOfPoint2f(contours.get(contourIndex).toArray()));
             stoneTheta = Math.toRadians(ellipse.angle);
             Imgproc.ellipse(ellipseOnly, ellipse, new Scalar(0), 1);
-            if (debug) Imgcodecs.imwrite(ellipsePath + (frameNum % 200) + ".jpg", ellipseOnly);
-
-            // Change Perspective
-            Mat changed = new Mat();
-            MatOfPoint2f originalPoints = new MatOfPoint2f(new Point(), new Point(), new Point(), new Point());
-            MatOfPoint2f cornerPoints = new MatOfPoint2f(new Point(0, 0), new Point(449, 0), new Point(0, 449), new Point(449, 449));
-            Mat warpMat = Imgproc.getPerspectiveTransform(originalPoints, cornerPoints);
-            Imgproc.warpPerspective(input, changed, warpMat, input.size());
+            if (debug) Imgcodecs.imwrite(ellipsePath + (frameNum % numberOfFrames) + ".jpg", ellipseOnly);
 
             // Convert Local Coordinates to Field Coordinates
-            xpix = xpix / 120 - 1;
-            ypix = 1 - ypix / 180;
+            xpix = xpix / (input.cols() / 2) - 1;
+            ypix = 1 - ypix / input.rows();
             stoneY = -hpg * (Math.cos(-phi - verticalFOV / 2) / (2 * Math.sin(verticalFOV / 2)) + ypix * Math.sin(phi)) / (Math.sin(-phi - verticalFOV / 2) / (2 * Math.sin(verticalFOV / 2)) + ypix * Math.cos(phi));
             stoneX = Math.tan(horizontalFOV / 2) * xpix * Math.sqrt(Math.pow(hpg, 2) + Math.pow(stoneY, 2));
+
+            // Throw Out Any Values Too Far or Too Close
+            if (stoneY <= minimumYDistance || stoneY >= maximumYDistance) {
+                stoneX = -1;
+                stoneY = -1;
+                stoneTheta = -1;
+            }
         }
 
         // Log and Return Data

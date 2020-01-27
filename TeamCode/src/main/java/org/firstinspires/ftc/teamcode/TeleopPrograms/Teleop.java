@@ -1,4 +1,6 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.TeleopPrograms;
+
+import android.util.Log;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -22,9 +24,10 @@ public class Teleop extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        double[] initialPosition = Logger.readPos();
+        /*double[] initialPosition = Logger.readPos();
         telemetry.addData("Starting Position", Arrays.toString(initialPosition)); telemetry.update();
-        robot = new Robot(this, initialPosition[0], initialPosition[1], initialPosition[2]);
+        robot = new Robot(this, initialPosition[0], initialPosition[1], initialPosition[2]);*/
+        robot = new Robot(this, 0, 0, 0, false);
         robot.logger.startLogging();
 
         waitForStart();
@@ -88,6 +91,8 @@ public class Teleop extends LinearOpMode {
             telemetry.addData("slide ticks", robot.stacker.getLiftPosition());
             telemetry.addData("stack height", robot.stacker.currentStackHeight);
             telemetry.update();
+
+            Log.w("auto", String.format("%.5f", robot.drivetrain.x) + " " + String.format("%.5f", robot.drivetrain.y) + " " + String.format("%.5f", (robot.drivetrain.currentheading%(Math.PI*2))));
         }
     }
 }
