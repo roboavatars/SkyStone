@@ -108,7 +108,6 @@ public class skyStoneDetector extends Thread {
     @Override public void interrupt() {
         FtcRobotControllerActivity.disableCameraView();
         super.interrupt();
-        log("Thread interrupted " + Thread.currentThread());
     }
 
     /**
@@ -254,7 +253,7 @@ public class skyStoneDetector extends Thread {
      * Sets whether the skystone detector is actively processing camera frames to locate skystones
      * @param active true = processing; false = not processing
      */
-    public void setActive(boolean active) {this.active = active; log("active method invoked " + active);}
+    public void setActive(boolean active) {this.active = active;}
     
     /**
      * Sets the alliance color

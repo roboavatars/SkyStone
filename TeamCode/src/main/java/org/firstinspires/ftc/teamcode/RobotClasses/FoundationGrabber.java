@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @SuppressWarnings("FieldCanBeLocal")
-@Config
+//@Config
 public class FoundationGrabber {
 
     //Electronics
