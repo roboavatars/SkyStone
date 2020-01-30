@@ -167,7 +167,7 @@ public class Robot {
         stoneInRobot = drivetrain.stoneInRobot;
 
         if (cycleCounter % loggerUpdatePeriod == 0) {
-            logger.logData(System.currentTimeMillis()-startTime,drivetrain.x,drivetrain.y,drivetrain.currentheading,velocityX,velocityY,velocityTh,stoneInRobot,stacker.stoneClamped,stacker.isArmHome(),stacker.isArmDown(),stacker.isArmOut());
+            logger.logData(System.currentTimeMillis()-startTime,drivetrain.x,drivetrain.y,drivetrain.currentheading,velocityX,velocityY,velocityTh,stoneInRobot,stacker.stoneClamped,tryingToDeposit,stacker.isArmHome(),stacker.isArmDown(),stacker.isArmOut());
         }
         if (cycleCounter % flushUpdatePeriod == 0) logger.flush();
 
