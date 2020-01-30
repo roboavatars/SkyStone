@@ -165,7 +165,7 @@ public class RedAuto extends LinearOpMode {
 
             // turn robot to align with foundation
             else if (!foundationTurn) {
-                robot.drivetrain.setTargetPointAuto(38,18, Math.PI);
+                robot.drivetrain.setTargetPointAuto(42,18, Math.PI);
 
                 // if at position or time met, end segment
                 if (time.seconds() > foundationTurnTime || robot.drivetrain.isAtPoseAuto(38, 18, Math.PI)) {

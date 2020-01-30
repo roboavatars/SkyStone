@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.RobotClasses;
 
 import android.util.Log;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsAnalogOpticalDistanceSensor;
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -11,6 +13,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @SuppressWarnings("FieldCanBeLocal")
 public class Robot {
+
+    //debug variable
+    private boolean debug = true;
 
     // Subsystems
     public MecanumDrivetrain drivetrain;
@@ -45,6 +50,7 @@ public class Robot {
     public boolean isManualAlign = false;
 
     private LinearOpMode op;
+    private FtcDashboard dashboard;
 
     public Robot(LinearOpMode op, double initX, double initY, double initTheta, boolean isRedAuto) {
         drivetrain = new MecanumDrivetrain(op, initX, initY, initTheta, isRedAuto);
@@ -56,22 +62,14 @@ public class Robot {
         startTime = System.currentTimeMillis();
 
         this.op = op;
+        dashboard = FtcDashboard.getInstance();
 
-//        if (stoneSensor.getDistance(DistanceUnit.INCH) > 18) {
-//            op.telemetry.addData("DISTANCE SENSOR VALUE TOO HIGH", stoneSensor.getDistance(DistanceUnit.INCH));
-//            op.telemetry.update();
-//        }
     }
 
     public void update() {
 
         // increase cycle count
         cycleCounter++;
-
-        // update stoneInRobot boolean
-//        if (cycleCounter % stoneSensorUpdatePeriod == 0) {
-//            stoneInRobot = stoneSensor.getDistance(DistanceUnit.INCH) < stoneValidationDistance;
-//        }
 
         // update arm
         if ((cycleCounter + 3) % armTicksUpdatePeriod == 0) {
@@ -180,11 +178,20 @@ public class Robot {
         velocityTh = (drivetrain.currentheading - prevTh) / timeDiff;
         prevX = drivetrain.x; prevY = drivetrain.y; prevTh = drivetrain.currentheading; prevTime = curTime;
 
-        op.telemetry.addData("Robot x", drivetrain.x);
-        op.telemetry.addData("Robot y", drivetrain.y);
-        op.telemetry.addData("Robot theta", drivetrain.currentheading);
-        op.telemetry.addData("is stone in robot", stoneInRobot);
-        op.telemetry.addData("is lift up", stacker.isLiftUp());
+        if(debug){
+            op.telemetry.addData("Robot x", drivetrain.x);
+            op.telemetry.addData("Robot y", drivetrain.y);
+            op.telemetry.addData("Robot theta", drivetrain.currentheading);
+            op.telemetry.addData("is stone in robot", stoneInRobot);
+            op.telemetry.addData("is lift up", stacker.isLiftUp());
+            TelemetryPacket packet = new TelemetryPacket();
+            //TODO add field overlay using polygon method
+            double x[] = {};
+            double y[] = {};
+            packet.fieldOverlay().fillPolygon(x,y);
+
+        }
+
     }
 
     public void deposit() {

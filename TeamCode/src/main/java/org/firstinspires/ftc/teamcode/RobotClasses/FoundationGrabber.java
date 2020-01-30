@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.RobotClasses;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -8,6 +9,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @SuppressWarnings("FieldCanBeLocal")
+@Config
 public class FoundationGrabber {
 
     //Electronics
@@ -17,6 +19,12 @@ public class FoundationGrabber {
 
     private final double grabberHome = 1;
     private final double grabberTolerance = 0.1;
+
+    public static double Lhome = 0.6;
+    public static double Rhome = 0.44;
+    public static double Lclamped = 0.27;
+    public static double Rclamped = 0.8;
+
 
     //OpMode Stuff
     private LinearOpMode op;
@@ -38,12 +46,12 @@ public class FoundationGrabber {
     }
 
     public void releaseFoundation() {
-        leftGrabber.setPosition(1);
-        rightGrabber.setPosition(-0.995);
+        leftGrabber.setPosition(Lhome);
+        rightGrabber.setPosition(Rhome);
     }
     public void grabFoundation() {
-        leftGrabber.setPosition(-1);
-        rightGrabber.setPosition(1);
+        leftGrabber.setPosition(Lclamped);
+        rightGrabber.setPosition(Rclamped);
     }
 
     public void extendRangeSensor(){
