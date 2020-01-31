@@ -1,7 +1,10 @@
 package org.firstinspires.ftc.teamcode.OpenCV;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.RobotClasses.Robot;
 
@@ -11,11 +14,18 @@ public class locatorTest extends LinearOpMode {
     private Robot robot;
     private double[] loc;
     private double time;
+    private ElapsedTime timer = new ElapsedTime();
+
+    private double x, y, theta, r;
+    private double lastX, lastY, lastTheta;
+    private double gotoX, gotoY, gotoTheta;
 
     @Override
     public void runOpMode() {
         Robot robot = new Robot(this, 0, 0, 0, false);
         stoneLocator2 locator = new stoneLocator2(this);
+        FtcDashboard dashboard = FtcDashboard.getInstance();
+
         locator.initializeCamera();
         locator.start();
         locator.setActive(true);
@@ -23,32 +33,44 @@ public class locatorTest extends LinearOpMode {
         telemetry.update();
 
         waitForStart();
+        robot.intake.intakeOn();
+        timer.reset();
 
-        while (opModeIsActive() && !isStopRequested()) {
+        while (opModeIsActive() && !isStopRequested() && (!robot.stoneInRobot || timer.seconds() > 30)) {
+            TelemetryPacket packet  = new TelemetryPacket();
             loc = locator.getLocation();
             time = locator.getTime();
 
-            double x = loc[0];
-            double y = loc[1];
-            double r = Math.sqrt(Math.pow(x,2) + Math.pow(y,2));
-            double theta = robot.drivetrain.currentheading;
-            robot.drivetrain.setTargetPoint(robot.drivetrain.x + r*Math.cos(theta),robot.drivetrain.y + r*Math.sin(theta),loc[2] + robot.drivetrain.currentheading);
+            if (loc[0] != -1 && loc[1] != -1 && loc[2] != -1) {
+                x = loc[0];
+                y = loc[1] + 8;
+                r = Math.sqrt(Math.pow(x,2) + Math.pow(y,2));
+                theta = robot.drivetrain.currentheading;
 
+                gotoX = robot.drivetrain.x + r*Math.cos(theta);
+                gotoY = robot.drivetrain.y + r*Math.sin(theta);
+                gotoTheta = theta;
+            }
 
-            telemetry.addData("Local X", x);
-            telemetry.addData("Local Y", y);
-            telemetry.addData("Local Theta", loc[2]);
-            telemetry.addData("FPS", 1000 / time);
-            telemetry.addData("Global X", robot.drivetrain.x + r*Math.cos(theta));
-            telemetry.addData("Global Y", robot.drivetrain.y + r*Math.sin(theta));
-            telemetry.addData("Global Theta", loc[2] + robot.drivetrain.currentheading);
-            telemetry.update();
+            //lastX = x;
+            //lastY = y;
+            //lastTheta = theta;
+
+            //robot.drivetrain.setTargetPoint(gotoX, gotoY, gotoTheta, 0.05,0.05,0.2);
             robot.update();
+
+            packet.put("Area", locator.getArea());
+            packet.put("Local X", x);
+            packet.put("Local Y", y);
+            packet.put("FPS", 1000 / time);
+            packet.put("Target X", gotoX);
+            packet.put("Target Y", gotoY);
+            packet.put("Target Theta", gotoTheta);
+            dashboard.sendTelemetryPacket(packet);
+
         }
 
         locator.setActive(false);
         locator.interrupt();
-        telemetry.addData("Status", "Done");
-        telemetry.update();
     }
 }

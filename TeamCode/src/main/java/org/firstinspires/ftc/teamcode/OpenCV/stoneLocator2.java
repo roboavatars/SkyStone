@@ -51,13 +51,16 @@ public class stoneLocator2 extends Thread {
     private final static double phi = Math.toRadians(15);
     private final static double verticalFOV = Math.toRadians(57);
     private final static double horizontalFOV = Math.toRadians(71);
-    private final static double minimumYDistance = 8;
+    private final static double minimumYDistance = 6;
     private final static double maximumYDistance = 40;
-    private final static double numberOfFrames = 500;
+    private final static double contourMinimumArea = 1000;
+    private final static double numberOfFrames = 2500;
+    //TODO: Fix Overrighting for images
 
     private int frameNum = 1;
     private double[] sPos = {-1, -1, -1};
     private double time = -1;
+    private double contourArea = -1;
     private ElapsedTime timer = new ElapsedTime();
 
     private LinearOpMode op;
@@ -149,9 +152,13 @@ public class stoneLocator2 extends Thread {
             int contourIndex = 0;
             for (int i = 0; i < contours.size(); i++) {
                 for (int j = 0; j < contours.get(i).rows(); j++) {
-                    if (contours.get(i).get(j, 0)[1] >= ypix) {
+                    if (contours.get(i).get(j, 0)[1] >= ypix && Imgproc.contourArea(contours.get(i)) >= contourMinimumArea) {
                         xpix = contours.get(i).get(j, 0)[0];
                         ypix = contours.get(i).get(j, 0)[1];
+                        contourArea = Imgproc.contourArea(contours.get(i));
+                        contourIndex = i;
+                    } else {
+                        contourArea = -1;
                     }
                 }
             }
@@ -159,7 +166,7 @@ public class stoneLocator2 extends Thread {
             if (debug) Imgcodecs.imwrite(circlePath + (frameNum % numberOfFrames) + ".jpg", input);
 
             // Find Ellipse Using Contour Index
-            Mat ellipseOnly = new Mat();
+            Mat ellipseOnly = input.clone();
             RotatedRect ellipse;
             ellipse = Imgproc.fitEllipse(new MatOfPoint2f(contours.get(contourIndex).toArray()));
             stoneTheta = Math.toRadians(ellipse.angle);
@@ -201,6 +208,8 @@ public class stoneLocator2 extends Thread {
      * @return current frame process time (ms)
      */
     public double getTime() {return time;}
+
+    public double getArea() {return contourArea;}
     
     /**
      * Sets whether the stone locator is actively processing camera frames to locate stone

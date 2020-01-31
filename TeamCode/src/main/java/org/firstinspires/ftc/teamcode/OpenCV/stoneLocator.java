@@ -44,7 +44,7 @@ public class stoneLocator extends Thread {
     private final static String testPath = "/sdcard/FIRST/testFiles2/";
 
     private FrameGrabber frameGrabber;
-    private final boolean usingCamera = false; // <<<----------------------
+    private final boolean usingCamera = true; // <<<----------------------
     private final boolean debug = true;
 
     private int frameNum = 1;
@@ -130,7 +130,7 @@ public class stoneLocator extends Thread {
 
         // Define Stuff for Finding Contours
         Mat heirarchyMat = new Mat();
-        Mat ellipseOnly = new Mat(180, 240, CvType.CV_8UC1, new Scalar(0));
+        Mat ellipseOnly = input.clone();
         RotatedRect ellipse = new RotatedRect();
         List<MatOfPoint> contours = new ArrayList<>();
         double max = 0;
@@ -148,7 +148,8 @@ public class stoneLocator extends Thread {
         }
         if (contours.size() > 0) {ellipse = Imgproc.fitEllipse(new MatOfPoint2f(contours.get(maxIndex).toArray()));}
         else {return new double[] {-1, -1, -1};}
-        Imgproc.ellipse(ellipseOnly, ellipse, new Scalar(255), 1);
+        Imgproc.ellipse(ellipseOnly, ellipse, new Scalar(255, 0, 0), 1);
+        if (debug) Imgcodecs.imwrite(ellipsePath + (frameNum % 100) + ".jpg", ellipseOnly);
 
         /*Imgproc.drawContours(largestContour2, contours, -1, new Scalar(0, 255, 0));
         if (debug) Imgcodecs.imwrite(ellipsePath + (frameNum + 7 % 100) + ".jpg", largestContour2);
