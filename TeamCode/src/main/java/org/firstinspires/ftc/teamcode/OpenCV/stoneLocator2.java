@@ -128,6 +128,7 @@ public class stoneLocator2 extends Thread {
         double stoneX = -1;
         double stoneY = -1;
         double stoneTheta = -1;
+        contourArea = -1;
         if (debug) {Imgcodecs.imwrite(inputPath + (frameNum % numberOfFrames) + ".jpg", input);}
 
         // Process Image
@@ -157,8 +158,6 @@ public class stoneLocator2 extends Thread {
                         ypix = contours.get(i).get(j, 0)[1];
                         contourArea = Imgproc.contourArea(contours.get(i));
                         contourIndex = i;
-                    } else {
-                        contourArea = -1;
                     }
                 }
             }
@@ -180,7 +179,7 @@ public class stoneLocator2 extends Thread {
             stoneX = Math.tan(horizontalFOV / 2) * xpix * Math.sqrt(Math.pow(hpg, 2) + Math.pow(stoneY, 2));
 
             // Throw Out Any Values Too Far or Too Close
-            if (stoneY <= minimumYDistance || stoneY >= maximumYDistance) {
+            if (stoneY <= minimumYDistance || stoneY >= maximumYDistance || stoneY<0 || contourArea<contourMinimumArea) {
                 stoneX = -1;
                 stoneY = -1;
                 stoneTheta = -1;

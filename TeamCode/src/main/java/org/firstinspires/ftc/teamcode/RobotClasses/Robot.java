@@ -179,16 +179,18 @@ public class Robot {
         prevX = drivetrain.x; prevY = drivetrain.y; prevTh = drivetrain.currentheading; prevTime = curTime;
 
         if(debug){
-            op.telemetry.addData("Robot x", drivetrain.x);
-            op.telemetry.addData("Robot y", drivetrain.y);
-            op.telemetry.addData("Robot theta", drivetrain.currentheading);
-            op.telemetry.addData("is stone in robot", stoneInRobot);
-            op.telemetry.addData("is lift up", stacker.isLiftUp());
+
             TelemetryPacket packet = new TelemetryPacket();
             //TODO add field overlay using polygon method
             double x[] = {};
             double y[] = {};
             packet.fieldOverlay().fillPolygon(x,y);
+//            packet.put("Robot x", drivetrain.x);
+//            packet.put("Robot y", drivetrain.y);
+//            packet.put("Robot theta", drivetrain.currentheading);
+//            packet.put("is stone in robot", stoneInRobot);
+//            packet.put("is lift up", stacker.isLiftUp());
+//            dashboard.sendTelemetryPacket(packet);
 
         }
 

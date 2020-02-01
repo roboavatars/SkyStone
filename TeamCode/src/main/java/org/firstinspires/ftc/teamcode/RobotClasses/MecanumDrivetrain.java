@@ -154,11 +154,19 @@ public class MecanumDrivetrain {
     }
 
     public void setTargetPoint(double xtarget, double ytarget, double thetatarget){
-        setGlobalControls(-xk*(x-xtarget),-yk*(y-ytarget),-thetak*(currentheading-thetatarget));
+        double ch = currentheading;
+        if(currentheading>Math.PI){
+            ch -= 2*Math.PI;
+        }
+        setGlobalControls(-xk*(x-xtarget),-yk*(y-ytarget),-thetak*(ch-thetatarget));
     }
 
     public void setTargetPoint(double xtarget, double ytarget, double thetatarget, double xK, double yK, double thetaK){
-       setGlobalControls(-xK*(x-xtarget),-yK*(y-ytarget),-thetaK*(currentheading-thetatarget));
+        double ch = currentheading;
+        if(currentheading>Math.PI){
+            ch -= 2*Math.PI;
+        }
+       setGlobalControls(-xK*(x-xtarget),-yK*(y-ytarget),-thetaK*(ch-thetatarget));
     }
 
     public void setTargetPointAuto(double xtarget, double ytarget, double thetatarget){
@@ -166,8 +174,12 @@ public class MecanumDrivetrain {
             xtarget = 144 - xtarget;
             thetatarget = (Math.PI) - thetatarget;
         }
+        double ch = currentheading;
+        if(currentheading>Math.PI){
+            ch -= 2*Math.PI;
+        }
         Log.w("auto", "Targets: " + xtarget + " " + ytarget + " " + thetatarget + ", Current Pos: " + x + " " + y + " " + currentheading);
-        setGlobalControls(-xk*(x-xtarget),-yk*(y-ytarget),-thetak*(currentheading-thetatarget));
+        setGlobalControls(-xk*(x-xtarget),-yk*(y-ytarget),-thetak*(ch-thetatarget));
     }
 
     public void setTargetPointAuto(double xtarget, double ytarget, double thetatarget, double xK, double yK, double thetaK) {
@@ -175,8 +187,12 @@ public class MecanumDrivetrain {
             xtarget = 144 - xtarget;
             thetatarget = (Math.PI) - thetatarget;
         }
+        double ch = currentheading;
+        if(currentheading>Math.PI){
+            ch -= 2*Math.PI;
+        }
         Log.w("auto", "Targets: " + xtarget + " " + ytarget + " " + thetatarget + " (" + xK + " " + yK + " " + thetaK + "), Current Pos: " + x + " " + y + " " + currentheading);
-        setGlobalControls(-xK * (x - xtarget), -yK * (y - ytarget), -thetaK * (currentheading - thetatarget));
+        setGlobalControls(-xK * (x - xtarget), -yK * (y - ytarget), -thetaK * (ch - thetatarget));
     }
 
     public void setGlobalControls(double xvelocity, double yvelocity, double w){

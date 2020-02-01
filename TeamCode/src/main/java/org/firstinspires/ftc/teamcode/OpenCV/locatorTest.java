@@ -36,6 +36,10 @@ public class locatorTest extends LinearOpMode {
         robot.intake.intakeOn();
         timer.reset();
 
+        gotoX = 0;
+        gotoY = 0;
+        gotoTheta = 0;
+
         while (opModeIsActive() && !isStopRequested() && (!robot.stoneInRobot || timer.seconds() > 30)) {
             TelemetryPacket packet  = new TelemetryPacket();
             loc = locator.getLocation();
@@ -52,11 +56,11 @@ public class locatorTest extends LinearOpMode {
                 gotoTheta = theta;
             }
 
-            //lastX = x;
-            //lastY = y;
-            //lastTheta = theta;
+            lastX = x;
+            lastY = y;
+            lastTheta = theta;
 
-            //robot.drivetrain.setTargetPoint(gotoX, gotoY, gotoTheta, 0.05,0.05,0.2);
+            robot.drivetrain.setTargetPoint(gotoX, gotoY, gotoTheta);
             robot.update();
 
             packet.put("Area", locator.getArea());
@@ -66,6 +70,8 @@ public class locatorTest extends LinearOpMode {
             packet.put("Target X", gotoX);
             packet.put("Target Y", gotoY);
             packet.put("Target Theta", gotoTheta);
+            packet.put("robot x: ", robot.drivetrain.x);
+            packet.put("robot y: ", robot.drivetrain.y);
             dashboard.sendTelemetryPacket(packet);
 
         }
