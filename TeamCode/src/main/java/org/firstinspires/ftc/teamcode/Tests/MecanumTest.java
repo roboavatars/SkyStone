@@ -24,6 +24,7 @@ public class MecanumTest extends LinearOpMode {
         time.reset();
         while(opModeIsActive()){
             drivetrain.updatePose();
+            drivetrain.setControls(0,0.6,-0.35);
 
             telemetry.addData("x", drivetrain.x);
             telemetry.addData("y", drivetrain.y);

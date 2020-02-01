@@ -17,6 +17,8 @@ public class Robot {
     //debug variable
     private boolean debug = true;
 
+    private boolean firstLoop = true;
+
     // Subsystems
     public MecanumDrivetrain drivetrain;
     public Intake intake;
@@ -26,7 +28,7 @@ public class Robot {
     public Logger logger;
 
     private double prevX, prevY, prevTh, velocityX, velocityY, velocityTh, prevTime;
-    private double startTime;
+    public double startTime;
 
     // State booleans
     public boolean stoneInRobot = false;
@@ -59,7 +61,6 @@ public class Robot {
         grabber = new FoundationGrabber(op);
         capstoneDeposit = new CapstoneDeposit(op);
         logger = new Logger();
-        startTime = System.currentTimeMillis();
 
         this.op = op;
         dashboard = FtcDashboard.getInstance();
@@ -70,6 +71,11 @@ public class Robot {
 
         // increase cycle count
         cycleCounter++;
+
+        if (firstLoop) {
+            startTime = System.currentTimeMillis();
+            firstLoop = false;
+        }
 
         // update arm
         if ((cycleCounter + 3) % armTicksUpdatePeriod == 0) {

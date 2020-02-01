@@ -155,17 +155,17 @@ public class MecanumDrivetrain {
 
     public void setTargetPoint(double xtarget, double ytarget, double thetatarget){
         double ch = currentheading;
-        if(currentheading>Math.PI){
-            ch -= 2*Math.PI;
-        }
+//        if(currentheading>Math.PI){
+//            ch -= 2*Math.PI;
+//        }
         setGlobalControls(-xk*(x-xtarget),-yk*(y-ytarget),-thetak*(ch-thetatarget));
     }
 
     public void setTargetPoint(double xtarget, double ytarget, double thetatarget, double xK, double yK, double thetaK){
         double ch = currentheading;
-        if(currentheading>Math.PI){
-            ch -= 2*Math.PI;
-        }
+//        if(currentheading>Math.PI){
+//            ch -= 2*Math.PI;
+//        }
        setGlobalControls(-xK*(x-xtarget),-yK*(y-ytarget),-thetaK*(ch-thetatarget));
     }
 
@@ -174,12 +174,20 @@ public class MecanumDrivetrain {
             xtarget = 144 - xtarget;
             thetatarget = (Math.PI) - thetatarget;
         }
-        double ch = currentheading;
-        if(currentheading>Math.PI){
-            ch -= 2*Math.PI;
+//        double ch = currentheading;
+//        if(currentheading>Math.PI){
+//            ch -= 2*Math.PI;
+//        }
+        int difference = (int)currentheading/(2*(int)Math.PI);
+        if (thetatarget - difference*2*Math.PI <= (difference+1)*2*Math.PI - thetatarget) {
+            thetatarget -= difference*2*Math.PI;
         }
+        else {
+            thetatarget = (difference+1)*2*Math.PI - thetatarget;
+        }
+
         Log.w("auto", "Targets: " + xtarget + " " + ytarget + " " + thetatarget + ", Current Pos: " + x + " " + y + " " + currentheading);
-        setGlobalControls(-xk*(x-xtarget),-yk*(y-ytarget),-thetak*(ch-thetatarget));
+        setGlobalControls(-xk*(x-xtarget),-yk*(y-ytarget),-thetak*(currentheading-thetatarget));
     }
 
     public void setTargetPointAuto(double xtarget, double ytarget, double thetatarget, double xK, double yK, double thetaK) {
@@ -187,12 +195,19 @@ public class MecanumDrivetrain {
             xtarget = 144 - xtarget;
             thetatarget = (Math.PI) - thetatarget;
         }
-        double ch = currentheading;
-        if(currentheading>Math.PI){
-            ch -= 2*Math.PI;
+//        double ch = currentheading;
+//        if(currentheading>Math.PI){
+//            ch -= 2*Math.PI;
+//        }
+        int difference = (int)currentheading/(2*(int)Math.PI);
+        if (thetatarget - difference*2*Math.PI <= (difference+1)*2*Math.PI - thetatarget) {
+            thetatarget -= difference*2*Math.PI;
+        }
+        else {
+            thetatarget = (difference+1)*2*Math.PI - thetatarget;
         }
         Log.w("auto", "Targets: " + xtarget + " " + ytarget + " " + thetatarget + " (" + xK + " " + yK + " " + thetaK + "), Current Pos: " + x + " " + y + " " + currentheading);
-        setGlobalControls(-xK * (x - xtarget), -yK * (y - ytarget), -thetaK * (ch - thetatarget));
+        setGlobalControls(-xK * (x - xtarget), -yK * (y - ytarget), -thetaK * (currentheading - thetatarget));
     }
 
     public void setGlobalControls(double xvelocity, double yvelocity, double w){
@@ -304,7 +319,7 @@ public class MecanumDrivetrain {
     }
 
     public void resetAngle(){
-        angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
+        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
         lastheading = angles.firstAngle;
         currentheading = 0;
     }
