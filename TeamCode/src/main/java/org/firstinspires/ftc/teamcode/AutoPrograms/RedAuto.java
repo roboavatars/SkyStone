@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.RobotClasses.Robot;
 import org.firstinspires.ftc.teamcode.Splines.Spline;
 import org.firstinspires.ftc.teamcode.Splines.SplineGenerator;
 
-@Autonomous (name = "2 block red auto")
+@Autonomous (name = "2 block+ red auto")
 public class RedAuto extends LinearOpMode {
 
     private Robot robot;
@@ -56,38 +56,53 @@ public class RedAuto extends LinearOpMode {
         boolean foundationTurn = false;
         boolean approachFoundation = false;
         boolean foundationPull = false;
+        boolean toQuarry2 = false;
         boolean skystone2 = false;
         boolean backToCenter2 = false;
         boolean toFoundation2 = false;
+        boolean toQuarry3_5 = false;
         boolean stone3_5 = false;
-        boolean toFoundationStone3_5 = false;
+        boolean backToCenter3_5 = false;
+        boolean toFoundation3_5 = false;
         boolean scoreFoundation = false;
         boolean toTape = false;
 
+        // spline time variables
+        double skystoneTime = 2;
+        double backToCenterTime = 0.75;
+        double toFoundationTime = 2;
+        double foundationPullTime = 1.75;
+        double toQuarryTime = 1.5;
+        double toFoundation2Time = 1.5;
+        double stone3_5Time = 2;
+        double toFoundation3_5Time = 1.5;
+
         int stoneCounter = 0;
 
-        double[] sspos1 = {54,119,Math.PI/3};
-        double[] sspos2 = {54,119,Math.PI/3};
-        double[] sspos3 = {54,119,Math.PI/3};
+        double[] sspos1 = {52,95,Math.PI/3, 54,119,Math.PI/2, 56,131,Math.PI/2, 0,0,0};
+        double[] sspos2 = {52,95,Math.PI/3, 54,119,Math.PI/2, 56,131,Math.PI/2, 0,0,0};
+        double[] sspos3 = {52,95,Math.PI/3, 54,119,Math.PI/2, 56,131,Math.PI/2, 0,0,0};
 
         double[] stonearray = {};
 
         int ss2Y = 34;
 
-        // spline time variables
-        double skystone1Time = 2;
-        double backToCenterTime = 0.75;
-        double toFoundationTime = 2;
-        double foundationPullTime = 1.75;
-        double toQuarryTime = 1.5;
-        double skystone2Time = 2;
-        double toFoundation2Time = 1.5;
-        double stone3_5Time = 2;
-
         // set skystone y coordinate according to skystone position
-        if (skystonePos == 1) {skystoneY = 129; ss2Y = 35; stonearray = sspos1;}
-        else if (skystonePos == 2) {skystoneY = 121; stonearray = sspos2;}
-        else if (skystonePos == 3) {skystoneY = 112; stonearray = sspos3;}
+        if (skystonePos == 1) {
+            skystoneY = 129; ss2Y = 35; stonearray = sspos1;
+            skystoneTime += 0;
+            toQuarryTime += 0;
+            backToCenterTime += 0;
+        }
+        else if (skystonePos == 2) {
+            skystoneY = 121; stonearray = sspos2;
+        }
+        else if (skystonePos == 3) {
+            skystoneY = 112; stonearray = sspos3;
+            skystoneTime -= 0;
+            toQuarryTime -= 0;
+            backToCenterTime -= 0;
+        }
 
         double stoneX = stonearray[0], stoneY = stonearray[1], stoneTheta = stonearray[2];
         detector.setActive(false);
@@ -96,8 +111,8 @@ public class RedAuto extends LinearOpMode {
         SplineGenerator splineGenerator = new SplineGenerator();
         Spline[] skystone1Spline = splineGenerator.SplineBetweenTwoPoints(9, 111,
                 45, skystoneY, 0, Math.PI / 4 + 0.2, 0, 0,
-                100, -100, 0, 0, skystone1Time);
-        Spline skystone1ThetaSpline = new Spline(0, 0, 8, Math.PI / 4 + 0.2, 0, 0, skystone1Time);
+                100, -100, 0, 0, skystoneTime);
+        Spline skystone1ThetaSpline = new Spline(0, 0, 8, Math.PI / 4 + 0.2, 0, 0, skystoneTime);
 
         Spline[] backToCenterSpline = splineGenerator.SplineBetweenTwoPoints(45, skystoneY,
                 30, skystoneY - 12, Math.PI / 4, Math.PI / 2, 0, -70,
@@ -116,13 +131,13 @@ public class RedAuto extends LinearOpMode {
 
         Spline[] skystone2Spline = splineGenerator.SplineBetweenTwoPoints(24, skystoneY - 30,
                 45, skystoneY - 26, Math.PI / 2, Math.PI / 4, 50, 50,
-                75, 75, 0, 0, skystone2Time);
-        Spline skystone2ThetaSpline = new Spline(0, 0, 8, Math.PI / 4 + 0.2, 0, 0, skystone2Time);
+                75, 75, 0, 0, skystoneTime);
+        Spline skystone2ThetaSpline = new Spline(0, 0, 8, Math.PI / 4 + 0.2, 0, 0, skystoneTime);
 
         Spline[] stone3_5Spline = splineGenerator.SplineBetweenTwoPoints(24, skystoneY - 30,
                 stoneX, stoneY, Math.PI / 2, stoneTheta, 50, 50,
-                75, 75, 0, 0, skystone2Time);
-        Spline stone3_5ThetaSpline = new Spline(0, 0, 8, Math.PI / 4 + 0.2, 0, 0, skystone2Time);
+                75, 75, 0, 0, skystoneTime);
+        Spline stone3_5ThetaSpline = new Spline(0, 0, 8, Math.PI / 4 + 0.2, 0, 0, skystoneTime);
 
         // time used to end segments after a certain period of time
         ElapsedTime time = new ElapsedTime();
@@ -143,15 +158,15 @@ public class RedAuto extends LinearOpMode {
 
             // get the first skystone
             if (!skystone1) {
-                double currentTime = Math.min(skystone1Time, time.seconds());
+                double currentTime = Math.min(skystoneTime, time.seconds());
 
                 // if less than moving time, continue moving
-                if (time.seconds() < skystone1Time) {
+                if (time.seconds() < skystoneTime) {
                     robot.drivetrain.setTargetPointAuto(skystone1Spline[0].position(currentTime), skystone1Spline[1].position(currentTime),
                             skystone1ThetaSpline.position(currentTime));
                 }
                 // if skystone is clamped or robot has been trying to intake stone for too long, move on
-                else if (robot.stoneInRobot || time.seconds() > skystone1Time + 1) {
+                else if (robot.stoneInRobot || time.seconds() > skystoneTime + 1) {
                     skystone1 = true;
                     backToCenterSpline = splineGenerator.SplineBetweenTwoPoints(robot.drivetrain.x, robot.drivetrain.y,
                             30, skystoneY - 15.5, robot.drivetrain.currentheading, Math.PI / 2, 0, -70,
@@ -234,62 +249,43 @@ public class RedAuto extends LinearOpMode {
                     robot.grabber.releaseFoundation();
                     toQuarrySpline = splineGenerator.SplineBetweenTwoPoints(robot.drivetrain.x, robot.drivetrain.y,
                             31, skystoneY-ss2Y, robot.drivetrain.currentheading, robot.drivetrain.currentheading, 20, 60,
-                            100, 0, 0, 0, skystone2Time);
-                    toQuarryThetaSpline = new Spline(robot.drivetrain.currentheading, 0, 0, Math.PI / 4 + 0.2, 0, 0, skystone2Time);
+                            100, 0, 0, 0, skystoneTime);
+                    toQuarryThetaSpline = new Spline(robot.drivetrain.currentheading, 0, 0, Math.PI/2, 0, 0, skystoneTime);
+                    time.reset(); log("toquarry2");
+                }
+            }
+
+            // travel back to the quarry to get second skystone
+            else if (!toQuarry2) {
+                double currentTime = Math.min(toQuarryTime, time.seconds());
+                robot.drivetrain.setTargetPointAuto(toQuarrySpline[0].position(currentTime), toQuarrySpline[1].position(currentTime),
+                        toQuarryThetaSpline.position(currentTime), 0.2, 0.2, 1.2);
+
+                // if time is met, end segment
+                if (time.seconds() > toQuarryTime) {
+                    toQuarry2 = true;
+                    skystone2Spline = splineGenerator.SplineBetweenTwoPoints(robot.drivetrain.x, robot.drivetrain.y,
+                            49, skystoneY - 19, robot.drivetrain.currentheading, robot.drivetrain.currentheading, 60, 30,
+                            0, -30, 0, 0, skystoneTime);
+                    skystone2ThetaSpline = new Spline(robot.drivetrain.currentheading, 0, 0, Math.PI / 4 + 0.2, 0, 0, skystoneTime);
                     time.reset(); log("ss2");
                 }
             }
 
-//            // travel back to the quarry to get second skystone
-//            else if (!toQuarry1) {
-//                double currentTime = Math.min(toQuarryTime, time.seconds());
-//                robot.drivetrain.setTargetPointAuto(toQuarrySpline[0].position(currentTime), toQuarrySpline[1].position(currentTime),
-//                        toQuarryThetaSpline.position(currentTime), 0.2,0.2,1.2);
-//                //robot.drivetrain.setTargetPointAuto(31, skystoneY-ss2Y, Math.PI/4 + 0.2,0.2,0.2,1.2); //78
-//
-//                // if at position or time met, end segment
-//                if (time.seconds() > toQuarryTime || robot.drivetrain.y >= skystoneY-ss2Y) {
-//                    toQuarry1 = true;
-//                    skystone2Spline = splineGenerator.SplineBetweenTwoPoints(robot.drivetrain.x, robot.drivetrain.y,
-//                            45, skystoneY - 26, robot.drivetrain.currentheading, Math.PI / 4 + 0.2, 50, 50,
-//                            50, 50, 0, 0, skystone2Time);
-//                    skystone2ThetaSpline = new Spline(robot.drivetrain.currentheading, 0, 0, Math.PI / 4 + 0.2, 0, 0, skystone2Time);
-//                    time.reset(); log("ss2");
-//                }
-//            }
-
-            // get the second skyston
+            // get the second skystone
             else if (!skystone2) {
-                double currentTime = Math.min(skystone2Time, time.seconds());
+                double currentTime = Math.min(skystoneTime, time.seconds());
+                robot.drivetrain.setTargetPointAuto(skystone2Spline[0].position(currentTime), skystone2Spline[1].position(currentTime),
+                        skystone2ThetaSpline.position(currentTime));
 
-                if (time.seconds() < skystone2Time) {
-                    robot.drivetrain.setTargetPointAuto(toQuarrySpline[0].position(currentTime), toQuarrySpline[1].position(currentTime),
-                            toQuarryThetaSpline.position(currentTime), 0.2, 0.2, 1.2);
-                    skystone2Spline = splineGenerator.SplineBetweenTwoPoints(robot.drivetrain.x, robot.drivetrain.y,
-                            49, skystoneY - 20, robot.drivetrain.currentheading, robot.drivetrain.currentheading, 60, 30,
-                            0, -30, 0, 0, skystone2Time);
-                    skystone2ThetaSpline = new Spline(robot.drivetrain.currentheading, 0, 0, Math.PI / 4 + 0.2, 0, 0, skystone2Time);
-                }
-                // if not at quarry row, continue moving
-                else if (!robot.stoneInRobot && time.seconds() > skystone2Time && time.seconds() < skystone2Time + 1) {
-                    robot.drivetrain.setTargetPointAuto(skystone2Spline[0].position(currentTime), skystone2Spline[1].position(currentTime),
-                            skystone2ThetaSpline.position(currentTime));
-                }
-
-                // if skystone is clamped or robot has been trying to intake stone for too long, move on
-                else if (robot.stoneInRobot || time.seconds() > skystone2Time + 2) {
+                // if skystone is in robot or time is met, end segment
+                if (robot.stoneInRobot || time.seconds() > skystoneTime + 1) {
                     skystone2 = true;
-
                     backToCenterSpline = splineGenerator.SplineBetweenTwoPoints(robot.drivetrain.x, robot.drivetrain.y,
-                            30, skystoneY - 32, robot.drivetrain.currentheading, robot.drivetrain.currentheading, 0, 40,
+                            30, skystoneY - 32, robot.drivetrain.currentheading, robot.drivetrain.currentheading, 0, -60,
                             20, 0, 0, 0, backToCenterTime);
                     backToCenterThetaSpline = new Spline(robot.drivetrain.currentheading, 0, 0, Math.PI / 2, 0, 0, backToCenterTime);
                     time.reset(); log("backcenter2");
-                }
-                // if skystone has not been clamped, adjust position to try to suck it in
-                else {
-                    //robot.drivetrain.setTargetPointAuto(robot.drivetrain.x + 2, robot.drivetrain.y + 1.6, robot.drivetrain.currentheading + 0.14);
-                    log("adjusting");
                 }
             }
 
@@ -300,7 +296,7 @@ public class RedAuto extends LinearOpMode {
 
                 //robot.grabber.extendRangeSensor();
                 if (time.seconds() > backToCenterTime) {
-                    toFoundation2 = true;
+                    backToCenter2 = true;
                     toFoundationSpline = splineGenerator.SplineBetweenTwoPoints(robot.drivetrain.x, robot.drivetrain.y,
                             depositX, depositY, robot.drivetrain.currentheading, robot.drivetrain.currentheading, 40, 60,
                             100, -60, 0, 0, toFoundation2Time);
@@ -325,131 +321,95 @@ public class RedAuto extends LinearOpMode {
                     //}
                     toFoundation2 = true;
                     toQuarrySpline = splineGenerator.SplineBetweenTwoPoints(robot.drivetrain.x, robot.drivetrain.y,
-                            31, skystoneY-ss2Y, robot.drivetrain.currentheading, robot.drivetrain.currentheading, 20, 60,
-                            100, 0, 0, 0, stone3_5Time);
-                    toQuarryThetaSpline = new Spline(robot.drivetrain.currentheading, 0, 0, Math.PI / 4 + 0.2, 0, 0, stone3_5Time);
-                    time.reset(); log("totape");
+                            31, skystoneY-34, robot.drivetrain.currentheading, robot.drivetrain.currentheading, 20, 60,
+                            100, 0, 0, 0, toQuarryTime);
+                    toQuarryThetaSpline = new Spline(robot.drivetrain.currentheading, 0, 0, Math.PI / 2, 0, 0, toQuarryTime);
+                    time.reset(); log("toquarry3-5");
+                }
+            }
+            
+            else if (!toQuarry3_5) {
+                double currentTime = Math.min(toQuarryTime, time.seconds());
+                robot.drivetrain.setTargetPointAuto(toQuarrySpline[0].position(currentTime), toQuarrySpline[1].position(currentTime),
+                        toQuarryThetaSpline.position(currentTime), 0.2, 0.2, 1.2);
+                
+                if (time.seconds() > toQuarryTime) {
+                    toQuarry3_5 = true;
+                    stone3_5Spline = splineGenerator.SplineBetweenTwoPoints(robot.drivetrain.x, robot.drivetrain.y,
+                            stoneX, stoneY, robot.drivetrain.currentheading, robot.drivetrain.currentheading, 60, 30,
+                            0, -30, 0, 0, stone3_5Time);
+                    stone3_5ThetaSpline = new Spline(robot.drivetrain.currentheading, 0, 0, stoneTheta, 0, 0, stone3_5Time);
+                    time.reset(); log("s3-5");
                 }
             }
 
-            // travel back to the quarry to get stone
-//            else if (!toQuarryStone3_5) {
-////                double currentTime = Math.min(toQuarryTime, time.seconds());
-////                robot.drivetrain.setTargetPointAuto(toQuarrySpline[0].position(currentTime), toQuarrySpline[1].position(currentTime),
-////                        toQuarryThetaSpline.position(currentTime), 0.2,0.2,1.2);
-//                robot.drivetrain.setTargetPointAuto(31, skystoneY-31, Math.PI/4,0.2,0.2,1.2);
-//
-//                // if at position or time met, end segment
-//                if (time.seconds() > toQuarryTime || robot.drivetrain.y > (skystoneY-31)) {
-//                    toQuarryStone3_5 = true;
-//                    stone3_5Spline = splineGenerator.SplineBetweenTwoPoints(robot.drivetrain.x, robot.drivetrain.y,
-//                            30, skystoneY - 26, robot.drivetrain.currentheading, Math.PI / 4, 30, 0,
-//                            20, 0, 0, 0, skystone2Time);
-//                    stone3_5ThetaSpline = new Spline(robot.drivetrain.currentheading, 0, 8, Math.PI / 4 + 0.2, 0, 0, skystone2Time);
-//                    time.reset(); log("getstone");
-//                }
-//            }
+            else if (!stone3_5) {
+                double currentTime = Math.min(stone3_5Time, time.seconds());
+                robot.drivetrain.setTargetPointAuto(stone3_5Spline[0].position(currentTime), stone3_5Spline[1].position(currentTime),
+                        stone3_5ThetaSpline.position(currentTime));
 
-            // get stone
-//            else if (!stone3_5) {
-//                double currentTime = Math.min(stone3_5Time, time.seconds());
-//
-//                if (time.seconds() < stone3_5Time) {
-//                    robot.drivetrain.setTargetPointAuto(toQuarrySpline[0].position(currentTime), toQuarrySpline[1].position(currentTime),
-//                            toQuarryThetaSpline.position(currentTime), 0.2, 0.2, 1.2);
-//
-//                    stone3_5Spline = splineGenerator.SplineBetweenTwoPoints(robot.drivetrain.x, robot.drivetrain.y,
-//                            stoneX, stoneY, robot.drivetrain.currentheading, stoneTheta, 60, 30,
-//                            0, -30, 0, 0, stone3_5Time);
-//                    stone3_5ThetaSpline = new Spline(robot.drivetrain.currentheading, 0, 0, Math.PI / 4 + 0.2, 0, 0, stone3_5Time);
-//
-//                }
-//                // if not at quarry row, continue moving
-//                else if (!robot.stoneInRobot && time.seconds() > stone3_5Time && time.seconds() < stone3_5Time + 1) {
-//                    robot.drivetrain.setTargetPointAuto(stone3_5Spline[0].position(currentTime), stone3_5Spline[1].position(currentTime),
-//                            stone3_5ThetaSpline.position(currentTime));
-//                }
-//
-//                // if skystone is clamped or robot has been trying to intake stone for too long, move on
-//                else if (robot.stoneInRobot || time.seconds() > stone3_5Time + 2.5) {
-//                    stone3_5 = true;
-//
-//                    backToCenterSpline = splineGenerator.SplineBetweenTwoPoints(robot.drivetrain.x, robot.drivetrain.y,
-//                            30, skystoneY - 35, robot.drivetrain.currentheading, Math.PI / 2, 0, -30,
-//                            20, 0, 0, 0, backToCenterTime);
-//                    backToCenterThetaSpline = new Spline(robot.drivetrain.currentheading, 0, 0, Math.PI / 2, 0, 0, backToCenterTime);
-//                    time.reset(); log("backcenter2");
-//                }
-//                // if skystone has not been clamped, adjust position to try to suck it in
-//                else {
-//                    log("adjusting");
-//                    //robot.drivetrain.setTargetPointAuto(robot.drivetrain.x + 2, robot.drivetrain.y + 1.6, robot.drivetrain.currentheading + 0.14);
-//                }
-//            }
+                // if skystone is in robot or time is met, end segment
+                if (robot.stoneInRobot || time.seconds() > stone3_5Time + 1) {
+                    stone3_5 = true;
+                    if (stoneCounter <= 6) {
+                        stoneCounter += 3;
+                        stoneX = stonearray[stoneCounter]; stoneY = stonearray[stoneCounter+1]; stoneTheta = stonearray[stoneCounter+2];
+                    }
+                    backToCenterSpline = splineGenerator.SplineBetweenTwoPoints(robot.drivetrain.x, robot.drivetrain.y,
+                            29, skystoneY-32, robot.drivetrain.currentheading, robot.drivetrain.currentheading, 0, -60,
+                            20, 0, 0, 0, backToCenterTime);
+                    backToCenterThetaSpline = new Spline(robot.drivetrain.currentheading, 0, 0, Math.PI / 2, 0, 0, backToCenterTime);
+                    time.reset(); log("backcenter3-5");
+                }
+            }
 
-////            // go to the center of the tile closet to the neutral skybridge to avoid hitting alliance partner's robot
-////            else if (!backToCenterStone3_5) {
-////                robot.drivetrain.setTargetPointAuto(29, 88, Math.PI / 2, 0.2, 0.2, 0.8);
-////                //robot.grabber.extendRangeSensor();
-////
-////                // if robot position is less than position, end segment
-////                if (robot.drivetrain.y < 88) {
-////                    backToCenterStone3_5 = true;
-////                    time.reset(); log("tofound");
-////                }
-////            }
-//
-//            // go to foundation to deposit stone
-//            else if (!toFoundationStone3_5) {
-//                double currentTime = Math.min(backToCenterTime, time.seconds());
-//
-//                if (time.seconds() < backToCenterTime) {
-//                    robot.drivetrain.setTargetPointAuto(backToCenterSpline[0].position(currentTime), backToCenterSpline[1].position(currentTime),
-//                            backToCenterThetaSpline.position(currentTime));
-//
-//                    toFoundationSpline = splineGenerator.SplineBetweenTwoPoints(robot.drivetrain.x, robot.drivetrain.y,
-//                            depositX, depositY, robot.drivetrain.currentheading, depositTheta, 60, 60,
-//                            0, -30, 0, 0, toFoundation2Time);
-//                    toFoundationThetaSpline = new Spline(robot.drivetrain.currentheading, 0, 0, depositTheta, 0, 0, toFoundation2Time);
-//                }
-//                else if (time.seconds() > toFoundation2Time && time.seconds() < toFoundation2Time + 1.5) {
-//                    robot.drivetrain.setTargetPointAuto(toFoundationSpline[0].position(currentTime), toFoundationSpline[1].position(currentTime),
-//                            toFoundationThetaSpline.position(currentTime));
-//                }
-//                else if (robot.drivetrain.isAtPoseAuto(depositX,depositY,depositTheta) || time.seconds() > toFoundation2Time + 2.5) {
-//                    //if (robot.stoneInRobot){
-//                       // robot.depositAuto();
-//                    //}
-//
-//                    stoneCounter++; // increase stone counter
-//
-//                    // if robot has collected 3rd or 4th stone, get another stoone
-//                    if (stoneCounter == 1 || stoneCounter == 2) {
-//                        stone3_5 = false;
-//                        toFoundationStone3_5 = false;
-//
-////                        if (stoneCounter == 1) {
-////                            stoneX = stonearray[3]; stoneY = stonearray[4]; stoneTheta = stonearray[5];
-////                        } else if (stoneCounter == 2) {
-////                            stoneX = stonearray[6]; stoneY = stonearray[7]; stoneTheta = stonearray[8];
-////                        }
-//
-//                        toQuarrySpline = splineGenerator.SplineBetweenTwoPoints(robot.drivetrain.x, robot.drivetrain.y,
-//                                31, skystoneY-ss2Y, robot.drivetrain.currentheading, Math.PI / 4 + 0.2, 20, 60,
-//                                100, 0, 0, 0, stone3_5Time);
-//                        toQuarryThetaSpline = new Spline(robot.drivetrain.currentheading, 0, 0, Math.PI / 4 + 0.2, 0, 0, stone3_5Time);
-//                        log("toquarry");
-//                    }
-//                    // if robot has collected 5th stone, score foundation
-//                    else if (stoneCounter == 3){
-//                        toFoundationStone3_5 = true;
-//                        log("scorefound");
-//                    }
-//                    time.reset();
-//                }
-//            }
+            else if (!backToCenter3_5) {
+                double currentTime = Math.min(backToCenterTime,time.seconds());
+                robot.drivetrain.setTargetPointAuto(backToCenterSpline[0].position(currentTime), backToCenterSpline[1].position(currentTime),
+                        backToCenterThetaSpline.position(currentTime));
 
-            // score foundation
+                //robot.grabber.extendRangeSensor();
+                if (time.seconds() > backToCenterTime) {
+                    backToCenter3_5 = true;
+                    if (stoneCounter <= 9) {
+                        toFoundation3_5 = false;
+                    }
+                    toFoundationSpline = splineGenerator.SplineBetweenTwoPoints(robot.drivetrain.x, robot.drivetrain.y,
+                            depositX, depositY, robot.drivetrain.currentheading, robot.drivetrain.currentheading, 40, 60,
+                            100, -60, 0, 0, toFoundation3_5Time);
+                    toFoundationThetaSpline = new Spline(robot.drivetrain.currentheading, 0, 0, Math.PI/2, 0, 0, toFoundation3_5Time);
+
+                    time.reset(); log("tofound3-5");
+                }
+            }
+
+            else if (!toFoundation3_5) {
+                //if(!robot.isAutoAlign){
+                //  robot.drivetrain.setTargetPointAuto(depositX-6, depositY-2, depositTheta);
+                //}
+
+                double currentTime = Math.min(toFoundation3_5Time,time.seconds());
+                robot.drivetrain.setTargetPointAuto(toFoundationSpline[0].position(currentTime), toFoundationSpline[1].position(currentTime),
+                        toFoundationThetaSpline.position(currentTime));
+                if (robot.drivetrain.isAtPoseAuto(depositX,depositY,Math.PI/2) || time.seconds() > toFoundation2Time + 1) {
+                    //if (robot.stoneInRobot){
+                    //    robot.depositAuto();
+                    //}
+                    toFoundation3_5 = true;
+                    if (stoneCounter <= 6) {
+                        toQuarry3_5 = false;
+                        stone3_5 = false;
+                        backToCenter3_5 = false;
+                    }
+                    toQuarrySpline = splineGenerator.SplineBetweenTwoPoints(robot.drivetrain.x, robot.drivetrain.y,
+                            31, skystoneY-ss2Y, robot.drivetrain.currentheading, robot.drivetrain.currentheading, 20, 60,
+                            100, 0, 0, 0, toQuarryTime);
+                    toQuarryThetaSpline = new Spline(robot.drivetrain.currentheading, 0, 0, Math.PI / 2, 0, 0, toQuarryTime);
+                    time.reset(); log("toquarry3-5");
+                }
+            }
+
+//            // score foundation
 //            else if (!scoreFoundation) {
 //                robot.drivetrain.setTargetPointAuto(30, 25, Math.PI/2);
 //
@@ -461,14 +421,14 @@ public class RedAuto extends LinearOpMode {
 //            }
 
             // park at tape under the alliance skybridge
-//            else if (!toTape) {
+            else if (!toTape) {
 //                //if(robot.stacker.isArmHome() && !robot.stacker.stoneClamped){
-//                    robot.drivetrain.setTargetPointAuto(30, 72, Math.PI / 2);
+                    robot.drivetrain.setTargetPointAuto(30, 72, Math.PI / 2);
 //                //}
 //                //else if(time.seconds()>3){
 //                  //  robot.letGo = true;
 //                //}
-//            }
+            }
 
             else {
                 robot.drivetrain.setControls(0,0,0);
