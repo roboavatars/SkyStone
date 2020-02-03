@@ -177,7 +177,7 @@ public class RedAuto extends LinearOpMode {
                 // if skystone has not been clamped, adjust position to try to suck it in
                 else {
                     log("adjusting");
-                    robot.drivetrain.setTargetPointAuto(robot.drivetrain.x + 1.4, robot.drivetrain.y + 1.1, robot.drivetrain.currentheading + 0.14);
+                    //robot.drivetrain.setTargetPointAuto(robot.drivetrain.x + 1.4, robot.drivetrain.y + 1.1, robot.drivetrain.currentheading + 0.14);
                 }
             }
 
@@ -248,7 +248,7 @@ public class RedAuto extends LinearOpMode {
 
                     robot.grabber.releaseFoundation();
                     toQuarrySpline = splineGenerator.SplineBetweenTwoPoints(robot.drivetrain.x, robot.drivetrain.y,
-                            31, skystoneY-ss2Y, robot.drivetrain.currentheading, robot.drivetrain.currentheading, 20, 60,
+                            31, skystoneY-ss2Y, robot.drivetrain.currentheading, robot.drivetrain.currentheading, 20, 70,
                             100, 0, 0, 0, skystoneTime);
                     toQuarryThetaSpline = new Spline(robot.drivetrain.currentheading, 0, 0, Math.PI/2, 0, 0, skystoneTime);
                     time.reset(); log("toquarry2");
@@ -259,13 +259,13 @@ public class RedAuto extends LinearOpMode {
             else if (!toQuarry2) {
                 double currentTime = Math.min(toQuarryTime, time.seconds());
                 robot.drivetrain.setTargetPointAuto(toQuarrySpline[0].position(currentTime), toQuarrySpline[1].position(currentTime),
-                        toQuarryThetaSpline.position(currentTime), 0.2, 0.2, 1.2);
+                        toQuarryThetaSpline.position(currentTime));
 
                 // if time is met, end segment
                 if (time.seconds() > toQuarryTime) {
                     toQuarry2 = true;
                     skystone2Spline = splineGenerator.SplineBetweenTwoPoints(robot.drivetrain.x, robot.drivetrain.y,
-                            49, skystoneY - 19, robot.drivetrain.currentheading, robot.drivetrain.currentheading, 60, 30,
+                            49, skystoneY - 19, robot.drivetrain.currentheading, robot.drivetrain.currentheading, 60, 60,
                             0, -30, 0, 0, skystoneTime);
                     skystone2ThetaSpline = new Spline(robot.drivetrain.currentheading, 0, 0, Math.PI / 4 + 0.2, 0, 0, skystoneTime);
                     time.reset(); log("ss2");
@@ -275,17 +275,23 @@ public class RedAuto extends LinearOpMode {
             // get the second skystone
             else if (!skystone2) {
                 double currentTime = Math.min(skystoneTime, time.seconds());
-                robot.drivetrain.setTargetPointAuto(skystone2Spline[0].position(currentTime), skystone2Spline[1].position(currentTime),
-                        skystone2ThetaSpline.position(currentTime));
 
+                if (time.seconds() < skystoneTime) {
+                    robot.drivetrain.setTargetPointAuto(skystone2Spline[0].position(currentTime), skystone2Spline[1].position(currentTime),
+                            skystone2ThetaSpline.position(currentTime));
+                }
                 // if skystone is in robot or time is met, end segment
-                if (robot.stoneInRobot || time.seconds() > skystoneTime + 1) {
+                else if (robot.stoneInRobot || time.seconds() > skystoneTime + 1) {
                     skystone2 = true;
                     backToCenterSpline = splineGenerator.SplineBetweenTwoPoints(robot.drivetrain.x, robot.drivetrain.y,
-                            30, skystoneY - 32, robot.drivetrain.currentheading, robot.drivetrain.currentheading, 0, -60,
-                            20, 0, 0, 0, backToCenterTime);
+                            30, skystoneY - 32, robot.drivetrain.currentheading, robot.drivetrain.currentheading, 0, 70,
+                            100, 0, 0, 0, backToCenterTime);
                     backToCenterThetaSpline = new Spline(robot.drivetrain.currentheading, 0, 0, Math.PI / 2, 0, 0, backToCenterTime);
                     time.reset(); log("backcenter2");
+                }
+                else {
+                    log("adjusting");
+                    //robot.drivetrain.setTargetPointAuto(robot.drivetrain.x + 1.4, robot.drivetrain.y + 1.1, robot.drivetrain.currentheading + 0.14);
                 }
             }
 
@@ -298,8 +304,8 @@ public class RedAuto extends LinearOpMode {
                 if (time.seconds() > backToCenterTime) {
                     backToCenter2 = true;
                     toFoundationSpline = splineGenerator.SplineBetweenTwoPoints(robot.drivetrain.x, robot.drivetrain.y,
-                            depositX, depositY, robot.drivetrain.currentheading, robot.drivetrain.currentheading, 40, 60,
-                            100, -60, 0, 0, toFoundation2Time);
+                            depositX, depositY, robot.drivetrain.currentheading, robot.drivetrain.currentheading, 70, 30,
+                            0, -30, 0, 0, toFoundation2Time);
                     toFoundationThetaSpline = new Spline(robot.drivetrain.currentheading, 0, 0, Math.PI/2, 0, 0, toFoundation2Time);
 
                     time.reset(); log("tofound2");
@@ -321,18 +327,18 @@ public class RedAuto extends LinearOpMode {
                     //}
                     toFoundation2 = true;
                     toQuarrySpline = splineGenerator.SplineBetweenTwoPoints(robot.drivetrain.x, robot.drivetrain.y,
-                            31, skystoneY-34, robot.drivetrain.currentheading, robot.drivetrain.currentheading, 20, 60,
+                            31, skystoneY-20, robot.drivetrain.currentheading, robot.drivetrain.currentheading, 20, 60,
                             100, 0, 0, 0, toQuarryTime);
                     toQuarryThetaSpline = new Spline(robot.drivetrain.currentheading, 0, 0, Math.PI / 2, 0, 0, toQuarryTime);
                     time.reset(); log("toquarry3-5");
                 }
             }
-            
+
             else if (!toQuarry3_5) {
                 double currentTime = Math.min(toQuarryTime, time.seconds());
                 robot.drivetrain.setTargetPointAuto(toQuarrySpline[0].position(currentTime), toQuarrySpline[1].position(currentTime),
                         toQuarryThetaSpline.position(currentTime), 0.2, 0.2, 1.2);
-                
+
                 if (time.seconds() > toQuarryTime) {
                     toQuarry3_5 = true;
                     stone3_5Spline = splineGenerator.SplineBetweenTwoPoints(robot.drivetrain.x, robot.drivetrain.y,
@@ -345,11 +351,13 @@ public class RedAuto extends LinearOpMode {
 
             else if (!stone3_5) {
                 double currentTime = Math.min(stone3_5Time, time.seconds());
-                robot.drivetrain.setTargetPointAuto(stone3_5Spline[0].position(currentTime), stone3_5Spline[1].position(currentTime),
-                        stone3_5ThetaSpline.position(currentTime));
 
+                if (time.seconds() < stone3_5Time) {
+                    robot.drivetrain.setTargetPointAuto(stone3_5Spline[0].position(currentTime), stone3_5Spline[1].position(currentTime),
+                            stone3_5ThetaSpline.position(currentTime));
+                }
                 // if skystone is in robot or time is met, end segment
-                if (robot.stoneInRobot || time.seconds() > stone3_5Time + 1) {
+                else if (robot.stoneInRobot || time.seconds() > stone3_5Time + 1.5) {
                     stone3_5 = true;
                     if (stoneCounter <= 6) {
                         stoneCounter += 3;
@@ -360,6 +368,11 @@ public class RedAuto extends LinearOpMode {
                             20, 0, 0, 0, backToCenterTime);
                     backToCenterThetaSpline = new Spline(robot.drivetrain.currentheading, 0, 0, Math.PI / 2, 0, 0, backToCenterTime);
                     time.reset(); log("backcenter3-5");
+                }
+                // if skystone has not been clamped, adjust position to try to suck it in
+                else {
+                    log("adjusting");
+                    robot.drivetrain.setTargetPointAuto(robot.drivetrain.x + 1.4, robot.drivetrain.y + 1.1, robot.drivetrain.currentheading + 0.14);
                 }
             }
 
