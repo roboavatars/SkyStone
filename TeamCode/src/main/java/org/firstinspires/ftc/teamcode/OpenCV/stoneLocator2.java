@@ -55,7 +55,6 @@ public class stoneLocator2 extends Thread {
     private final static double maximumYDistance = 40;
     private final static double contourMinimumArea = 1000;
     private final static double numberOfFrames = 2500;
-    //TODO: Fix Overrighting for images
 
     private int frameNum = 1;
     private double[] sPos = {-1, -1, -1};
@@ -129,6 +128,7 @@ public class stoneLocator2 extends Thread {
         double stoneY = -1;
         double stoneTheta = -1;
         contourArea = -1;
+        new File(inputPath + (frameNum % numberOfFrames) + ".jpg").delete();
         if (debug) {Imgcodecs.imwrite(inputPath + (frameNum % numberOfFrames) + ".jpg", input);}
 
         // Process Image
@@ -137,10 +137,12 @@ public class stoneLocator2 extends Thread {
         Core.inRange(filtered, new Scalar(85, 95, 95), new Scalar(115, 255, 255), filtered);
         Imgproc.morphologyEx(filtered, filtered, Imgproc.MORPH_OPEN, new Mat());
         Imgproc.morphologyEx(filtered, filtered, Imgproc.MORPH_CLOSE, new Mat());
+        new File(filteredPath + (frameNum % numberOfFrames) + ".jpg").delete();
         if (debug) Imgcodecs.imwrite(filteredPath + (frameNum % numberOfFrames) + ".jpg", filtered);
 
         // Further Process Image
         Imgproc.Canny(filtered, filtered, 0, 0, 3, false);
+        new File(contoursPath + (frameNum % numberOfFrames) + ".jpg").delete();
         if (debug) Imgcodecs.imwrite(contoursPath + (frameNum % numberOfFrames) + ".jpg", filtered);
 
         // Find Contours
@@ -162,6 +164,7 @@ public class stoneLocator2 extends Thread {
                 }
             }
             Imgproc.circle(input, new Point(xpix, ypix), 2, new Scalar(0, 0, 255), 2);
+            new File(circlePath + (frameNum % numberOfFrames) + ".jpg").delete();
             if (debug) Imgcodecs.imwrite(circlePath + (frameNum % numberOfFrames) + ".jpg", input);
 
             // Find Ellipse Using Contour Index
@@ -170,6 +173,7 @@ public class stoneLocator2 extends Thread {
             ellipse = Imgproc.fitEllipse(new MatOfPoint2f(contours.get(contourIndex).toArray()));
             stoneTheta = Math.toRadians(ellipse.angle);
             Imgproc.ellipse(ellipseOnly, ellipse, new Scalar(0), 1);
+            new File(ellipsePath + (frameNum % numberOfFrames) + ".jpg").delete();
             if (debug) Imgcodecs.imwrite(ellipsePath + (frameNum % numberOfFrames) + ".jpg", ellipseOnly);
 
             // Convert Local Coordinates to Field Coordinates
