@@ -188,15 +188,20 @@ public class Robot {
 
             TelemetryPacket packet = new TelemetryPacket();
             //TODO add field overlay using polygon method
-            double x[] = {};
-            double y[] = {};
-            packet.fieldOverlay().fillPolygon(x,y);
+            double r = 9 * Math.sqrt(2);
+            double pi = Math.PI;
+            double x = 72 - drivetrain.x;
+            double y = 72 - drivetrain.y;
+            double theta = pi + drivetrain.currentheading;
+            double xcoords[] = {r * Math.cos(pi/4+theta) + x, r * Math.cos(3*pi/4+theta) + x, r * Math.cos(5*pi/4+theta) + x, r * Math.cos(7*pi/4+theta) + x};
+            double ycoords[] = {r * Math.sin(pi/4+theta) + y, r * Math.sin(3*pi/4+theta) + y, r * Math.sin(5*pi/4+theta) + y, r * Math.sin(7*pi/4+theta) + y};
+            packet.fieldOverlay().setFill("green").fillPolygon(xcoords,ycoords);
 //            packet.put("Robot x", drivetrain.x);
 //            packet.put("Robot y", drivetrain.y);
 //            packet.put("Robot theta", drivetrain.currentheading);
 //            packet.put("is stone in robot", stoneInRobot);
 //            packet.put("is lift up", stacker.isLiftUp());
-//            dashboard.sendTelemetryPacket(packet);
+            dashboard.sendTelemetryPacket(packet);
 
         }
 
