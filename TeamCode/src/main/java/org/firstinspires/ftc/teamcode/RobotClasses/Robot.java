@@ -4,18 +4,11 @@ import android.util.Log;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsAnalogOpticalDistanceSensor;
-import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.Gamepad;
-
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 @SuppressWarnings("FieldCanBeLocal")
 public class Robot {
-
-    //debug variable
-    private boolean debug = true;
 
     private boolean firstLoop = true;
 
@@ -53,6 +46,7 @@ public class Robot {
 
     private LinearOpMode op;
     private FtcDashboard dashboard;
+    private TelemetryPacket packet;
 
     public Robot(LinearOpMode op, double initX, double initY, double initTheta, boolean isRedAuto) {
         drivetrain = new MecanumDrivetrain(op, initX, initY, initTheta, isRedAuto);
@@ -64,6 +58,7 @@ public class Robot {
 
         this.op = op;
         dashboard = FtcDashboard.getInstance();
+        packet = new TelemetryPacket();
 
     }
 
@@ -184,27 +179,30 @@ public class Robot {
         velocityTh = (drivetrain.currentheading - prevTh) / timeDiff;
         prevX = drivetrain.x; prevY = drivetrain.y; prevTh = drivetrain.currentheading; prevTime = curTime;
 
-        if(debug){
+        //TODO add field overlay using polygon method
+        double r = 9 * Math.sqrt(2);
+        double pi = Math.PI;
+        double x = 72 - drivetrain.x;
+        double y = 72 - drivetrain.y;
+        double theta = pi + drivetrain.currentheading;
+        double xcoords[] = {r * Math.cos(pi/4+theta) + x, r * Math.cos(3*pi/4+theta) + x, r * Math.cos(5*pi/4+theta) + x, r * Math.cos(7*pi/4+theta) + x};
+        double ycoords[] = {r * Math.sin(pi/4+theta) + y, r * Math.sin(3*pi/4+theta) + y, r * Math.sin(5*pi/4+theta) + y, r * Math.sin(7*pi/4+theta) + y};
+        packet.fieldOverlay().setFill("green").fillPolygon(xcoords,ycoords);
+        addPacket("X", drivetrain.x);
+        addPacket("Y", drivetrain.y);
+        addPacket("Theta", drivetrain.currentheading);
+//        addPacket("is stone in robot", stoneInRobot);
+//        addPacket("is lift up", stacker.isLiftUp());
+        sendPacket();
 
-            TelemetryPacket packet = new TelemetryPacket();
-            //TODO add field overlay using polygon method
-            double r = 9 * Math.sqrt(2);
-            double pi = Math.PI;
-            double x = 72 - drivetrain.x;
-            double y = 72 - drivetrain.y;
-            double theta = pi + drivetrain.currentheading;
-            double xcoords[] = {r * Math.cos(pi/4+theta) + x, r * Math.cos(3*pi/4+theta) + x, r * Math.cos(5*pi/4+theta) + x, r * Math.cos(7*pi/4+theta) + x};
-            double ycoords[] = {r * Math.sin(pi/4+theta) + y, r * Math.sin(3*pi/4+theta) + y, r * Math.sin(5*pi/4+theta) + y, r * Math.sin(7*pi/4+theta) + y};
-            packet.fieldOverlay().setFill("green").fillPolygon(xcoords,ycoords);
-//            packet.put("Robot x", drivetrain.x);
-//            packet.put("Robot y", drivetrain.y);
-//            packet.put("Robot theta", drivetrain.currentheading);
-//            packet.put("is stone in robot", stoneInRobot);
-//            packet.put("is lift up", stacker.isLiftUp());
-            dashboard.sendTelemetryPacket(packet);
+    }
 
-        }
+    public void addPacket(String key, Object value) {
+        packet.put(key, value.toString());
+    }
 
+    public void sendPacket() {
+        dashboard.sendTelemetryPacket(packet);
     }
 
     public void deposit() {

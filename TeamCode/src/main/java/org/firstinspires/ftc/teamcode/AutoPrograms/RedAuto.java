@@ -2,8 +2,6 @@ package org.firstinspires.ftc.teamcode.AutoPrograms;
 
 import android.util.Log;
 
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
@@ -22,8 +20,6 @@ public class RedAuto extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-
-        FtcDashboard dashboard = FtcDashboard.getInstance();
 
         // Initialize Skystone Detector
         detector.initializeCamera();
@@ -63,9 +59,9 @@ public class RedAuto extends LinearOpMode {
         double toFoundationTime = 2;
         double foundationPullTime = 1.75;
         double toQuarryTime = 2;
-        double toFoundation2Time = 2.5;
+        double toFoundation2Time = 2;
         double stone3_5Time = 2;
-        double toFoundation3_5Time = 2.5;
+        double toFoundation3_5Time = 2;
 
         // Position Stuff for 3-5 Stone
         int stoneCounter = 0;
@@ -76,7 +72,7 @@ public class RedAuto extends LinearOpMode {
 
         double[] stonearray = {};
 
-        int ss2Y = 31;
+        double ss2Y = 30.5;
 
         // After Start
         waitForStart();
@@ -155,8 +151,6 @@ public class RedAuto extends LinearOpMode {
         // Robot Move Loop
         while (opModeIsActive()) {
 
-            TelemetryPacket packet = new TelemetryPacket();
-
             // Update Robot's Location and States
             robot.update();
 
@@ -166,7 +160,7 @@ public class RedAuto extends LinearOpMode {
 
                 // if less than moving time, continue moving
                 if (time.seconds() < skystoneTime) {
-                    robot.drivetrain.setTargetPointAuto(skystone1Spline[0].position(currentTime), skystone1Spline[1].position(currentTime),
+                    robot.drivetrain.setTargetPoint(skystone1Spline[0].position(currentTime), skystone1Spline[1].position(currentTime),
                             skystone1ThetaSpline.position(currentTime));
                 }
                 // if skystone is clamped or robot has been trying to intake stone for too long, move on
@@ -181,14 +175,14 @@ public class RedAuto extends LinearOpMode {
                 // if skystone has not been clamped, adjust position to try to suck it in
                 else {
                     log("adjusting");
-                    //robot.drivetrain.setTargetPointAuto(robot.drivetrain.x + 1.4, robot.drivetrain.y + 1.1, robot.drivetrain.currentheading + 0.14);
+                    //robot.drivetrain.setTargetPoint(robot.drivetrain.x + 1.4, robot.drivetrain.y + 1.1, robot.drivetrain.currentheading + 0.14);
                 }
             }
 
             // Go to Center of Tile Closest to Neutral Skybridge to Avoid Hitting Other Robot
             else if (!backToCenter1) {
                 double currentTime = Math.min(backToCenterTime, time.seconds());
-                robot.drivetrain.setTargetPointAuto(backToCenterSpline[0].position(currentTime), backToCenterSpline[1].position(currentTime),
+                robot.drivetrain.setTargetPoint(backToCenterSpline[0].position(currentTime), backToCenterSpline[1].position(currentTime),
                         backToCenterThetaSpline.position(currentTime));
 
                 // if more than allotted time, end segment
@@ -200,7 +194,7 @@ public class RedAuto extends LinearOpMode {
 
             // Move Near Foundation
             else if (!toFoundation1) {
-                robot.drivetrain.setTargetPointAuto(36, 55, Math.PI / 2);
+                robot.drivetrain.setTargetPoint(36, 55, Math.PI / 2);
 
                 // if robot position is less than position, end segment
                 if (robot.drivetrain.y < 58 || time.seconds() > toFoundationTime) {
@@ -211,7 +205,7 @@ public class RedAuto extends LinearOpMode {
 
             // Turn Robot to Align with Foundation
             else if (!foundationTurn) {
-                robot.drivetrain.setTargetPointAuto(42,18, Math.PI);
+                robot.drivetrain.setTargetPoint(42,18, Math.PI);
 
                 // if at position or time met, end segment
                 if (time.seconds() > 1 || robot.drivetrain.isAtPoseAuto(42, 18, Math.PI)) {
@@ -227,7 +221,7 @@ public class RedAuto extends LinearOpMode {
 
             // Approach and Align Robot with Foundation
             else if (!approachFoundation) {
-                robot.drivetrain.setTargetPointAuto(47, 18, Math.PI);
+                robot.drivetrain.setTargetPoint(47, 18, Math.PI);
 
                 // if at position or time met, end segment
                 if (robot.drivetrain.isAtPoseAuto(47, 18, Math.PI) && time.seconds() > 0.5) {
@@ -252,9 +246,9 @@ public class RedAuto extends LinearOpMode {
 
                     robot.grabber.releaseFoundation();
                     toQuarrySpline = splineGenerator.SplineBetweenTwoPoints(robot.drivetrain.x, robot.drivetrain.y,
-                            31, skystoneY-ss2Y, robot.drivetrain.currentheading, robot.drivetrain.currentheading, 20, 70,
-                            100, 0, 0, 0, skystoneTime);
-                    toQuarryThetaSpline = new Spline(robot.drivetrain.currentheading, 0, 0, Math.PI/2, 0, 0, skystoneTime);
+                            33, skystoneY-ss2Y, robot.drivetrain.currentheading, robot.drivetrain.currentheading, 30, 70,
+                            100, 10, 0, 0, toQuarryTime);
+                    toQuarryThetaSpline = new Spline(robot.drivetrain.currentheading, 0, 0, Math.PI/3, 0, 1, toQuarryTime);
                     time.reset(); log("toquarry2");
                 }
             }
@@ -262,16 +256,16 @@ public class RedAuto extends LinearOpMode {
             // Travel to Quarry to Get Second Skystone
             else if (!toQuarry2) {
                 double currentTime = Math.min(toQuarryTime, time.seconds());
-//                robot.drivetrain.setTargetPointAuto(toQuarrySpline[0].position(currentTime), toQuarrySpline[1].position(currentTime),
-//                        toQuarryThetaSpline.position(currentTime));
-                robot.drivetrain.setTargetPointAuto(32, skystoneY-31.5, Math.PI/4,0.2,0.2,1.2);
+                robot.drivetrain.setTargetPoint(toQuarrySpline[0].position(currentTime), toQuarrySpline[1].position(currentTime),
+                        toQuarryThetaSpline.position(currentTime));
+                //robot.drivetrain.setTargetPoint(33, skystoneY-ss2Y, Math.PI/3,0.2,0.2,1.2);
 
                 // if time is met, end segment
-                if (time.seconds() > toQuarryTime || robot.drivetrain.y >= (skystoneY-31.5)) {
+                if (time.seconds() > toQuarryTime || robot.drivetrain.y >= (skystoneY-ss2Y)) {
                     toQuarry2 = true;
                     skystone2Spline = splineGenerator.SplineBetweenTwoPoints(robot.drivetrain.x, robot.drivetrain.y,
-                            49, skystoneY - 19, robot.drivetrain.currentheading, robot.drivetrain.currentheading, 80, 60,
-                            0, -30, 0, 0, skystoneTime);
+                            49, skystoneY - 19, robot.drivetrain.currentheading, robot.drivetrain.currentheading, 70, 40,
+                            10, -5, 0, 0, skystoneTime);
                     skystone2ThetaSpline = new Spline(robot.drivetrain.currentheading, 0, 0, Math.PI / 4 + 0.2, 0, 0, skystoneTime);
                     time.reset(); log("ss2");
                 }
@@ -280,39 +274,32 @@ public class RedAuto extends LinearOpMode {
             // Get Second Skystone
             else if (!skystone2) {
                 double currentTime = Math.min(skystoneTime, time.seconds());
-
-                if (time.seconds() < skystoneTime) {
-                    robot.drivetrain.setTargetPointAuto(skystone2Spline[0].position(currentTime), skystone2Spline[1].position(currentTime),
-                            skystone2ThetaSpline.position(currentTime));
-                }
+                robot.drivetrain.setTargetPoint(skystone2Spline[0].position(currentTime), skystone2Spline[1].position(currentTime),
+                        skystone2ThetaSpline.position(currentTime));
                 // if skystone is in robot or time is met, end segment
-                else if (robot.stoneInRobot || time.seconds() > skystoneTime + 1) {
+                if (robot.stoneInRobot || time.seconds() > skystoneTime + 1) {
                     skystone2 = true;
                     backToCenterSpline = splineGenerator.SplineBetweenTwoPoints(robot.drivetrain.x, robot.drivetrain.y,
-                            30, skystoneY - ss2Y, robot.drivetrain.currentheading, robot.drivetrain.currentheading, 0, 60,
-                            20, 0, 0, 0, backToCenterTime);
+                            30, skystoneY - ss2Y, robot.drivetrain.currentheading, robot.drivetrain.currentheading, 0, 70,
+                            30, 50, 0, 0, backToCenterTime);
                     backToCenterThetaSpline = new Spline(robot.drivetrain.currentheading, 0, 0, Math.PI / 2, 0, 0, backToCenterTime);
                     time.reset(); log("backcenter2");
-                }
-                else {
-                    log("adjusting");
-                    robot.drivetrain.setTargetPointAuto(robot.drivetrain.x + 2, robot.drivetrain.y + 1.6, robot.drivetrain.currentheading + 0.14);
                 }
             }
 
             // Go to Center of Tile Closest to Neutral Skybridge to Avoid Hitting Other Robot
             else if (!backToCenter2) {
 //                double currentTime = Math.min(backToCenterTime,time.seconds());
-//                robot.drivetrain.setTargetPointAuto(backToCenterSpline[0].position(currentTime), backToCenterSpline[1].position(currentTime),
+//                robot.drivetrain.setTargetPoint(backToCenterSpline[0].position(currentTime), backToCenterSpline[1].position(currentTime),
 //                        backToCenterThetaSpline.position(currentTime));
-                robot.drivetrain.setTargetPointAuto(30, 88, Math.PI / 2, 0.2, 0.2, 0.8);
+                robot.drivetrain.setTargetPoint(30, 88, Math.PI / 2, 0.2, 0.2, 0.8);
 
                 //robot.grabber.extendRangeSensor();
                 if (time.seconds() > backToCenterTime || robot.drivetrain.y <= 88) {
                     backToCenter2 = true;
                     toFoundationSpline = splineGenerator.SplineBetweenTwoPoints(robot.drivetrain.x, robot.drivetrain.y,
                             depositX, depositY, robot.drivetrain.currentheading, robot.drivetrain.currentheading, 70, 30,
-                            0, -30, 0, 0, toFoundation2Time);
+                            50, -20, 0, 0, toFoundation2Time);
                     toFoundationThetaSpline = new Spline(robot.drivetrain.currentheading, 0, 0, Math.PI/2, 0, 0, toFoundation2Time);
                     time.reset(); log("tofound2");
                 }
@@ -321,11 +308,11 @@ public class RedAuto extends LinearOpMode {
             // Go to Foundation to Deposit Second Skystone
             else if (!toFoundation2) {
                 //if(!robot.isAutoAlign){
-                //  robot.drivetrain.setTargetPointAuto(depositX-6, depositY-2, depositTheta);
+                //  robot.drivetrain.setTargetPoint(depositX-6, depositY-2, depositTheta);
                 //}
 
                 double currentTime = Math.min(toFoundation2Time,time.seconds());
-                robot.drivetrain.setTargetPointAuto(toFoundationSpline[0].position(currentTime), toFoundationSpline[1].position(currentTime),
+                robot.drivetrain.setTargetPoint(toFoundationSpline[0].position(currentTime), toFoundationSpline[1].position(currentTime),
                         toFoundationThetaSpline.position(currentTime));
 
                 if (robot.drivetrain.isAtPoseAuto(depositX,depositY,Math.PI/2) || time.seconds() > toFoundation2Time) {
@@ -344,7 +331,7 @@ public class RedAuto extends LinearOpMode {
 //            // Travel to Quarry to Get Next Stone
 //            else if (!toQuarry3_5) {
 //                double currentTime = Math.min(toQuarryTime, time.seconds());
-//                robot.drivetrain.setTargetPointAuto(toQuarrySpline[0].position(currentTime), toQuarrySpline[1].position(currentTime),
+//                robot.drivetrain.setTargetPoint(toQuarrySpline[0].position(currentTime), toQuarrySpline[1].position(currentTime),
 //                        toQuarryThetaSpline.position(currentTime), 0.2, 0.2, 1.2);
 //
 //                if (time.seconds() > toQuarryTime) {
@@ -362,7 +349,7 @@ public class RedAuto extends LinearOpMode {
 //                double currentTime = Math.min(stone3_5Time, time.seconds());
 //
 //                if (time.seconds() < stone3_5Time) {
-//                    robot.drivetrain.setTargetPointAuto(stone3_5Spline[0].position(currentTime), stone3_5Spline[1].position(currentTime),
+//                    robot.drivetrain.setTargetPoint(stone3_5Spline[0].position(currentTime), stone3_5Spline[1].position(currentTime),
 //                            stone3_5ThetaSpline.position(currentTime));
 //                }
 //                // if skystone is in robot or time is met, end segment
@@ -381,14 +368,14 @@ public class RedAuto extends LinearOpMode {
 //                }
 //                else {
 //                    log("adjusting");
-//                    robot.drivetrain.setTargetPointAuto(robot.drivetrain.x + 2, robot.drivetrain.y + 1.6, robot.drivetrain.currentheading + 0.14);
+//                    robot.drivetrain.setTargetPoint(robot.drivetrain.x + 2, robot.drivetrain.y + 1.6, robot.drivetrain.currentheading + 0.14);
 //                }
 //            }
 //
 //            // Go to Center of Tile Closest to Neutral Skybridge to Avoid Hitting Other Robot
 //            else if (!backToCenter3_5) {
 //                double currentTime = Math.min(backToCenterTime,time.seconds());
-//                robot.drivetrain.setTargetPointAuto(backToCenterSpline[0].position(currentTime), backToCenterSpline[1].position(currentTime),
+//                robot.drivetrain.setTargetPoint(backToCenterSpline[0].position(currentTime), backToCenterSpline[1].position(currentTime),
 //                        backToCenterThetaSpline.position(currentTime));
 //
 //                //robot.grabber.extendRangeSensor();
@@ -406,11 +393,11 @@ public class RedAuto extends LinearOpMode {
 //            // Go to Foundation to Deposit Next Stone
 //            else if (!toFoundation3_5) {
 //                //if(!robot.isAutoAlign){
-//                //  robot.drivetrain.setTargetPointAuto(depositX-6, depositY-2, depositTheta);
+//                //  robot.drivetrain.setTargetPoint(depositX-6, depositY-2, depositTheta);
 //                //}
 //
 //                double currentTime = Math.min(toFoundation3_5Time,time.seconds());
-//                robot.drivetrain.setTargetPointAuto(toFoundationSpline[0].position(currentTime), toFoundationSpline[1].position(currentTime),
+//                robot.drivetrain.setTargetPoint(toFoundationSpline[0].position(currentTime), toFoundationSpline[1].position(currentTime),
 //                        toFoundationThetaSpline.position(currentTime));
 //
 //                if (robot.drivetrain.isAtPoseAuto(depositX,depositY,Math.PI/2) || time.seconds() > toFoundation2Time) {
@@ -436,7 +423,7 @@ public class RedAuto extends LinearOpMode {
 //
 //            // Score Foundation
 //            else if (!scoreFoundation) {
-//                robot.drivetrain.setTargetPointAuto(30, 25, Math.PI/2);
+//                robot.drivetrain.setTargetPoint(30, 25, Math.PI/2);
 //
 //                // if robot is at foundation, deposit stone, end segment
 //                if (robot.drivetrain.isAtPoseAuto(30,25,Math.PI/2) || time.seconds() > 1.5) {
@@ -448,7 +435,7 @@ public class RedAuto extends LinearOpMode {
             // Park Under Skybridge
             else if (!toTape) {
                 //if(robot.stacker.isArmHome() && !robot.stacker.stoneClamped){
-                    robot.drivetrain.setTargetPointAuto(30, 72, Math.PI / 2);
+                    robot.drivetrain.setTargetPoint(30, 72, Math.PI / 2);
                 //}
                 //else if(time.seconds()>3){
                   //  robot.letGo = true;
@@ -466,13 +453,11 @@ public class RedAuto extends LinearOpMode {
             telemetry.addData("theta", robot.drivetrain.currentheading);
             telemetry.update();*/
 
-            packet.put("skystone position", skystonePos);
-            packet.put("x", robot.drivetrain.x);
-            packet.put("y", robot.drivetrain.y);
-            packet.put("theta", robot.drivetrain.currentheading);
-            packet.put("battery voltage", getBatteryVoltage());
-            packet.put("time", (System.currentTimeMillis()-robot.startTime)/1000);
-            dashboard.sendTelemetryPacket(packet);
+            robot.addPacket("Battery Voltage", getBatteryVoltage());
+            robot.addPacket("Time", (System.currentTimeMillis()-robot.startTime)/1000);
+            robot.addPacket("Skystone Position", skystonePos);
+
+            robot.sendPacket();
         }
 
         robot.update();

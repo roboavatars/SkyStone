@@ -10,6 +10,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.RobotClasses.MecanumDrivetrain;
+import org.firstinspires.ftc.teamcode.Splines.Spline;
+import org.firstinspires.ftc.teamcode.Splines.SplineGenerator;
 
 @TeleOp
 public class MecanumTest extends LinearOpMode {
@@ -19,8 +21,11 @@ public class MecanumTest extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        drivetrain = new MecanumDrivetrain(this,0,0,0, false);
+        drivetrain = new MecanumDrivetrain(this,9,111,0, false);
         FtcDashboard dashboard = FtcDashboard.getInstance();
+        SplineGenerator splineGenerator = new SplineGenerator();
+        Spline[] testSpline = splineGenerator.SplineBetween3Points(9,111,32,78,32,40,0,Math.PI/2,
+                Math.PI/2,30,70,40,2,1);
 
         waitForStart();
 
@@ -28,6 +33,9 @@ public class MecanumTest extends LinearOpMode {
         while(opModeIsActive()){
             drivetrain.updatePose();
             TelemetryPacket packet = new TelemetryPacket();
+            double currentTime = Math.min(2, time.seconds());
+
+            drivetrain.setTargetPoint(testSpline[0].position(currentTime), testSpline[1].position(currentTime), 0);
 
             packet.put("x", drivetrain.x);
             packet.put("y", drivetrain.y);

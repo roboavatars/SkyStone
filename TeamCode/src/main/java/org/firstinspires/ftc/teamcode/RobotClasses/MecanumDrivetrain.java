@@ -153,61 +153,48 @@ public class MecanumDrivetrain {
         motorBackRight.setPower(-xvelocity+yvelocity+w);
     }
 
+
+
     public void setTargetPoint(double xtarget, double ytarget, double thetatarget){
+        if (!isRed) {
+            xtarget = 144 - xtarget;
+            thetatarget = (Math.PI) - thetatarget;
+        }
         double ch = currentheading;
-//        if(currentheading>Math.PI){
-//            ch -= 2*Math.PI;
-//        }
+        if(currentheading>Math.PI){
+            ch -= 2*Math.PI;
+        }
+        //TODO: Fix this issue
+        /*int difference = (int)currentheading/(2*(int)Math.PI);
+        if (thetatarget - difference*2*Math.PI <= (difference+1)*2*Math.PI - thetatarget) {
+            thetatarget -= difference*2*Math.PI;
+        }
+        else {
+            thetatarget = (difference+1)*2*Math.PI - thetatarget;
+        }*/
+
+        Log.w("auto", "Targets: " + xtarget + " " + ytarget + " " + thetatarget + ", Current Pos: " + x + " " + y + " " + currentheading);
         setGlobalControls(-xk*(x-xtarget),-yk*(y-ytarget),-thetak*(ch-thetatarget));
     }
 
-    public void setTargetPoint(double xtarget, double ytarget, double thetatarget, double xK, double yK, double thetaK){
+    public void setTargetPoint(double xtarget, double ytarget, double thetatarget, double xK, double yK, double thetaK) {
+        if (!isRed) {
+            xtarget = 144 - xtarget;
+            thetatarget = (Math.PI) - thetatarget;
+        }
         double ch = currentheading;
-//        if(currentheading>Math.PI){
-//            ch -= 2*Math.PI;
-//        }
-       setGlobalControls(-xK*(x-xtarget),-yK*(y-ytarget),-thetaK*(ch-thetatarget));
-    }
-
-    public void setTargetPointAuto(double xtarget, double ytarget, double thetatarget){
-        if (!isRed) {
-            xtarget = 144 - xtarget;
-            thetatarget = (Math.PI) - thetatarget;
+        if(currentheading>Math.PI){
+            ch -= 2*Math.PI;
         }
-//        double ch = currentheading;
-//        if(currentheading>Math.PI){
-//            ch -= 2*Math.PI;
-//        }
-        int difference = (int)currentheading/(2*(int)Math.PI);
+        /*int difference = (int)currentheading/(2*(int)Math.PI);
         if (thetatarget - difference*2*Math.PI <= (difference+1)*2*Math.PI - thetatarget) {
             thetatarget -= difference*2*Math.PI;
         }
         else {
             thetatarget = (difference+1)*2*Math.PI - thetatarget;
-        }
-
-        Log.w("auto", "Targets: " + xtarget + " " + ytarget + " " + thetatarget + ", Current Pos: " + x + " " + y + " " + currentheading);
-        setGlobalControls(-xk*(x-xtarget),-yk*(y-ytarget),-thetak*(currentheading-thetatarget));
-    }
-
-    public void setTargetPointAuto(double xtarget, double ytarget, double thetatarget, double xK, double yK, double thetaK) {
-        if (!isRed) {
-            xtarget = 144 - xtarget;
-            thetatarget = (Math.PI) - thetatarget;
-        }
-//        double ch = currentheading;
-//        if(currentheading>Math.PI){
-//            ch -= 2*Math.PI;
-//        }
-        int difference = (int)currentheading/(2*(int)Math.PI);
-        if (thetatarget - difference*2*Math.PI <= (difference+1)*2*Math.PI - thetatarget) {
-            thetatarget -= difference*2*Math.PI;
-        }
-        else {
-            thetatarget = (difference+1)*2*Math.PI - thetatarget;
-        }
+        }*/
         Log.w("auto", "Targets: " + xtarget + " " + ytarget + " " + thetatarget + " (" + xK + " " + yK + " " + thetaK + "), Current Pos: " + x + " " + y + " " + currentheading);
-        setGlobalControls(-xK * (x - xtarget), -yK * (y - ytarget), -thetaK * (currentheading - thetatarget));
+        setGlobalControls(-xK * (x - xtarget), -yK * (y - ytarget), -thetaK * (ch - thetatarget));
     }
 
     public void setGlobalControls(double xvelocity, double yvelocity, double w){
