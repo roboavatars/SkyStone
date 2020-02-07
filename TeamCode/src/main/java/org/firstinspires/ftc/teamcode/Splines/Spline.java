@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Splines;
 
 
+
 import org.ejml.simple.SimpleMatrix;
 
 public class Spline {
@@ -22,6 +23,7 @@ public class Spline {
         this.a4 = a4;
         this.a5 = a5;
     }
+
     public Spline(double startx, double startv, double starta, double endx, double endv,
                   double enda , double time){
         //known coefficients
@@ -42,16 +44,50 @@ public class Spline {
         this.timeScaling = 1/time;
 
     }
+    public Spline(double startx, double startv, double midx, double midv, double endx,
+                  double endv , double time, double midtime){
+
+        //dealing with time variables
+        this.timeScaling = 1/time;
+        double adjMTime = midtime/time;
+
+        //known coefficients
+        double[][] xarray = {{startx}, {startv}, {midx}, {midv}, {endx}, {endv}};
+        SimpleMatrix x = new SimpleMatrix(xarray);
+
+        //constants of system of equation matrix
+        double[][] a = {
+                {1, 0, 0, 0, 0, 0},
+                {0, 1, 0, 0, 0, 0},
+                {1, adjMTime, Math.pow(adjMTime,2), Math.pow(adjMTime,3), Math.pow(adjMTime,4), Math.pow(adjMTime,5)},
+                {0, 1, 2*adjMTime, 3*Math.pow(adjMTime,2), 4*Math.pow(adjMTime,3), 5*Math.pow(adjMTime,4)},
+                {1, 1, 1, 1, 1, 1},
+                {0, 1, 2, 3, 4, 5}
+        };
+        //invert equation matrix
+        SimpleMatrix ainverse = (new SimpleMatrix(a)).invert();
+
+        //solve for the rest of the coefficients
+        SimpleMatrix z = ainverse.mult(x);
+
+        this.a0 = z.get(0,0);
+        this.a1 = z.get(1,0);
+        this.a2 = z.get(2,0);
+        this.a3 = z.get(3,0);
+        this.a4 = z.get(4,0);
+        this.a5 = z.get(5,0);
+    }
+
     public double position(double time){
         time = timeScaling*time;
         double position = a0 + a1*time +
                 a2*Math.pow(time,2)+a3*Math.pow(time,3)+a4*Math.pow(time,4)+a5*Math.pow(time,5);
         return position;
     }
+
     public double velocity(double time){
         double velocity = a1 +
                 2*a2*time + 3*a3*Math.pow(time,2)+ 4*a4*Math.pow(time,3) + 5*a5*Math.pow(time,4);
         return velocity;
     }
-
 }
