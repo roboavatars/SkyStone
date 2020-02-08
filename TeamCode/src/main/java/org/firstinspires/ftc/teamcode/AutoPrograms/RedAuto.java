@@ -214,7 +214,7 @@ public class RedAuto extends LinearOpMode {
                       //  robot.depositAuto();
                     //}
                     robot.grabber.grabFoundation();
-
+                    robot.depositAuto();
                     time.reset(); log("appfound");
                 }
             }

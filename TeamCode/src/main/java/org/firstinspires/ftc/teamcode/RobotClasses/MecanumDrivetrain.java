@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.RobotClasses;
 
 import android.util.Log;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.lynx.LynxEmbeddedIMU;
 import com.qualcomm.hardware.lynx.LynxI2cDeviceSynchV2;
@@ -23,6 +24,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 @SuppressWarnings("FieldCanBeLocal")
+@Config
 public class MecanumDrivetrain {
 
     //1440 ticks per encoder revolution
@@ -64,8 +66,8 @@ public class MecanumDrivetrain {
 
     private final double xyTolerance = 1;
     private final double thetaTolerance = Math.PI/35;
-    private final double OdometryTrackWidth = 13.74;
-    private final double OdometryHorizontalOffset = 2.535;
+    public static double OdometryTrackWidth = 13.74;
+    public static double OdometryHorizontalOffset = 3;
     private final double OdometryHeadingThreshold = Math.PI/8;
 
     public double lastx = 0;
@@ -277,7 +279,7 @@ public class MecanumDrivetrain {
             LynxGetBulkInputDataResponse response = RevBulkData();
             double pod1 = -response.getEncoder(0) * 0.00300622055 * 2;
             double pod2 = response.getEncoder(1) * 0.00300622055 * 2;
-            double pod3 = response.getEncoder(2) * 0.00300622055 * 2;
+            double pod3 = -response.getEncoder(2) * 0.00300622055 * 2;
 
             double distance = response.getAnalogInput(0);
             stoneInRobot = distance > 1000;

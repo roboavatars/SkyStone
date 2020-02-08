@@ -164,10 +164,10 @@ public class Robot {
         drivetrain.updatePose();
         stoneInRobot = drivetrain.stoneInRobot;
 
-        if (cycleCounter % loggerUpdatePeriod == 0) {
-            logger.logData(System.currentTimeMillis()-startTime,drivetrain.x,drivetrain.y,drivetrain.currentheading,velocityX,velocityY,velocityTh,stoneInRobot,stacker.stoneClamped,tryingToDeposit,stacker.isArmHome(),stacker.isArmDown(),stacker.isArmOut());
-        }
-        if (cycleCounter % flushUpdatePeriod == 0) logger.flush();
+//        if (cycleCounter % loggerUpdatePeriod == 0) {
+//            logger.logData(System.currentTimeMillis()-startTime,drivetrain.x,drivetrain.y,drivetrain.currentheading,velocityX,velocityY,velocityTh,stoneInRobot,stacker.stoneClamped,tryingToDeposit,stacker.isArmHome(),stacker.isArmDown(),stacker.isArmOut());
+//        }
+//        if (cycleCounter % flushUpdatePeriod == 0) logger.flush();
 
         double curTime = (double) System.currentTimeMillis() / 1000;
         double timeDiff = curTime - prevTime;
@@ -181,8 +181,13 @@ public class Robot {
         addPacket("Y", drivetrain.y);
         addPacket("Theta", drivetrain.currentheading);
         addPacket("is stone in robot", stoneInRobot);
-        addPacket("arm", stacker.isArmHome() + " " + stacker.isArmDown() + " " + stacker.isArmOut() + " " + stacker.stoneClamped);
+
+//        addPacket("arm", stacker.isArmHome() + " " + stacker.isArmDown() + " " + stacker.isArmOut() + " " );
+        addPacket("loop time", timeDiff);
+        addPacket("update frequency(hz)", 1/timeDiff);
+
         sendPacket();
+        packet = new TelemetryPacket();
 
     }
 
@@ -193,11 +198,11 @@ public class Robot {
     public void drawRobot(double robotx, double roboty, double robottheta) {
         double r = 9 * Math.sqrt(2);
         double pi = Math.PI;
-        double x = 72 - robotx;
-        double y = 72 - roboty;
-        double theta = pi + robottheta;
-        double[] xcoords = {r * Math.sin(pi / 4 + theta) + y, r * Math.sin(3 * pi / 4 + theta) + y, r * Math.sin(5 * pi / 4 + theta) + y, r * Math.sin(7 * pi / 4 + theta) + y};
-        double[] ycoords = {-r * Math.cos(pi / 4 + theta) + x, -r * Math.cos(3 * pi / 4 + theta) + x, -r * Math.cos(5 * pi / 4 + theta) + x, -r * Math.cos(7 * pi / 4 + theta) + x};
+        double x = 72 - roboty;
+        double y = robotx - 72;
+        double theta = pi/2 + robottheta;
+        double[] ycoords = {r * Math.sin(pi / 4 + theta) + y, r * Math.sin(3 * pi / 4 + theta) + y, r * Math.sin(5 * pi / 4 + theta) + y, r * Math.sin(7 * pi / 4 + theta) + y};
+        double[] xcoords = {r * Math.cos(pi / 4 + theta) + x, r * Math.cos(3 * pi / 4 + theta) + x, r * Math.cos(5 * pi / 4 + theta) + x, r * Math.cos(7 * pi / 4 + theta) + x};
         packet.fieldOverlay().setFill("green").fillPolygon(xcoords,ycoords);
     }
 
