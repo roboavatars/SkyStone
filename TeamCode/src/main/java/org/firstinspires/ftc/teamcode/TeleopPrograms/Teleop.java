@@ -20,7 +20,6 @@ public class Teleop extends LinearOpMode {
     private boolean dpadDown = true;
     private boolean rightBumper = true;
     private boolean leftBumper = true;
-    private boolean a = true;
 
     @Override
     public void runOpMode() {
@@ -29,10 +28,10 @@ public class Teleop extends LinearOpMode {
         robot = new Robot(this, initialPosition[0], initialPosition[1], initialPosition[2]);*/
         robot = new Robot(this, 0, 0, 0, false);
         robot.logger.startLogging();
-
-        waitForStart();
         robot.stacker.unClampStone();
         robot.stacker.goHome();
+
+        waitForStart();
         ElapsedTime time = new ElapsedTime();
 
         while (opModeIsActive()) {

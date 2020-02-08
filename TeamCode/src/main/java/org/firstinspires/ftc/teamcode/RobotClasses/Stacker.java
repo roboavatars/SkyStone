@@ -23,8 +23,8 @@ public class Stacker {
     private DcMotorEx depositMotor;
     private Servo stoneClamp;
     
-    private final double clampPos = 0.4;
-    private final double unClampPos = 0.99;
+    private final double clampPos = 0.01;
+    private final double unClampPos = 0.86;
     
     public final int armPos[] =   {1370, 1370, 1370,  1370,  635, 635, 635, 635, 635, 635}; // increases down
     private final int liftPos[] = {-540, -992, -1444, -1896, 0, -500, -1050, -1430, -1850, -2330};

@@ -1,16 +1,19 @@
 package org.firstinspires.ftc.teamcode.Tests;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@TeleOp(name="Clamp Test") @SuppressWarnings("FieldCanBeLocal") @Disabled
+@TeleOp(name="Clamp Test") @SuppressWarnings("FieldCanBeLocal")
+@Config
 public class ClampTest extends LinearOpMode {
 
     private Servo clamp;
-    private double clampPos = 0.5;
-    private double unClampPos = 1;
+    public static double clampPos = 0.86;
+    public static double unClampPos = 0.01;
+    public static boolean open = true;
 
     @Override
     public void runOpMode() {
@@ -22,8 +25,8 @@ public class ClampTest extends LinearOpMode {
 
         while(opModeIsActive()) {
 
-            if (gamepad1.a) clamp.setPosition(clampPos);
-            else if (gamepad1.b) clamp.setPosition(unClampPos);
+            if (open) {clamp.setPosition(unClampPos);}
+            else {clamp.setPosition(clampPos);}
 
             telemetry.addData("Cur Position", clamp.getPosition());
             telemetry.update();

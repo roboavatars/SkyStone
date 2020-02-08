@@ -6,7 +6,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 
@@ -18,6 +20,7 @@ public class Logger {
     //private static String basePath = "TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Tests/testLogs/TestLog";
     private static FileWriter fileWriter;
     private static BufferedReader bufferedReader;
+    private ArrayList<double[]> dataArray;
 
     public void startLogging() {
         try {
@@ -27,15 +30,19 @@ public class Logger {
         } catch (Exception e) {e.printStackTrace();}
     }
 
-    public static String getLogName(boolean fileWrite) {
+    public static double getLastFileNumber() {
         int logNum = 1;
         while (true) {
             File currentFile = new File(basePath + logNum + ".csv");
             if (!currentFile.exists()) break;
             logNum++;
         }
-        if (fileWrite) return basePath + logNum + ".csv";
-        else return basePath + (logNum-1) + ".csv";
+        return logNum - 1;
+    }
+
+    public static String getLogName(boolean fileWrite) {
+        if (fileWrite) return basePath + (getLastFileNumber() + 1) + ".csv";
+        else return basePath + getLastFileNumber() + ".csv";
     }
 
     public void logData(double timeSinceSt, double x, double y, double theta, double velocityx, double velocityy, double velocitytheta, boolean stoneInRobot, boolean stoneClamped, boolean tryingToDeposit, boolean armIsHome, boolean armIsDown, boolean armIsOut) {
@@ -81,6 +88,26 @@ public class Logger {
         }
 
         return robotPos;
+    }
+
+    public ArrayList<double[]> replay(String path) {
+        String curLine;
+        int lineNum = 0;
+        dataArray = new ArrayList<>();
+        try {
+            File robotDataLog = new File(path);
+            bufferedReader = new BufferedReader(new FileReader(robotDataLog));
+
+            while ((curLine = bufferedReader.readLine()) != null) {
+                if (lineNum != 0) {
+                    String[] data = curLine.split(",");
+                    dataArray.add(new double[]{Double.parseDouble(data[1]), Double.parseDouble(data[2]), Double.parseDouble(data[3]), Double.parseDouble(data[4])});
+                }
+                lineNum++;
+            }
+            bufferedReader.close();
+        } catch (IOException e) {e.printStackTrace();}
+        return dataArray;
     }
 
 //    public static void main(String[] args) {
