@@ -81,7 +81,6 @@ public class Robot {
         }
 
         // check states----------------------
-        // check if ready to collect stones
         if (!stoneInRobot && !tryingToDeposit) {
             stacker.goHome();
             stacker.unClampStone();
@@ -103,15 +102,14 @@ public class Robot {
                 intake.setControls(0);
             }
         }
+        // check if arm should lower in preparation to clamp stone
+        else if (stoneInRobot && !tryingToDeposit && !stacker.isArmOut()) {
+            stacker.goDown();
+        }
         else if(stoneInRobot && !tryingToDeposit){
             if(!intakeManual){
                 intake.setControls(0);
             }
-
-        }
-        // check if arm should lower in preparation to clamp stone
-        else if (stoneInRobot && !tryingToDeposit && !stacker.isArmOut()) {
-            stacker.goDown();
         }
         //check if we should downstack
         else if (tryingToDeposit && stacker.isArmOut() && !stacker.isArmMoving() && !stacker.isDownStacked() && !downStacked && letGo) {
@@ -138,7 +136,6 @@ public class Robot {
             if(stacker.currentStackHeight > 0){
                 grabber.extendRangeSensor();
             }
-
         }
 
         if (tryingToDeposit && (!letGo || depositAuto) && cycleCounter % 2 == 0 && stacker.currentStackHeight > 0 && !isManualAlign) {
@@ -179,26 +176,29 @@ public class Robot {
         velocityTh = (drivetrain.currentheading - prevTh) / timeDiff;
         prevX = drivetrain.x; prevY = drivetrain.y; prevTh = drivetrain.currentheading; prevTime = curTime;
 
-        //TODO add field overlay using polygon method
-        double r = 9 * Math.sqrt(2);
-        double pi = Math.PI;
-        double x = 72 - drivetrain.x;
-        double y = 72 - drivetrain.y;
-        double theta = pi + drivetrain.currentheading;
-        double xcoords[] = {r * Math.cos(pi/4+theta) + x, r * Math.cos(3*pi/4+theta) + x, r * Math.cos(5*pi/4+theta) + x, r * Math.cos(7*pi/4+theta) + x};
-        double ycoords[] = {r * Math.sin(pi/4+theta) + y, r * Math.sin(3*pi/4+theta) + y, r * Math.sin(5*pi/4+theta) + y, r * Math.sin(7*pi/4+theta) + y};
-        packet.fieldOverlay().setFill("green").fillPolygon(xcoords,ycoords);
+        drawRobot(drivetrain.x, drivetrain.y, drivetrain.currentheading);
         addPacket("X", drivetrain.x);
         addPacket("Y", drivetrain.y);
         addPacket("Theta", drivetrain.currentheading);
-//        addPacket("is stone in robot", stoneInRobot);
-//        addPacket("is lift up", stacker.isLiftUp());
+        addPacket("is stone in robot", stoneInRobot);
+        addPacket("arm", stacker.isArmHome() + " " + stacker.isArmDown() + " " + stacker.isArmOut() + " " + stacker.stoneClamped);
         sendPacket();
 
     }
 
     public void addPacket(String key, Object value) {
         packet.put(key, value.toString());
+    }
+
+    public void drawRobot(double robotx, double roboty, double robottheta) {
+        double r = 9 * Math.sqrt(2);
+        double pi = Math.PI;
+        double x = 72 - robotx;
+        double y = 72 - roboty;
+        double theta = pi + robottheta;
+        double[] xcoords = {r * Math.sin(pi / 4 + theta) + y, r * Math.sin(3 * pi / 4 + theta) + y, r * Math.sin(5 * pi / 4 + theta) + y, r * Math.sin(7 * pi / 4 + theta) + y};
+        double[] ycoords = {-r * Math.cos(pi / 4 + theta) + x, -r * Math.cos(3 * pi / 4 + theta) + x, -r * Math.cos(5 * pi / 4 + theta) + x, -r * Math.cos(7 * pi / 4 + theta) + x};
+        packet.fieldOverlay().setFill("green").fillPolygon(xcoords,ycoords);
     }
 
     public void sendPacket() {
