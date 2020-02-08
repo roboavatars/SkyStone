@@ -21,11 +21,11 @@ public class MecanumTest extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        drivetrain = new MecanumDrivetrain(this,9,111,0, false);
+        drivetrain = new MecanumDrivetrain(this,9,111, 0, false);
         FtcDashboard dashboard = FtcDashboard.getInstance();
         SplineGenerator splineGenerator = new SplineGenerator();
-        Spline[] testSpline = splineGenerator.SplineBetween3Points(9,111,32,78,32,40,0,Math.PI/2,
-                Math.PI/2,30,70,40,2,1);
+        Spline[] testSpline = splineGenerator.SplineBetween3Points(9,111,32,78,32,40, 0,3*Math.PI/2,
+                3*Math.PI/2,30,70,30,2,1);
 
         waitForStart();
 
@@ -35,7 +35,9 @@ public class MecanumTest extends LinearOpMode {
             TelemetryPacket packet = new TelemetryPacket();
             double currentTime = Math.min(2, time.seconds());
 
-            drivetrain.setTargetPoint(testSpline[0].position(currentTime), testSpline[1].position(currentTime), 0);
+            drivetrain.setTargetPoint(testSpline[0].position(currentTime), testSpline[1].position(currentTime),
+                    Math.atan2(testSpline[1].velocity(currentTime), testSpline[0].velocity(currentTime)));
+
 
             packet.put("x", drivetrain.x);
             packet.put("y", drivetrain.y);

@@ -153,48 +153,84 @@ public class MecanumDrivetrain {
         motorBackRight.setPower(-xvelocity+yvelocity+w);
     }
 
-
-
     public void setTargetPoint(double xtarget, double ytarget, double thetatarget){
-        if (!isRed) {
-            xtarget = 144 - xtarget;
-            thetatarget = (Math.PI) - thetatarget;
+        //make sure thetatarget is between 0 and 2pi
+        thetatarget = thetatarget%(Math.PI*2);
+        if(thetatarget<0){
+            thetatarget += Math.PI*2;
         }
-        double ch = currentheading;
-        if(currentheading>Math.PI){
-            ch -= 2*Math.PI;
+        //picking the smaller distance to rotate
+        double thetacontrol = 0;
+        if(Math.abs(currentheading-thetatarget)>Math.PI){
+            thetacontrol = currentheading-thetatarget-2*Math.PI;
+        }else{
+            thetacontrol = currentheading-thetatarget;
         }
-        //TODO: Fix this issue
-        /*int difference = (int)currentheading/(2*(int)Math.PI);
-        if (thetatarget - difference*2*Math.PI <= (difference+1)*2*Math.PI - thetatarget) {
-            thetatarget -= difference*2*Math.PI;
-        }
-        else {
-            thetatarget = (difference+1)*2*Math.PI - thetatarget;
-        }*/
 
-        Log.w("auto", "Targets: " + xtarget + " " + ytarget + " " + thetatarget + ", Current Pos: " + x + " " + y + " " + currentheading);
-        setGlobalControls(-xk*(x-xtarget),-yk*(y-ytarget),-thetak*(ch-thetatarget));
+        setGlobalControls(-xk*(x-xtarget),-yk*(y-ytarget),-thetak*(thetacontrol));
     }
 
-    public void setTargetPoint(double xtarget, double ytarget, double thetatarget, double xK, double yK, double thetaK) {
+    public void setTargetPoint(double xtarget, double ytarget, double thetatarget, double xK, double yK, double thetaK){
+        //make sure thetatarget is between 0 and 2pi
+        thetatarget = thetatarget%(Math.PI*2);
+        if(thetatarget<0){
+            thetatarget += Math.PI*2;
+        }
+        //picking the smaller distance to rotate
+        double thetacontrol = 0;
+        if(Math.abs(currentheading-thetatarget)>Math.PI){
+            thetacontrol = currentheading-thetatarget-2*Math.PI;
+        }else{
+            thetacontrol = currentheading-thetatarget;
+        }
+
+        setGlobalControls(-xK*(x-xtarget),-yK*(y-ytarget),-thetaK*(thetacontrol));
+    }
+
+
+
+    public void setTargetPointAuto(double xtarget, double ytarget, double thetatarget){
         if (!isRed) {
             xtarget = 144 - xtarget;
             thetatarget = (Math.PI) - thetatarget;
         }
-        double ch = currentheading;
-        if(currentheading>Math.PI){
-            ch -= 2*Math.PI;
+        //make sure thetatarget is between 0 and 2pi
+        thetatarget = thetatarget%(Math.PI*2);
+        if(thetatarget<0){
+            thetatarget += Math.PI*2;
         }
-        /*int difference = (int)currentheading/(2*(int)Math.PI);
-        if (thetatarget - difference*2*Math.PI <= (difference+1)*2*Math.PI - thetatarget) {
-            thetatarget -= difference*2*Math.PI;
+        //picking the smaller distance to rotate
+        double thetacontrol = 0;
+        if(Math.abs(currentheading-thetatarget)>Math.PI){
+            thetacontrol = currentheading-thetatarget-2*Math.PI;
+        }else{
+            thetacontrol = currentheading-thetatarget;
         }
-        else {
-            thetatarget = (difference+1)*2*Math.PI - thetatarget;
-        }*/
+
+        Log.w("auto", "Targets: " + xtarget + " " + ytarget + " " + thetatarget + ", Current Pos: " + x + " " + y + " " + currentheading);
+        setGlobalControls(-xk*(x-xtarget),-yk*(y-ytarget),-thetak*(thetacontrol));
+    }
+
+    public void setTargetPointAuto(double xtarget, double ytarget, double thetatarget, double xK, double yK, double thetaK) {
+        if (!isRed) {
+            xtarget = 144 - xtarget;
+            thetatarget = (Math.PI) - thetatarget;
+        }
+        //make sure thetatarget is between 0 and 2pi
+        thetatarget = thetatarget%(Math.PI*2);
+        if(thetatarget<0){
+            thetatarget += Math.PI*2;
+        }
+        //picking the smaller distance to rotate
+        double thetacontrol = 0;
+        if(Math.abs(currentheading-thetatarget)>Math.PI){
+            thetacontrol = currentheading-thetatarget-2*Math.PI;
+        }else{
+            thetacontrol = currentheading-thetatarget;
+        }
+
         Log.w("auto", "Targets: " + xtarget + " " + ytarget + " " + thetatarget + " (" + xK + " " + yK + " " + thetaK + "), Current Pos: " + x + " " + y + " " + currentheading);
-        setGlobalControls(-xK * (x - xtarget), -yK * (y - ytarget), -thetaK * (ch - thetatarget));
+        setGlobalControls(-xK * (x - xtarget), -yK * (y - ytarget), -thetaK * (thetacontrol));
     }
 
     public void setGlobalControls(double xvelocity, double yvelocity, double w){
