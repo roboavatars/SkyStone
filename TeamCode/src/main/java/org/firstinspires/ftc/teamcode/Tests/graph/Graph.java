@@ -58,9 +58,9 @@ public class Graph {
             if (curNode.getType() == Node.nodeType.SplineNoTheta || curNode.getType() == Node.nodeType.SplineTheta) {
                 curNode.recalcSplines(robot.drivetrain.x, robot.drivetrain.y, robot.drivetrain.currentheading);
             } else if (curNode.getType() == Node.nodeType.ToPoint) {
-                robot.drivetrain.setTargetPointAuto(curNode.toPointData()[0], curNode.toPointData()[1], curNode.toPointData()[2]);
+                robot.drivetrain.setTargetPoint(curNode.toPointData()[0], curNode.toPointData()[1], curNode.toPointData()[2]);
             } else if (curNode.getType() == Node.nodeType.ToPointK) {
-                robot.drivetrain.setTargetPointAuto(curNode.toPointData()[0], curNode.toPointData()[1], curNode.toPointData()[2], curNode.toPointData()[3], curNode.toPointData()[4], curNode.toPointData()[5]);
+                robot.drivetrain.setTargetPoint(curNode.toPointData()[0], curNode.toPointData()[1], curNode.toPointData()[2], curNode.toPointData()[3], curNode.toPointData()[4], curNode.toPointData()[5]);
             } else if (curNode.getType() == Node.nodeType.RobotAction) {
                 Node.robotAction action = curNode.getAction();
                 log(action+"");
@@ -79,10 +79,10 @@ public class Graph {
         if (curNode.isStarted()) {
             if (curNode.getType() == Node.nodeType.SplineNoTheta || curNode.getType() == Node.nodeType.SplineTheta) {
                 double currentTime = Math.min(curNode.getTime(), time.seconds());
-                if (curNode.getType() == Node.nodeType.SplineNoTheta) robot.drivetrain.setTargetPointAuto(curNode.getSplines()[0].position(currentTime), curNode.getSplines()[1].position(currentTime), curNode.getTheta());
-                else robot.drivetrain.setTargetPointAuto(curNode.getSplines()[0].position(currentTime), curNode.getSplines()[1].position(currentTime), curNode.getThetaSpline().position(currentTime));
+                if (curNode.getType() == Node.nodeType.SplineNoTheta) robot.drivetrain.setTargetPoint(curNode.getSplines()[0].position(currentTime), curNode.getSplines()[1].position(currentTime), curNode.getTheta());
+                else robot.drivetrain.setTargetPoint(curNode.getSplines()[0].position(currentTime), curNode.getSplines()[1].position(currentTime), curNode.getThetaSpline().position(currentTime));
             } else if (curNode.getType() == Node.nodeType.RelativeMove) {
-                robot.drivetrain.setTargetPointAuto(robot.drivetrain.x + curNode.toPointData()[0], robot.drivetrain.y + curNode.toPointData()[1], robot.drivetrain.currentheading + curNode.toPointData()[2]);
+                robot.drivetrain.setTargetPoint(robot.drivetrain.x + curNode.toPointData()[0], robot.drivetrain.y + curNode.toPointData()[1], robot.drivetrain.currentheading + curNode.toPointData()[2]);
             }
         }
 
