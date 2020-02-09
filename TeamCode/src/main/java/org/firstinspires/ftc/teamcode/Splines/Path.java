@@ -31,21 +31,23 @@ public class Path {
             double endy = waypoint2.y;
             double starttheta = waypoint1.theta;
             double endtheta = waypoint2.theta;
-            double startv = waypoint1.velocity;
-            double endv = waypoint2.velocity;
-            double starta = waypoint1.acceleration;
-            double enda = waypoint2.acceleration;
-            double startw = 0;
-            double endw = 0;
+            double startxdot = waypoint1.xdot;
+            double endxdot = waypoint2.xdot;
+            double startydot = waypoint1.ydot;
+            double endydot = waypoint2.ydot;
+            double startxdotdot = waypoint1.xdotdot;
+            double endxdotdot = waypoint2.xdotdot;
+            double startydotdot = waypoint1.ydotdot;
+            double endydotdot = waypoint2.ydotdot;
             double time = waypoint2.time-waypoint1.time;
 
             //making sure waypoints are correct
             assert waypoint2.time>waypoint1.time: "Waypoint times are not correct";
-            assert waypoint1.velocity==0 || waypoint2.velocity==0: "Waypoint Velocity is zero";
+
 
             //generating splines and adding them to the array
-            Spline[] segment = splinegen.SplineBetweenTwoPoints(startx, starty, endx,
-                    endy, starttheta, endtheta, startv, endv, starta, enda, startw, endw, time);
+            Spline[] segment = splinegen.SplineBetweenTwoPoints(startx, starty, endx, endy, starttheta, endtheta,
+                    startxdot, endxdot, startydot, endydot, startxdotdot, endxdotdot, startydotdot, endydotdot, time);
             splines.add(segment);
 
             //adding the time

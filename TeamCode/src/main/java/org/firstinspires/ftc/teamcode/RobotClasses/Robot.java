@@ -7,6 +7,9 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
+import org.firstinspires.ftc.teamcode.Splines.Pose;
+import org.firstinspires.ftc.teamcode.Splines.Waypoint;
+
 @SuppressWarnings("FieldCanBeLocal")
 public class Robot {
 
@@ -20,7 +23,7 @@ public class Robot {
     public CapstoneDeposit capstoneDeposit;
     public Logger logger;
 
-    private double prevX, prevY, prevTh, velocityX, velocityY, velocityTh, prevTime;
+    private double prevX, prevY, prevTh, xdot, ydot, w, prevxdot = 0, prevydot = 0, prevTime, xdotdot, ydotdot;
     public double startTime;
 
     // State booleans
@@ -171,10 +174,20 @@ public class Robot {
 
         double curTime = (double) System.currentTimeMillis() / 1000;
         double timeDiff = curTime - prevTime;
-        velocityX = (drivetrain.x - prevX) / timeDiff;
-        velocityY = (drivetrain.y - prevY) / timeDiff;
-        velocityTh = (drivetrain.currentheading - prevTh) / timeDiff;
-        prevX = drivetrain.x; prevY = drivetrain.y; prevTh = drivetrain.currentheading; prevTime = curTime;
+        //calculating velocity/acceleration
+        xdot = (drivetrain.x - prevX) / timeDiff;
+        ydot = (drivetrain.y - prevY) / timeDiff;
+        w = (drivetrain.currentheading - prevTh) / timeDiff;
+        xdotdot = (xdot-prevxdot)/timeDiff;
+        ydotdot = (ydot-prevydot)/timeDiff;
+
+        //setting tracking variables for old states
+        prevX = drivetrain.x;
+        prevY = drivetrain.y;
+        prevTh = drivetrain.currentheading;
+        prevTime = curTime;
+        prevydot = ydot;
+        prevxdot = xdot;
 
         drawRobot(drivetrain.x, drivetrain.y, drivetrain.currentheading);
         addPacket("X", drivetrain.x);
@@ -225,5 +238,9 @@ public class Robot {
     public void log(String message) {
         Log.w("robot", " ");
         Log.w("robot", message + " -------------------------------------------------------------------------");
+    }
+    public Waypoint currentRobotWaypoint(){
+        return new Waypoint(drivetrain.x, drivetrain.y, drivetrain.currentheading,
+                xdot, ydot, xdotdot, ydotdot, 0);
     }
 }

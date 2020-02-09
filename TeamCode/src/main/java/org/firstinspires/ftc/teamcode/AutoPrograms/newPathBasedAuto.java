@@ -74,14 +74,15 @@ public class newPathBasedAuto extends LinearOpMode {
         //Path time variables
         double skystone1Time = 1.5;
 
-        //Defining all paths
+        //Defining paths
         Waypoint[] skystone1PathWaypoints = {
-                new Waypoint(9,111,0,10,100,0),
-                new Waypoint(33, skystoneY-5, Math.PI/6, 50,  60, 1),
-                new Waypoint(45,skystoneY,Math.PI/4+0.2,30,-100, skystone1Time)
+                new Waypoint(9,111,0,10,100,1.5,0),
+                new Waypoint(33, skystoneY-5, Math.PI/6, 50,  60, 1.5,1),
+                new Waypoint(45,skystoneY,Math.PI/4+0.2,30,-100, 0,skystone1Time)
         };
         Path skystone1Path = new Path(new ArrayList<>(Arrays.asList(skystone1PathWaypoints)));
 
+        Path toFoundation1Path = null;
 
         // Time Used to End Segments After a Certain Period of Time
         ElapsedTime time = new ElapsedTime();
@@ -102,15 +103,23 @@ public class newPathBasedAuto extends LinearOpMode {
                 Pose robotpose = skystone1Path.getRobotPose(currentTime);
                 robot.drivetrain.setTargetPoint(robotpose.getX(),robotpose.getY(),robotpose.getTheta());
                 if(robot.stoneInRobot){
+                    //setting variable to move on from this segment
                     skystone1 = false;
+
+                    //defining the tofoundation path
+                    Waypoint[] tofoundation1PathWaypoints = {
+                            robot.currentRobotWaypoint(),
+
+                    };
+                    toFoundation1Path = new Path(new ArrayList<>(Arrays.asList(tofoundation1PathWaypoints)));
                 }
             }
 
-//            // Approach and Align Robot with Foundation
-//            else if (!approachFoundation) {
-//
-//
-//            }
+            // Approach and Align Robot with Foundation
+            else if (!approachFoundation) {
+
+
+            }
 //
 //            // Turn and Pull Foundation
 //            else if (!foundationPull) {

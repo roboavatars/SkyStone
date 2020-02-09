@@ -76,6 +76,16 @@ public class MecanumDrivetrain {
 
     private boolean isRed;
 
+    //motor caching stuff
+    private double lastFRPower = 0;
+    private double lastBRPower = 0;
+    private double lastFLPower = 0;
+    private double lastBLPower = 0;
+
+    public static double motorUpdateTolerance = 0.1;
+
+
+
     //Constructor
     public MecanumDrivetrain(LinearOpMode opMode, double initialx, double initialy, double initialtheta, boolean isRedAuto) {
 
@@ -148,11 +158,38 @@ public class MecanumDrivetrain {
         return versionBuilder.toString();
     }
 
-    public void setControls(double xvelocity, double yvelocity, double w){
-        motorFrontRight.setPower(xvelocity+yvelocity+w);
-        motorBackLeft.setPower(xvelocity+yvelocity-w);
-        motorFrontLeft.setPower(-xvelocity+yvelocity-w);
-        motorBackRight.setPower(-xvelocity+yvelocity+w);
+    public void setControls(double xdot, double ydot, double w){
+        double FRpower = ydot+xdot+w;
+        double BLpower = ydot+xdot-w;
+        double FLpower = -ydot+xdot-w;
+        double BRpower = -ydot+xdot+w;
+
+        double maxpower = Math.max(Math.abs(FRpower),Math.max(Math.abs(BLpower),
+                Math.max(Math.abs(FLpower),Math.abs(BRpower))));
+
+        if(maxpower > 1){
+            FRpower /= maxpower;
+            BLpower /= maxpower;
+            FLpower /= maxpower;
+            BRpower /= maxpower;
+        }
+
+
+        if(Math.abs(FRpower-lastFRPower)>motorUpdateTolerance || Math.abs(FLpower-lastFLPower)>motorUpdateTolerance
+            || Math.abs(BRpower-lastBRPower)>motorUpdateTolerance || Math.abs(BLpower-lastBLPower)>motorUpdateTolerance){
+
+            //set motor powers
+            motorFrontRight.setPower(FRpower);
+            motorBackLeft.setPower(BLpower);
+            motorFrontLeft.setPower(FLpower);
+            motorBackRight.setPower(BRpower);
+
+            //cache new motor powers
+            lastFRPower = FRpower;
+            lastFLPower = FLpower;
+            lastBRPower = BRpower;
+            lastBLPower = BLpower;
+        }
     }
 
     public void setTargetPoint(double xtarget, double ytarget, double thetatarget){
@@ -188,9 +225,7 @@ public class MecanumDrivetrain {
 
         setGlobalControls(-xK*(x-xtarget),-yK*(y-ytarget),-thetaK*(thetacontrol));
     }
-
-
-
+    
     public void setTargetPointAuto(double xtarget, double ytarget, double thetatarget){
         if (!isRed) {
             xtarget = 144 - xtarget;
@@ -236,29 +271,10 @@ public class MecanumDrivetrain {
     }
 
     public void setGlobalControls(double xvelocity, double yvelocity, double w){
-
         double xdot = xvelocity*Math.cos(-currentheading) - yvelocity*Math.sin(-currentheading);
         double ydot =  yvelocity*Math.cos(-currentheading) + xvelocity*Math.sin(-currentheading);
+        setControls(xvelocity, yvelocity, w);
 
-        double FRpower = ydot+xdot+w;
-        double BLpower = ydot+xdot-w;
-        double FLpower = -ydot+xdot-w;
-        double BRpower = -ydot+xdot+w;
-
-        double maxpower = Math.max(Math.abs(FRpower),Math.max(Math.abs(BLpower),
-                Math.max(Math.abs(FLpower),Math.abs(BRpower))));
-
-        if(maxpower > 1){
-            FRpower /= maxpower;
-            BLpower /= maxpower;
-            FLpower /= maxpower;
-            BRpower /= maxpower;
-        }
-
-        motorFrontRight.setPower(FRpower);
-        motorBackLeft.setPower(BLpower);
-        motorFrontLeft.setPower(FLpower);
-        motorBackRight.setPower(BRpower);
     }
 
     public LynxGetBulkInputDataResponse RevBulkData(){
@@ -323,7 +339,7 @@ public class MecanumDrivetrain {
 
     }
 
-    public double getAngle(){
+    public double getHeadingImu(){
 
         angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
         deltaheading = angles.firstAngle - lastheading;
@@ -343,19 +359,15 @@ public class MecanumDrivetrain {
 
     }
 
-    public void resetAngle(){
+    public void resetHeadingIMU(){
         angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
         lastheading = angles.firstAngle;
         currentheading = 0;
     }
 
     public boolean isAtPoseAuto(double targetx, double targety, double targettheta) {
-        if (!isRed) {
-            targetx = 144 - targetx;
-            targettheta = Math.PI - targettheta;
-        }
-        return (Math.abs(x - targetx) < xyTolerance && Math.abs(y - targety) < xyTolerance
-                && Math.abs(currentheading - targettheta) < thetaTolerance);
+
+        return isAtPoseAuto(targetx, targety, targettheta, xyTolerance, xyTolerance, thetaTolerance);
     }
     public boolean isAtPoseAuto(double targetx, double targety, double targettheta, double xtolerance, double ytolerance, double thetatolerance) {
         if (!isRed) {
