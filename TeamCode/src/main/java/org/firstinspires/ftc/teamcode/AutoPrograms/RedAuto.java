@@ -214,7 +214,7 @@ public class RedAuto extends LinearOpMode {
                       //  robot.depositAuto();
                     //}
                     robot.grabber.grabFoundation();
-                    robot.depositAuto();
+//                    robot.depositAuto();
                     time.reset(); log("appfound");
                 }
             }
@@ -435,7 +435,7 @@ public class RedAuto extends LinearOpMode {
             // Park Under Skybridge
             else if (!toTape) {
                 //if(robot.stacker.isArmHome() && !robot.stacker.stoneClamped){
-                    robot.drivetrain.setTargetPoint(30, 72, Math.PI / 2);
+                robot.drivetrain.setTargetPoint(30, 72, Math.PI / 2);
                 //}
                 //else if(time.seconds()>3){
                   //  robot.letGo = true;

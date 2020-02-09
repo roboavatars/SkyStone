@@ -44,6 +44,7 @@ public class Spline {
         this.timeScaling = 1/time;
 
     }
+    //broken -> generates loops and shit lol
     public Spline(double startx, double startv, double midx, double midv, double endx,
                   double endv , double time, double midtime){
 
@@ -86,6 +87,7 @@ public class Spline {
     }
 
     public double velocity(double time){
+        time = timeScaling*time;
         double velocity = a1 +
                 2*a2*time + 3*a3*Math.pow(time,2)+ 4*a4*Math.pow(time,3) + 5*a5*Math.pow(time,4);
         return velocity;
