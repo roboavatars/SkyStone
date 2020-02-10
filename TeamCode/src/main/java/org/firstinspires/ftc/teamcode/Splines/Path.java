@@ -62,10 +62,8 @@ public class Path {
         }
         else{
             for (int i = 0; i < waypointTimes.size(); i++) {
-                if(waypointTimes.get(i)<time){
+                if(waypointTimes.get(i)>time){
                     splineindex = i;
-                }
-                else{
                     break;
                 }
             }

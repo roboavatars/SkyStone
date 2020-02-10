@@ -82,7 +82,7 @@ public class MecanumDrivetrain {
     private double lastFLPower = 0;
     private double lastBLPower = 0;
 
-    public static double motorUpdateTolerance = 0.1;
+    public static double motorUpdateTolerance = 0.0;
 
 
 
@@ -200,11 +200,18 @@ public class MecanumDrivetrain {
         }
         //picking the smaller distance to rotate
         double thetacontrol = 0;
-        if(Math.abs(currentheading-thetatarget)>Math.PI){
+        if(currentheading-thetatarget>Math.PI){
             thetacontrol = currentheading-thetatarget-2*Math.PI;
-        }else{
+
+        }
+        else if(currentheading-thetatarget<(-Math.PI)){
+            thetacontrol = currentheading-thetatarget+2*Math.PI;
+
+        }
+        else{
             thetacontrol = currentheading-thetatarget;
         }
+        Log.w("auto", "thetacontrol: " + thetacontrol);
 
         setGlobalControls(-xk*(x-xtarget),-yk*(y-ytarget),-thetak*(thetacontrol));
     }
@@ -225,7 +232,7 @@ public class MecanumDrivetrain {
 
         setGlobalControls(-xK*(x-xtarget),-yK*(y-ytarget),-thetaK*(thetacontrol));
     }
-    
+
     public void setTargetPointAuto(double xtarget, double ytarget, double thetatarget){
         if (!isRed) {
             xtarget = 144 - xtarget;
@@ -273,7 +280,7 @@ public class MecanumDrivetrain {
     public void setGlobalControls(double xvelocity, double yvelocity, double w){
         double xdot = xvelocity*Math.cos(-currentheading) - yvelocity*Math.sin(-currentheading);
         double ydot =  yvelocity*Math.cos(-currentheading) + xvelocity*Math.sin(-currentheading);
-        setControls(xvelocity, yvelocity, w);
+        setControls(xdot, ydot, w);
 
     }
 

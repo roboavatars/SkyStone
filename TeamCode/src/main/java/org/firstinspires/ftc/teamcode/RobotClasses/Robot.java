@@ -85,8 +85,8 @@ public class Robot {
 
         // check states----------------------
         if (!stoneInRobot && !tryingToDeposit) {
-            stacker.goHome();
-            stacker.unClampStone();
+//            stacker.goHome();
+//            stacker.unClampStone();
             if(!intakeManual){
                 intake.setControls(0.5);
             }
