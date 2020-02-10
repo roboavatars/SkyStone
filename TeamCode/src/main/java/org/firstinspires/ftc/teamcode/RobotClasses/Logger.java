@@ -17,13 +17,15 @@ public class Logger {
 
     private static File robotDataLog;
     private static String basePath = "/sdcard/FIRST/robotLogs/RobotData";
-    //private static String basePath = "TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Tests/testLogs/TestLog";
+    //private static String basePath = "TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Tests/TestLog";
     private static FileWriter fileWriter;
     private static BufferedReader bufferedReader;
+    private String data = "";
     private ArrayList<double[]> dataArray;
 
     public void startLogging() {
         try {
+            data = "";
             robotDataLog = new File(getLogName(true));
             fileWriter = new FileWriter(robotDataLog);
             fileWriter.write("Timestamp,SinceStart,X,Y,Theta,VelocityX,VelocityY,VelocityTheta,StoneInRobot,StoneClamped,TryingToDeposit,ArmIsHome,ArmIsDown,ArmIsOut\n");
@@ -41,25 +43,21 @@ public class Logger {
     }
 
     public static String getLogName(boolean fileWrite) {
-        if (fileWrite) return basePath + (getLastFileNumber() + 1) + ".csv";
+        System.out.println(basePath + (int)(getLastFileNumber()+ 1) + ".csv");
+        if (fileWrite) return basePath + (int)(getLastFileNumber()+ 1) + ".csv";
         else return basePath + getLastFileNumber() + ".csv";
     }
 
     public void logData(double timeSinceSt, double x, double y, double theta, double velocityx, double velocityy, double velocitytheta, boolean stoneInRobot, boolean stoneClamped, boolean tryingToDeposit, boolean armIsHome, boolean armIsDown, boolean armIsOut) {
-        @SuppressLint("SimpleDateFormat")
         SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss.SSS"); Date d = new Date();
-        try {
-            fileWriter.write(df.format(d)+","+timeSinceSt+","+x+","+y+","+theta+","+velocityx+","+velocityy+","+velocitytheta+","+stoneInRobot+","+stoneClamped+","+tryingToDeposit+","+armIsHome+","+armIsDown+","+armIsOut+"\n");
-        } catch (Exception ex) {ex.printStackTrace();}
-    }
-
-    public void flush() {
-        try {fileWriter.flush();}
-        catch (Exception e) {e.printStackTrace();}
+        data = data + df.format(d)+","+timeSinceSt+","+x+","+y+","+theta+","+velocityx+","+velocityy+","+velocitytheta+","+stoneInRobot+","+stoneClamped+","+tryingToDeposit+","+armIsHome+","+armIsDown+","+armIsOut+"\n";
     }
 
     public void stopLogging() {
-        try {fileWriter.close();}
+        try {
+            fileWriter.write(data);
+            fileWriter.close();
+        }
         catch (Exception e) {e.printStackTrace();}
     }
 
@@ -116,8 +114,7 @@ public class Logger {
 //
 //        Logger logger = new Logger();
 //        logger.startLogging();
-//        logger.logData(0,-1,-1,-1,-100,-100,-100,false,false,false,false,false);
-//        logger.flush();
+//        logger.logData(0,-1,-1,-1,-100,-100,-100,false,false,false,false,false,false);
 //        logger.stopLogging();
 //    }
 }

@@ -39,7 +39,6 @@ public class Robot {
     private final int stoneValidationDistance = 3;
     private final int armTicksUpdatePeriod = 5;
     private final int loggerUpdatePeriod = 2;
-    private final int flushUpdatePeriod = 5000;
     private final double AlignDistance = 5.7;
 
     private int cycleCounter = 0;
@@ -170,7 +169,6 @@ public class Robot {
 //        if (cycleCounter % loggerUpdatePeriod == 0) {
 //            logger.logData(System.currentTimeMillis()-startTime,drivetrain.x,drivetrain.y,drivetrain.currentheading,velocityX,velocityY,velocityTh,stoneInRobot,stacker.stoneClamped,tryingToDeposit,stacker.isArmHome(),stacker.isArmDown(),stacker.isArmOut());
 //        }
-//        if (cycleCounter % flushUpdatePeriod == 0) logger.flush();
 
         double curTime = (double) System.currentTimeMillis() / 1000;
         double timeDiff = curTime - prevTime;
