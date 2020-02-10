@@ -22,7 +22,6 @@ public class MotionRecorder extends LinearOpMode {
             robot.update();
         }
 
-        robot.logger.flush();
         robot.logger.stopLogging();
     }
 }

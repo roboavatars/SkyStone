@@ -347,7 +347,6 @@
 //        }
 //
 //        robot.update();
-//        robot.logger.flush();
 //        robot.logger.stopLogging();
 //        detector.interrupt();
 //    }
