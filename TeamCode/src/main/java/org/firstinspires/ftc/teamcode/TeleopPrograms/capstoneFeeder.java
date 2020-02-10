@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.TeleopPrograms;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -9,7 +10,7 @@ import org.firstinspires.ftc.teamcode.RobotClasses.Robot;
 
 import java.util.Arrays;
 
-@TeleOp
+@TeleOp @Disabled
 public class capstoneFeeder extends LinearOpMode {
     private Robot robot;
     private boolean robotCentric = true;

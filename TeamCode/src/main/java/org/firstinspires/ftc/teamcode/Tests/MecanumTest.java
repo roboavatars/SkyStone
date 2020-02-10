@@ -20,7 +20,7 @@ public class MecanumTest extends LinearOpMode {
 
         while(opModeIsActive()){
             robot.update();
-            robot.drivetrain.setTargetPoint(9,111, -0.28546079139800173);
+            robot.drivetrain.setTargetPoint(9,111, 0.28546079139800173);
             Log.w("auto", String.format("%.5f", robot.drivetrain.x) + " " + String.format("%.5f", robot.drivetrain.y) + " " + String.format("%.5f", robot.drivetrain.currentheading));
         }
     }
