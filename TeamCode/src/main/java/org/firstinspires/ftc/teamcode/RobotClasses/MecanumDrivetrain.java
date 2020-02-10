@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.RobotClasses;
 
 import android.util.Log;
 
-import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.lynx.LynxEmbeddedIMU;
 import com.qualcomm.hardware.lynx.LynxI2cDeviceSynchV2;
@@ -24,7 +23,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 @SuppressWarnings("FieldCanBeLocal")
-@Config
 public class MecanumDrivetrain {
 
     //1440 ticks per encoder revolution
@@ -66,8 +64,8 @@ public class MecanumDrivetrain {
 
     private final double xyTolerance = 1;
     private final double thetaTolerance = Math.PI/35;
-    public static double OdometryTrackWidth = 13.74;
-    public static double OdometryHorizontalOffset = 3.17;
+    private double OdometryTrackWidth = 13.74;
+    private double OdometryHorizontalOffset = 3.17;
     private final double OdometryHeadingThreshold = Math.PI/8;
 
     public double lastx = 0;

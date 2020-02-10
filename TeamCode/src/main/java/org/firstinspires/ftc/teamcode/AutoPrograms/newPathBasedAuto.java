@@ -50,6 +50,17 @@ public class newPathBasedAuto extends LinearOpMode {
         boolean toFoundation2 = false;
         boolean toTape = false;
 
+        //Path time variables
+        double skystone1Time = 1.5;
+        double toFoundation1Time = 3;
+        double approachFoundationTime = 1.5;
+        double foundationPullTime = 2.25;
+        double skystone2Time = 4;
+        double toFoundation2Time = 3;
+
+        //deposit position
+        double depositX, depositY, depositTheta;
+
         // After Start
         waitForStart();
 
@@ -69,22 +80,10 @@ public class newPathBasedAuto extends LinearOpMode {
         //stop detector
         detector.setActive(false);
 
-        //Path time variables
-        double skystone1Time = 1.5;
-        double toFoundation1Time = 3;
-        double approachFoundationTime = 1.5;
-        double foundationPullTime = 2;
-        double skystone2Time = 2;
-        double toFoundation2Time = 3;
-
-        //deposit position
-        double depositX, depositY, depositTheta;
-
         //Defining paths
         Waypoint[] skystone1PathWaypoints = { //turn first, then move towards block
-                new Waypoint(9,111,0,15,100,0,0),
-                new Waypoint(33, skystoneY, Math.PI /4+ 0.2, 1,  60, 0,1),
-                new Waypoint(45,skystoneY,Math.PI / 4 + 0.2, 20, 0, -20, 0, skystone1Time)
+                new Waypoint(9,111,0,20,100,0,0),
+                new Waypoint(45,skystoneY,Math.PI / 4 + 0.2, 20, -100, 0, skystone1Time)
         };
         Path skystone1Path = new Path(new ArrayList<>(Arrays.asList(skystone1PathWaypoints)));
         Spline skystone1ThetaSpline = new Spline(0, 0, 8, Math.PI / 4 + 0.2, 0, 0, skystone1Time);
@@ -111,12 +110,7 @@ public class newPathBasedAuto extends LinearOpMode {
             if (!skystone1) {
                 double currentTime = Math.min(skystone1Time, time.seconds());
                 Pose robotPose = skystone1Path.getRobotPose(currentTime);
-//                if(currentTime>1){
-//                    robot.drivetrain.setTargetPoint(robotPose.getX(),robotPose.getY(),Math.PI/4 + 0.2);
-//                }
-//                else{
-                  robot.drivetrain.setTargetPoint(robotPose.getX(),robotPose.getY(),skystone1ThetaSpline.position(currentTime));
-//                }
+                robot.drivetrain.setTargetPoint(robotPose.getX(),robotPose.getY(),skystone1ThetaSpline.position(currentTime));
 
                 if (robot.stoneInRobot || time.seconds() > skystone1Time+0.5) {
                     //setting variable to move on from this segment
@@ -140,34 +134,47 @@ public class newPathBasedAuto extends LinearOpMode {
                 Pose robotPose = toFoundation1Path.getRobotPose(currentTime);
                 robot.drivetrain.setTargetPoint(robotPose.getX(),robotPose.getY(),robotPose.getTheta()+Math.PI);
 
-                if (time.seconds() > toFoundation1Time-0.5) {
+                if (time.seconds() > toFoundation1Time+0.5) {
                     robot.grabber.grabFoundation();
                 }
-                if (time.seconds() > toFoundation1Time) {
+                if (time.seconds() > toFoundation1Time + 1) {
                     toFoundation1 = true;
                     time.reset();
                 }
             }
 
-//            // Turn and Pull Foundation
-//            else if (!foundationPull) {
-//                if (robot.drivetrain.currentheading > 2*Math.PI/3) {
-//                    robot.drivetrain.setControls(0,0.6,-0.35);
-//                } else {
-//                    robot.drivetrain.setTargetPoint(30,45,Math.PI/2);
-//                }
-//
-//                if (time.seconds() > foundationPullTime) {
-//                    foundationPull = true;
-//                    depositX = robot.drivetrain.x; depositY = robot.drivetrain.y; depositTheta = robot.drivetrain.currentheading;
-//                    Log.w("auto", "Deposit Cor: " + depositX + " " + depositY + " " + depositTheta);
-//                }
-//            }
-//
-//            // Get Second Skystone
-//            else if (!skystone2) {
-//
-//            }
+            // Turn and Pull Foundation
+            else if (!foundationPull) {
+                if (robot.drivetrain.currentheading > 2*Math.PI/3) {
+                    robot.drivetrain.setControls(0.6,0,-0.35);
+                } else {
+                    robot.drivetrain.setTargetPoint(30,45,Math.PI/2);
+                }
+
+                if (time.seconds() > foundationPullTime) {
+                    foundationPull = true;
+                    robot.grabber.releaseFoundation();
+                    depositX = robot.drivetrain.x; depositY = robot.drivetrain.y; depositTheta = robot.drivetrain.currentheading;
+                    Waypoint[] skystone2PathWaypoints = new Waypoint[] {
+                            new Waypoint(30, 45, Math.PI / 2, 30, 100,0, 0),
+                            new Waypoint(26, skystoneY - 24, Math.PI / 3, 30, 10,0, 1.75),
+                            new Waypoint(49, skystoneY - 20, Math.PI / 4 + 0.2, 30, -10,0, skystone2Time)
+                    };
+                    skystone2Path = new Path(new ArrayList<>(Arrays.asList(skystone2PathWaypoints)));
+                    Log.w("auto", "Deposit Cor: " + depositX + " " + depositY + " " + depositTheta);
+                }
+            }
+
+            // Get Second Skystone
+            else if (!skystone2) {
+                double currentTime = Math.min(skystone2Time, time.seconds());
+                Pose robotPose = skystone2Path.getRobotPose(currentTime);
+                robot.drivetrain.setTargetPoint(robotPose.getX(),robotPose.getY(),robotPose.getTheta());
+
+                if (time.seconds() > skystone2Time + 0.5 || robot.stoneInRobot) {
+                    skystone2 = true;
+                }
+            }
 //
 //            // Go to Foundation to Deposit Second Skystone
 //            else if (!toFoundation2) {
