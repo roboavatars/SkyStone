@@ -87,7 +87,7 @@ public class Robot {
 //            stacker.goHome();
 //            stacker.unClampStone();
             if(!intakeManual){
-                intake.setControls(0.5);
+                intake.setControls(0.7);
             }
         }
         else if (stacker.isArmOut() && stoneInRobot && !depositAuto){
@@ -241,4 +241,8 @@ public class Robot {
         return new Waypoint(drivetrain.x, drivetrain.y, drivetrain.currentheading,
                 xdot, ydot, xdotdot, ydotdot, 0);
     }
+
+//    public void setSafeControls(double x, double y, double theta) {
+//        drivetrain.setTargetPoint();
+//    }
 }
