@@ -88,9 +88,9 @@ public class newPathBasedAuto extends LinearOpMode {
         }
 
         // stone 3-5 locations
-        Point2D[][] stonelocations = {{new Point2D(50, 100), new Point2D(68, 108), new Point2D(50, 120)},
-                                      {new Point2D(55,114), new Point2D(55,93), new Point2D(49,138)},
-                                      {new Point2D(55,108), new Point2D(49,132), new Point2D(49,137)}
+        Point2D[][] stonelocations = {{new Point2D(54, 100), new Point2D(74, 115), new Point2D(60, 125)},
+                                      {new Point2D(55,114), new Point2D(55,93), new Point2D(49,130)},
+                                      {new Point2D(55,108), new Point2D(49,126), new Point2D(49,130)}
         };
 
         //stop detector
@@ -117,7 +117,7 @@ public class newPathBasedAuto extends LinearOpMode {
         // Time Used to End Segments After a Certain Period of Time
         ElapsedTime time = new ElapsedTime();
 
-        robot.intake.setControls(1.0);
+        robot.intake.setControls(0.7);
         sleep(33);
         log("Skystone 1");
 
@@ -136,16 +136,19 @@ public class newPathBasedAuto extends LinearOpMode {
                 if (robot.stoneInRobot || time.seconds() > (skystone1Time + 0.5)) {
                     //setting variable to move on from this segment
                     skystone1 = true;
-                    //reset time
-                    time.reset();
+
                     //defining the tofoundation path
                     Waypoint[] toFoundation1PathWaypoints = new Waypoint[] {
                             new Waypoint(robot.drivetrain.x, robot.drivetrain.y, robot.drivetrain.currentheading, -30, -100,0, 0),
-                            new Waypoint(36, skystoneY - 25, Math.PI / 3, -30, -40,0, 1),
+                            new Waypoint(36, skystoneY - 25, Math.PI / 3, -50, -40,0, 1),
                             new Waypoint(31, 35, Math.PI / 2, -30, -30,0, 2),
-                            new Waypoint(47, 24, Math.PI, -30, 100,0, toFoundation1Time)
+                            new Waypoint(43, 24, Math.PI, -30, 100,0, toFoundation1Time)
                     };
                     toFoundation1Path = new Path(new ArrayList<>(Arrays.asList(toFoundation1PathWaypoints)));
+                    robot.intake.setControls(0);
+
+                    //reset time
+                    time.reset();
                 }
             }
 
@@ -176,7 +179,6 @@ public class newPathBasedAuto extends LinearOpMode {
 
                 if (time.seconds() > foundationPullTime) {
                     foundationPull = true;
-                    time.reset();
                     robot.grabber.releaseFoundation();
                     depositX = robot.drivetrain.x; depositY = robot.drivetrain.y; depositTheta = robot.drivetrain.currentheading;
                     Log.w("auto", "Deposit Cor: " + depositX + " " + depositY + " " + depositTheta);
@@ -184,9 +186,11 @@ public class newPathBasedAuto extends LinearOpMode {
                     Waypoint[] skystone2PathWaypoints = new Waypoint[] {
                             new Waypoint(robot.drivetrain.x,robot.drivetrain.y, robot.drivetrain.currentheading, 10, 75,0, 0),
                             new Waypoint(31, skystoneY - 28, Math.PI / 3, 30, 10,-3, 1.5),
-                            new Waypoint(47, skystoneY - 21, Math.PI/4, 10, -100,0, skystone2Time)
+                            new Waypoint(47, skystoneY - 24, Math.PI/4, 10, -100,0, skystone2Time)
                     };
                     skystone2Path = new Path(new ArrayList<>(Arrays.asList(skystone2PathWaypoints)));
+                    robot.intake.setControls(0.7);
+                    time.reset();
                 }
             }
 
@@ -205,10 +209,12 @@ public class newPathBasedAuto extends LinearOpMode {
                     skystone2 = true;
                     Waypoint[] toFoundation2PathWaypoints = new Waypoint[] {
                             new Waypoint(robot.drivetrain.x, robot.drivetrain.y, robot.drivetrain.currentheading, -30, -100,0, 0),
-                            new Waypoint(31, skystoneY - 32, Math.PI / 2, -50, -10,0, 1),
+                            new Waypoint(33, skystoneY - 32, Math.PI / 2, -50, -10,0, 1),
                             new Waypoint(30, 28, Math.PI / 2, -30, 50,0, toFoundation2Time)
                     };
                     toFoundation2Path = new Path(new ArrayList<>(Arrays.asList(toFoundation2PathWaypoints)));
+
+                    robot.intake.setControls(0);
                     time.reset();
                 }
             }
@@ -221,14 +227,28 @@ public class newPathBasedAuto extends LinearOpMode {
 
                 if (time.seconds() > (toFoundation2Time + 0.5)) {
                     toFoundation2 = true;
-                    Waypoint[] stone3PathWaypoints = new Waypoint[] {
-                            new Waypoint(robot.drivetrain.x,robot.drivetrain.y, robot.drivetrain.currentheading, 10, 100,0, 0),
-                            new Waypoint(31, stonelocations[skystonePos-1][0].getY() - 26, Math.PI / 3, 30, 10,-3, 1.5),
-                            new Waypoint(stonelocations[skystonePos-1][0].getX(), stonelocations[skystonePos-1][0].getY(), Math.PI/4, 10, -100,0, stone3Time)
-                    };
-                    stone3Path = new Path(new ArrayList<>(Arrays.asList(stone3PathWaypoints)));
+                    Waypoint[] stone3PathWaypoints;
+                    if(skystonePos == 1){
+                        stone3PathWaypoints = new Waypoint[] {
+                                new Waypoint(robot.drivetrain.x,robot.drivetrain.y, robot.drivetrain.currentheading, 10, 100,0, 0),
+                                new Waypoint(31, stonelocations[skystonePos-1][0].getY() - 26, Math.PI / 3, 30, 10,-3, 1.5),
+                                new Waypoint(stonelocations[skystonePos-1][0].getX(), stonelocations[skystonePos-1][0].getY(), Math.PI/4-0.2, 10, -100,0, stone3Time)
+                        };
 
+                    }
+                    else{
+                        stone3PathWaypoints = new Waypoint[] {
+                                new Waypoint(robot.drivetrain.x,robot.drivetrain.y, robot.drivetrain.currentheading, 10, 100,0, 0),
+                                new Waypoint(31, stonelocations[skystonePos-1][0].getY() - 26, Math.PI / 3, 30, 10,-3, 1.5),
+                                new Waypoint(stonelocations[skystonePos-1][0].getX(), stonelocations[skystonePos-1][0].getY(), Math.PI/4, 10, -100,0, stone3Time)
+                        };
+
+                    }
+
+                    stone3Path = new Path(new ArrayList<>(Arrays.asList(stone3PathWaypoints)));
+                    robot.intake.setControls(0.7);
                     time.reset();
+
                 }
             }
             // Get Third stone
@@ -243,9 +263,10 @@ public class newPathBasedAuto extends LinearOpMode {
                     Waypoint[] toFoundation3PathWaypoints = new Waypoint[] {
                             new Waypoint(robot.drivetrain.x, robot.drivetrain.y, robot.drivetrain.currentheading, -30, -100,0, 0),
                             new Waypoint(31, stonelocations[skystonePos-1][0].getY() - 32, Math.PI / 2, -50, -10,0, 1),
-                            new Waypoint(30, 25, Math.PI / 2, -30, 50,0, toFoundation3Time)
+                            new Waypoint(30, 33, Math.PI / 2, -30, 50,0, toFoundation3Time)
                     };
                     toFoundation3Path = new Path(new ArrayList<>(Arrays.asList(toFoundation3PathWaypoints)));
+                    robot.intake.setControls(0);
                     time.reset();
                 }
             }
@@ -263,7 +284,7 @@ public class newPathBasedAuto extends LinearOpMode {
                         stone4PathWaypoints = new Waypoint[]{
                                 new Waypoint(robot.drivetrain.x, robot.drivetrain.y, robot.drivetrain.currentheading, 10, 100, 0, 0),
                                 new Waypoint(31, stonelocations[skystonePos - 1][1].getY() - 16, Math.PI / 3, 30, 10, -3, 1.5),
-                                new Waypoint(stonelocations[skystonePos - 1][1].getX(), stonelocations[skystonePos - 1][1].getY(), -Math.PI/8, 10, -100, 0, stone4Time)
+                                new Waypoint(stonelocations[skystonePos - 1][1].getX(), stonelocations[skystonePos - 1][1].getY(), Math.PI/8, 10, -100, 0, stone4Time)
                         };
                     }
                     else if (skystonePos == 3) {
@@ -281,6 +302,7 @@ public class newPathBasedAuto extends LinearOpMode {
                         };
                     }
                     stone4Path = new Path(new ArrayList<>(Arrays.asList(stone4PathWaypoints)));
+                    robot.intake.setControls(0.7);
                     time.reset();
                 }
             }
@@ -295,10 +317,11 @@ public class newPathBasedAuto extends LinearOpMode {
                     stone4 = true;
                     Waypoint[] toFoundation4PathWaypoints = new Waypoint[] {
                             new Waypoint(robot.drivetrain.x, robot.drivetrain.y, robot.drivetrain.currentheading, -30, -100,0, 0),
-                            new Waypoint(31, stonelocations[skystonePos-1][1].getY() - 32, Math.PI / 2, -50, -10,0, 1),
-                            new Waypoint(30, 25, Math.PI / 2, -30, 50,0, toFoundation4Time)
+                            new Waypoint(31, stonelocations[skystonePos-1][1].getY() - 25, Math.PI / 2, -50, -10,0, 1),
+                            new Waypoint(30, 33, Math.PI / 2, -30, 50,0, toFoundation4Time)
                     };
                     toFoundation4Path = new Path(new ArrayList<>(Arrays.asList(toFoundation4PathWaypoints)));
+                    robot.intake.setControls(0);
                     time.reset();
                 }
             }
@@ -327,6 +350,7 @@ public class newPathBasedAuto extends LinearOpMode {
                         };
                     }
                     stone5Path = new Path(new ArrayList<>(Arrays.asList(stone5PathWaypoints)));
+                    robot.intake.setControls(0.7);
                     time.reset();
                 }
             }
@@ -342,9 +366,10 @@ public class newPathBasedAuto extends LinearOpMode {
                     Waypoint[] toFoundation5PathWaypoints = new Waypoint[] {
                             new Waypoint(robot.drivetrain.x, robot.drivetrain.y, robot.drivetrain.currentheading, -30, -100,0, 0),
                             new Waypoint(31, stonelocations[skystonePos-1][2].getY() - 32, Math.PI / 2, -50, -10,0, 1),
-                            new Waypoint(30, 25, Math.PI / 2, -30, 50,0, toFoundation5Time)
+                            new Waypoint(30, 33, Math.PI / 2, -30, 50,0, toFoundation5Time)
                     };
                     toFoundation5Path = new Path(new ArrayList<>(Arrays.asList(toFoundation5PathWaypoints)));
+                    robot.intake.setControls(0);
                     time.reset();
                 }
             }
