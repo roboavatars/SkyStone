@@ -71,6 +71,7 @@ public class MecanumDrivetrain {
     public double lastx = 0;
     public double lasty = 0;
     public boolean stoneInRobot = false;
+    public double distance;
 
     private boolean isRed;
 
@@ -81,8 +82,6 @@ public class MecanumDrivetrain {
     private double lastBLPower = 0;
 
     public static double motorUpdateTolerance = 0.0;
-
-
 
     //Constructor
     public MecanumDrivetrain(LinearOpMode opMode, double initialx, double initialy, double initialtheta, boolean isRedAuto) {
@@ -302,9 +301,8 @@ public class MecanumDrivetrain {
             double pod2 = response.getEncoder(1) * 0.00300622055 * 2;
             double pod3 = -response.getEncoder(2) * 0.00300622055 * 2;
 
-            double distance = response.getAnalogInput(0);
-            stoneInRobot = distance > 1000;
-            opMode.telemetry.addData("distance", distance);
+            distance = response.getAnalogInput(0);
+            stoneInRobot = distance > 200;
 
             double deltapod1 = pod1 - lastpod1;
             double deltapod2 = pod2 - lastpod2;

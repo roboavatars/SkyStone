@@ -15,7 +15,7 @@ public class MecanumTest extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        robot = new Robot(this,9,111, 0, false);
+        robot = new Robot(this,9,111, 0, false, false);
         waitForStart();
 
         while(opModeIsActive()){

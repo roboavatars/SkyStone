@@ -26,7 +26,7 @@ public class Teleop extends LinearOpMode {
         /*double[] initialPosition = Logger.readPos();
         telemetry.addData("Starting Position", Arrays.toString(initialPosition)); telemetry.update();
         robot = new Robot(this, initialPosition[0], initialPosition[1], initialPosition[2]);*/
-        robot = new Robot(this, 0, 0, 0, false);
+        robot = new Robot(this, 0, 0, 0, false, false);
         robot.logger.startLogging();
         robot.stacker.unClampStone();
         robot.stacker.goHome();

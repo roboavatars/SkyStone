@@ -34,7 +34,7 @@ public class newPathBasedAuto extends LinearOpMode {
         detector.isAllianceRed(true);
 
         // Initialize Robot
-        robot = new Robot(this, 9, 111, 0, true);
+        robot = new Robot(this, 9, 111, 0, true,true);
         robot.logger.startLogging();
         robot.grabber.releaseFoundation();
         robot.intake.setControls(0);

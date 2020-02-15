@@ -25,7 +25,7 @@ public class capstoneFeeder extends LinearOpMode {
     public void runOpMode() {
         double[] initialPosition = Logger.readPos();
         telemetry.addData("Starting Position", Arrays.toString(initialPosition)); telemetry.update();
-        robot = new Robot(this, initialPosition[0], initialPosition[1], initialPosition[2], false);
+        robot = new Robot(this, initialPosition[0], initialPosition[1], initialPosition[2], false,false);
         robot.logger.startLogging();
 
         waitForStart();

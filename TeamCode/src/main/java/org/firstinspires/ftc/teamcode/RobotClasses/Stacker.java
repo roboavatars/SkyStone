@@ -6,13 +6,8 @@ import com.qualcomm.hardware.lynx.commands.core.LynxGetBulkInputDataResponse;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
-
-import org.firstinspires.ftc.teamcode.Splines.Spline;
-import org.firstinspires.ftc.teamcode.Splines.SplineGenerator;
 
 @SuppressWarnings("FieldCanBeLocal")
 public class Stacker {
@@ -24,12 +19,14 @@ public class Stacker {
     private Servo stoneClamp;
     
     private final double clampPos = 0.01;
-    private final double unClampPos = 0.86;
-    
-    public final int armPos[] =   {1370, 1370, 1370,  1370,  635, 635, 635, 635, 635, 635}; // increases down
-    private final int liftPos[] = {-540, -992, -1444, -1896, 0, -500, -1050, -1430, -1850, -2330};
+    private final double unClampPos = 0.55;
 
-    private final int liftMin[] = {0, 0, 0, -400, 0, 0, -400, -800, -1200, -1600};
+    // the lower the pos value, the higher the arm
+    private final int[] armPos = {1320, 1320, 1320, 1320, 635, 635, 635, 635, 635, 635};
+    private final int[] liftPos = {-640, -1092, -1544, -1996, 0, -500, -1050, -1430, -1850, -2330};
+    private final int[] liftMin = {0, 0, 0, -400, 0, 0, -400, -800, -1200, -1600};
+
+    private int autoDepositPos = 635;
 
     public int currentStackHeight = 0;
     private int armTicks = 0;
@@ -38,20 +35,18 @@ public class Stacker {
     public boolean stoneClamped = false;
     private final int armOut = 500;
     private final int armDown = -30;
-    private final int armHome = 90;
+    private final int armHome = 100;
     private final int armTolerance = 20;
-    private final int liftHome = 50;
+    private final int liftHome = 20;
     private final int liftTolerance = 10;
-    private final int moveliftUpHeight = 300;
-    //unit is ticks/second
+    private final int moveLiftUpHeight = 400;
 
+    //unit is ticks/second
     private double armVelocity = 0;
-    public double liftVelocity = 0;
+    private double liftVelocity = 0;
     private final int armVelocityTolerance = 2;
     private final int liftVelocityTolerance = 5;
 
-    private Spline trajectory;
-    private boolean isFollowingTrajectory = false;
     //OpMode Stuff
     private LinearOpMode op;
     private HardwareMap hardwareMap;
@@ -143,25 +138,33 @@ public class Stacker {
         setLiftControls(1.0, liftPos[currentStackHeight]-300);
 
     }
+    public void depositAuto() {
+        setDepositControls(0.44, autoDepositPos);
+    }
+    public boolean atautodepositpos() {
+        return Math.abs(getArmPosition() - autoDepositPos) < armTolerance;
+    }
+
     public void liftUp(){
-        setLiftControls(1, liftPos[currentStackHeight] - moveliftUpHeight);
+        setLiftControls(1, liftPos[currentStackHeight] - moveLiftUpHeight);
     }
 
     public boolean isArmHome() {
         return Math.abs(getArmPosition() - armHome) < armTolerance;
     }
-    public boolean isLiftHome() {
-        return Math.abs(getLiftPosition() - liftHome) < liftTolerance;
-    }
-    public boolean isLiftUp() {
-        return Math.abs(getLiftPosition() - (liftPos[currentStackHeight]-moveliftUpHeight)) < 40 && !isLiftMoving();
-
-    }
     public boolean isArmOut() {
         return getArmPosition() > armOut;
     }
     public boolean isArmDown() {
-        return Math.abs(getArmPosition()+ 30) < armTolerance && !isArmMoving();
+        return Math.abs(getArmPosition() + 30) < armTolerance && !isArmMoving();
+    }
+
+    public boolean isLiftHome() {
+        return Math.abs(getLiftPosition() - liftHome) < liftTolerance;
+    }
+    public boolean isLiftUp() {
+        return Math.abs(getLiftPosition() - (liftPos[currentStackHeight]- moveLiftUpHeight)) < 40 && !isLiftMoving();
+
     }
 
     public void nextLevel() {

@@ -2,20 +2,21 @@ package org.firstinspires.ftc.teamcode.Tests;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import org.ejml.simple.SimpleMatrix;
 import org.firstinspires.ftc.teamcode.RobotClasses.Robot;
 import org.firstinspires.ftc.teamcode.iLQR.Optimizer;
 
-@Autonomous
+@Autonomous @Disabled
 public class iLQRAutotest extends LinearOpMode {
 
     private ElapsedTime time = new ElapsedTime();
 
     @Override
     public void runOpMode() throws InterruptedException {
-        Robot robot = new Robot(this,9,111, 0, true);
+        Robot robot = new Robot(this,9,111, 0, true, true);
         waitForStart();
 
         double [][] x0 = {{9},{111}};
