@@ -15,7 +15,7 @@ import java.util.Arrays;
 public class Teleop extends LinearOpMode {
 
     private Robot robot;
-    private boolean robotCentric = true;
+    private boolean robotCentric = false;
     private boolean dpadUp = true;
     private boolean dpadDown = true;
     private boolean rightBumper = true;
@@ -77,10 +77,16 @@ public class Teleop extends LinearOpMode {
                 robot.drivetrain.setControls(-gamepad1.left_stick_x, -gamepad1.left_stick_y, -gamepad1.right_stick_x);
                 robot.isManualAlign = true;
             }
+            else if(!robotCentric){
+                robot.drivetrain.setGlobalControls(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x);
+
+            }
             else{
                 robot.isManualAlign = false;
                 robot.drivetrain.setControls(0,0,0);
             }
+
+
 
             double prev = time.milliseconds();
             robot.update();

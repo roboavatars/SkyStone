@@ -153,18 +153,22 @@ public class Robot {
             }
         }
         else {
-
-            if (stoneInRobot && stacker.isArmHome() && !tryingToDeposit) {
+            if(!tryingToDeposit && !stoneInRobot){
+                stacker.goHome();
+            }
+            else if (stoneInRobot && stacker.isArmHome() && !tryingToDeposit) {
                 stacker.goDown();
             }
             else if (stoneInRobot && stacker.isArmDown() && !tryingToDeposit) {
                 stacker.clampStone();
                 intake.setControls(0);
             }
-            else if (!stoneInRobot && tryingToDeposit && !stacker.atautodepositpos()) {
+            else if (stoneInRobot && tryingToDeposit && !stacker.atautodepositpos()) {
                 stacker.depositAuto();
             }
-            else if (!stoneInRobot && tryingToDeposit && stacker.atautodepositpos()) {
+            //TODO fix this hardcoded postion
+            else if (!stoneInRobot && tryingToDeposit && stacker.getArmPosition()>850) {
+                stacker.unClampStone();
                 tryingToDeposit = false;
                 intake.setControls(0.7);
             }
@@ -234,7 +238,7 @@ public class Robot {
     }
 
     public void depositAuto() {
-        if (!stacker.isArmOut()) {
+        if (!stacker.isArmOut() && stoneInRobot) {
             tryingToDeposit = true;
             //depositAuto = true;
         }

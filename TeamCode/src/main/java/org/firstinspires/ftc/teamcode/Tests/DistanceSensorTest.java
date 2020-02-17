@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-@TeleOp(name="Distance Sensor Test") @Disabled
+@Autonomous(name="Distance Sensor Test")
 public class DistanceSensorTest extends LinearOpMode {
 
     private ModernRoboticsAnalogOpticalDistanceSensor stoneSensor;

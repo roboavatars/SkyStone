@@ -26,7 +26,7 @@ public class Stacker {
     private final int[] liftPos = {-640, -1092, -1544, -1996, 0, -500, -1050, -1430, -1850, -2330};
     private final int[] liftMin = {0, 0, 0, -400, 0, 0, -400, -800, -1200, -1600};
 
-    private int autoDepositPos = 635;
+    private int autoDepositPos = 950;
 
     public int currentStackHeight = 0;
     private int armTicks = 0;
@@ -135,11 +135,12 @@ public class Stacker {
         if (liftMin[currentStackHeight] > liftTicks){
             setDepositControls(0.44, armPos[currentStackHeight]);
         }
-        setLiftControls(1.0, liftPos[currentStackHeight]-300);
+        setLiftControls(0.8, liftPos[currentStackHeight]-300);
 
     }
     public void depositAuto() {
-        setDepositControls(0.44, autoDepositPos);
+
+        setDepositControls(1.0, autoDepositPos);
     }
     public boolean atautodepositpos() {
         return Math.abs(getArmPosition() - autoDepositPos) < armTolerance;
