@@ -297,12 +297,12 @@ public class MecanumDrivetrain {
     public void updatePose(){
         try {
             LynxGetBulkInputDataResponse response = RevBulkData();
-            double pod1 = -response.getEncoder(0) * 0.00300622055 * 2;
-            double pod2 = response.getEncoder(1) * 0.00300622055 * 2;
+            double pod1 = -response.getEncoder(1) * 0.00300622055 * 2;
+            double pod2 = response.getEncoder(0) * 0.00300622055 * 2;
             double pod3 = -response.getEncoder(2) * 0.00300622055 * 2;
 
             distance = response.getAnalogInput(0);
-            stoneInRobot = distance > 200;
+            stoneInRobot = distance > 30;
 
             double deltapod1 = pod1 - lastpod1;
             double deltapod2 = pod2 - lastpod2;

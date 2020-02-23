@@ -12,34 +12,38 @@ import com.qualcomm.robotcore.hardware.Servo;
 @SuppressWarnings("FieldCanBeLocal")
 public class Stacker {
     
-    //Electronics
+    // electronics
     private LynxModule module;
     private DcMotorEx liftMotor;
     private DcMotorEx depositMotor;
     private Servo stoneClamp;
-    
+
+    // clamp positions
     private final double clampPos = 0.01;
     private final double unClampPos = 0.55;
 
+    public boolean stoneClamped = false;
+
+    // arm/lift deposit positions
     // the lower the pos value, the higher the arm
     private final int[] armPos = {1320, 1320, 1320, 1320, 635, 635, 635, 635, 635, 635};
-    private final int[] liftPos = {-640, -1092, -1544, -1996, 0, -500, -1050, -1430, -1850, -2330};
-    private final int[] liftMin = {0, 0, 0, -400, 0, 0, -400, -800, -1200, -1600};
-
+    private final int[] liftPos = {-640, -1092, -1544, -1996, 0, -500, -1050, -1430, -1950, -2530};
+    private final int[] liftMin = {0, 0, 0, -500, 0, 0, -500, -900, -1400, -1800};
     private int autoDepositPos = 950;
 
     public int currentStackHeight = 0;
     private int armTicks = 0;
     private int liftTicks = 0;
 
-    public boolean stoneClamped = false;
     private final int armOut = 500;
     private final int armDown = -30;
-    private final int armHome = 100;
-    private final int armTolerance = 20;
+    private final int armHome = 50;
+    private final int armTolerance = 30;
     private final int liftHome = 20;
     private final int liftTolerance = 10;
     private final int moveLiftUpHeight = 400;
+
+    private final int armIntermediatePos = 180;
 
     //unit is ticks/second
     private double armVelocity = 0;
@@ -84,19 +88,6 @@ public class Stacker {
         op.telemetry.addData("Status", "Stacker Initialized");
 
     }
-
-    public LynxGetBulkInputDataResponse RevBulkData(){
-        LynxGetBulkInputDataResponse response;
-        try {
-            LynxGetBulkInputDataCommand command = new LynxGetBulkInputDataCommand(module);
-            response = command.sendReceive();
-        }
-        catch (Exception e) {
-            op.telemetry.addData("Exception", "bulk read exception");
-            response = null;
-        }
-        return response;
-    }
     
     public void setLiftControls(double power, int ticks) {
         liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -109,45 +100,48 @@ public class Stacker {
         depositMotor.setPower(power);
     }
 
+    public void adjustLift(double power, int ticks) {
+        setLiftControls(power, liftPos[currentStackHeight]+ticks);
+    }
+    public void adjustArm(double power, int ticks) {
+        setDepositControls(power, armPos[currentStackHeight]+ticks);
+    }
+
     public void goHome() {
         if (armTicks < 40){
-            setDepositControls(1,armHome);
-        }
-        else {
+            setDepositControls(1, armHome);
+        } else {
             setDepositControls(0.5, armHome);
         }
-        if(liftTicks>-50){
+        if (liftTicks > -50){
             liftMotor.setPositionPIDFCoefficients(18);
-        }
-        else{
+        } else{
             liftMotor.setPositionPIDFCoefficients(5);
         }
-        setLiftControls(1.0,liftHome);
+        setLiftControls(1.0, liftHome);
     }
     public void goDown() {
         setDepositControls(1.0, armDown);
     }
     public void downStack() {
-        setLiftControls(1.0,liftPos[currentStackHeight]);
+        setLiftControls(1.0, liftPos[currentStackHeight]);
+    }
+
+    public void liftUp(){
+        setLiftControls(1, liftPos[currentStackHeight] - moveLiftUpHeight);
     }
 
     public void deposit() {
         if (liftMin[currentStackHeight] > liftTicks){
             setDepositControls(0.44, armPos[currentStackHeight]);
         }
+        else{
+            setDepositControls(0.44, armIntermediatePos);
+        }
         setLiftControls(0.8, liftPos[currentStackHeight]-300);
-
     }
     public void depositAuto() {
-
         setDepositControls(1.0, autoDepositPos);
-    }
-    public boolean atautodepositpos() {
-        return Math.abs(getArmPosition() - autoDepositPos) < armTolerance;
-    }
-
-    public void liftUp(){
-        setLiftControls(1, liftPos[currentStackHeight] - moveLiftUpHeight);
     }
 
     public boolean isArmHome() {
@@ -159,13 +153,25 @@ public class Stacker {
     public boolean isArmDown() {
         return Math.abs(getArmPosition() + 30) < armTolerance && !isArmMoving();
     }
+    public boolean atAutoDepositPos() {
+        return Math.abs(getArmPosition() - autoDepositPos) < armTolerance;
+    }
 
     public boolean isLiftHome() {
         return Math.abs(getLiftPosition() - liftHome) < liftTolerance;
     }
     public boolean isLiftUp() {
         return Math.abs(getLiftPosition() - (liftPos[currentStackHeight]- moveLiftUpHeight)) < 40 && !isLiftMoving();
+    }
 
+    public boolean isArmMoving() {
+        return Math.abs(armVelocity) > armVelocityTolerance;
+    }
+    public boolean isLiftMoving(){
+        return Math.abs(liftVelocity) > liftVelocityTolerance;
+    }
+    public boolean isDownStacked(){
+        return Math.abs(liftTicks - (liftPos[currentStackHeight])) < 100 && !isLiftMoving();
     }
 
     public void nextLevel() {
@@ -174,7 +180,6 @@ public class Stacker {
     public void lastLevel() {
         currentStackHeight = Math.max(currentStackHeight - 1, 0);
     }
-
     public void setLevel(int level) {
         currentStackHeight = level;
     }
@@ -195,16 +200,18 @@ public class Stacker {
         return armTicks;
     }
 
-    public boolean isArmMoving() {
-        return Math.abs(armVelocity) > armVelocityTolerance;
+    public LynxGetBulkInputDataResponse RevBulkData(){
+        LynxGetBulkInputDataResponse response;
+        try {
+            LynxGetBulkInputDataCommand command = new LynxGetBulkInputDataCommand(module);
+            response = command.sendReceive();
+        }
+        catch (Exception e) {
+            op.telemetry.addData("Exception", "bulk read exception");
+            response = null;
+        }
+        return response;
     }
-    public boolean isLiftMoving(){
-        return Math.abs(liftVelocity) > liftVelocityTolerance;
-    }
-    public boolean isDownStacked(){
-        return Math.abs(liftTicks - (liftPos[currentStackHeight])) < 100 && !isLiftMoving();
-    }
-
     public void update() {
         LynxGetBulkInputDataResponse response = RevBulkData();
 
@@ -212,7 +219,6 @@ public class Stacker {
         liftTicks = response.getEncoder(3);
         armVelocity = response.getVelocity(2);
         liftVelocity = response.getVelocity(3);
-
     }
 
     public void setArmPower(double p){

@@ -7,13 +7,10 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
-import org.firstinspires.ftc.teamcode.Splines.Pose;
 import org.firstinspires.ftc.teamcode.Splines.Waypoint;
 
 @SuppressWarnings("FieldCanBeLocal")
 public class Robot {
-
-    private boolean firstLoop = true;
 
     // Subsystems
     public MecanumDrivetrain drivetrain;
@@ -23,29 +20,34 @@ public class Robot {
     public CapstoneDeposit capstoneDeposit;
     public Logger logger;
 
-    private double prevX, prevY, prevTh, xdot, ydot, w, prevxdot = 0, prevydot = 0, prevTime, xdotdot, ydotdot;
-    public double startTime;
-
-    private boolean isAuto;
-
     // State booleans
     public boolean stoneInRobot = false;
     private boolean tryingToDeposit = false;
     private boolean downStacked = false;
     public boolean letGo = false;
     private boolean liftedUp = false;
-    //private boolean depositAuto = false;
+    public boolean intakeManual = false;
+    private boolean stoneInTimeSaved = false;
+
+    private boolean isAuto;
+    private boolean firstLoop = true;
 
     // Class constants
-    private final int stoneSensorUpdatePeriod = 7;
-    private final int stoneValidationDistance = 3;
     private final int armTicksUpdatePeriod = 5;
     private final int loggerUpdatePeriod = 2;
-    private final double AlignDistance = 5.7;
+    public final double intakePower = 0.7;
+    private final double armDownWaitTime = 600; //milliseconds
 
     private int cycleCounter = 0;
+    private double stoneInTime;
+
+    // Velocity/acceleration stuff
+    private double prevX, prevY, prevTh, xdot, ydot, w, prevxdot, prevydot, prevW, prevTime, xdotdot, ydotdot, a;
+    public double startTime;
+
+    //auto align stuff
+    private final double AlignDistance = 5.7;
     public boolean isAutoAlign = false;
-    public boolean intakeManual = false;
     public boolean isManualAlign = false;
 
     private LinearOpMode op;
@@ -72,132 +74,162 @@ public class Robot {
         // increase cycle count
         cycleCounter++;
 
+        // remember first loop time for time since start
         if (firstLoop) {
             startTime = System.currentTimeMillis();
             firstLoop = false;
         }
 
+        // update stacker
         if ((cycleCounter + 3) % armTicksUpdatePeriod == 0) {
             stacker.update();
         }
 
+        // teleop auto state changes
         if (!isAuto) {
-            // check states-------------------------------------------------------
+            // return arm home after depositing
             if (!stoneInRobot && !tryingToDeposit) {
                 stacker.goHome();
                 stacker.unClampStone();
                 if (!intakeManual) {
-                    intake.setControls(0.7);
+                    intake.setControls(intakePower);
                 }
-            } else if (stacker.isArmOut() && stoneInRobot /*&& !depositAuto*/) {
+            }
+            // return arm home after depositing when stone stuck in robot
+            else if (stacker.isArmOut() && stoneInRobot) {
                 tryingToDeposit = false;
                 downStacked = false;
                 letGo = false;
-                //depositAuto = false;
                 stacker.goHome();
                 stacker.unClampStone();
-            } else if (stoneInRobot && stacker.isArmDown() && !tryingToDeposit) {
+            }
+            // clamp stone after arm is moved to clamping position
+            else if (stoneInRobot && stacker.isArmDown() && !tryingToDeposit) {
                 stacker.clampStone();
                 if (!intakeManual) {
                     intake.setControls(0);
                 }
             }
-            // check if arm should lower to clamp stone
-            else if (stoneInRobot && !tryingToDeposit && !stacker.isArmOut()) {
-                stacker.goDown();
-            } else if (stoneInRobot && !tryingToDeposit) {
-                if (!intakeManual) {
-                    intake.setControls(0);
-                }
+            // when stone is intaked save time for clamping delay
+            else if (stoneInRobot && !tryingToDeposit && stacker.isArmHome() && !stoneInTimeSaved) {
+                stoneInTime = System.currentTimeMillis();
+                stoneInTimeSaved = true;
             }
-            //check if we should downstack
+            // move arm to clamping position when delay is over
+            else if (stoneInRobot && stacker.isArmHome() && !tryingToDeposit && stoneInTimeSaved && (System.currentTimeMillis()-stoneInTime)>armDownWaitTime) {
+                stacker.goDown();
+                stoneInTimeSaved = false;
+            }
+            // check if we should downstack
             else if (tryingToDeposit && stacker.isArmOut() && !stacker.isArmMoving() && !stacker.isDownStacked() && !downStacked && letGo) {
                 stacker.downStack();
                 downStacked = true;
-            } else if (tryingToDeposit && stacker.isArmOut() && !stacker.isArmMoving() && stacker.isDownStacked() && letGo) {
+            }
+            // check if we should unclamp and move lift up
+            else if (tryingToDeposit && stacker.isArmOut() && !stacker.isArmMoving() && stacker.isDownStacked() && letGo) {
                 stacker.unClampStone();
                 stacker.liftUp();
                 liftedUp = true;
-            } else if (tryingToDeposit && stacker.isArmOut() && stacker.isLiftUp() && downStacked && letGo && liftedUp) {
+            }
+            // set depositing variables to false after lift is up
+            else if (tryingToDeposit && stacker.isArmOut() && stacker.isLiftUp() && downStacked && letGo && liftedUp) {
                 tryingToDeposit = false;
                 downStacked = false;
                 letGo = false;
-                //depositAuto = false;
                 liftedUp = false;
                 stacker.nextLevel();
-            } else if (tryingToDeposit && !downStacked) {
+            }
+            // check if we should go to deposit position
+            else if (tryingToDeposit && !downStacked) {
                 stacker.deposit();
-                if (stacker.currentStackHeight > 0) {
+                /*if (stacker.currentStackHeight > 0) {
                     grabber.extendRangeSensor();
-                }
+                }*/
             }
 
-            if (tryingToDeposit && (!letGo /*|| depositAuto*/) && cycleCounter % 2 == 0 && stacker.currentStackHeight > 0 && !isManualAlign) {
-                grabber.extendRangeSensor();
-                double distance = grabber.getDistance();
-                op.telemetry.addData("align dist", distance);
-                if (Math.abs(distance - AlignDistance) < 7) {
-                    drivetrain.setControls(-0.25 * (distance - AlignDistance), -0.15, 0);
-                } else {
-                    drivetrain.setControls(0, 0, 0);
-                }
-                isAutoAlign = true;
-
-//                if (depositAuto) {
-//                    if (Math.abs(distance - AlignDistance) < 0.5 || Math.abs(distance - AlignDistance) > 12) {
-//                        letGo = true;
-//                    }
+//            if (tryingToDeposit && (!letGo /*|| depositAuto*/) && cycleCounter % 2 == 0 && stacker.currentStackHeight > 0 && !isManualAlign) {
+//                grabber.extendRangeSensor();
+//                double distance = grabber.getDistance();
+//                op.telemetry.addData("align dist", distance);
+//                if (Math.abs(distance - AlignDistance) < 7) {
+//                    drivetrain.setControls(-0.25 * (distance - AlignDistance), -0.15, 0);
+//                } else {
+//                    drivetrain.setControls(0, 0, 0);
 //                }
-            } else if (cycleCounter % 2 == 0) {
-                isAutoAlign = false;
-            }
+//                isAutoAlign = true;
+//
+////                if (depositAuto) {
+////                    if (Math.abs(distance - AlignDistance) < 0.5 || Math.abs(distance - AlignDistance) > 12) {
+////                        letGo = true;
+////                    }
+////                }
+//            } else if (cycleCounter % 2 == 0) {
+//                isAutoAlign = false;
+//            }
         }
+        // auto auto state changes
         else {
+            // return arm home after depositing
             if(!tryingToDeposit && !stoneInRobot){
                 stacker.goHome();
             }
-            else if (stoneInRobot && stacker.isArmHome() && !tryingToDeposit) {
-                stacker.goDown();
+            // when stone is intaked save time for clamping delay
+            else if (stoneInRobot && stacker.isArmHome() && !tryingToDeposit && !stoneInTimeSaved) {
+                stoneInTime = System.currentTimeMillis();
+                stoneInTimeSaved = true;
             }
+            // move arm to clamping position when delay is over
+            else if (stoneInRobot && stacker.isArmHome() && !tryingToDeposit && stoneInTimeSaved && (System.currentTimeMillis()-stoneInTime)>armDownWaitTime) {
+                stacker.goDown();
+                stoneInTimeSaved = false;
+            }
+            // clamp stone after arm is moved to clamping position
             else if (stoneInRobot && stacker.isArmDown() && !tryingToDeposit) {
                 stacker.clampStone();
                 intake.setControls(0);
             }
-            else if (stoneInRobot && tryingToDeposit && !stacker.atautodepositpos()) {
+            // check if we should deposit stone
+            else if (stoneInRobot && tryingToDeposit && !stacker.atAutoDepositPos()) {
                 stacker.depositAuto();
             }
-            //TODO fix this hardcoded postion
+            // unclamp stone after arm is past certain thershold
+            //TODO fix this hardcoded position
             else if (!stoneInRobot && tryingToDeposit && stacker.getArmPosition()>850) {
                 stacker.unClampStone();
                 tryingToDeposit = false;
-                intake.setControls(0.7);
+                intake.setControls(intakePower);
             }
         }
 
+        // update drivetrain
         drivetrain.updatePose();
         stoneInRobot = drivetrain.stoneInRobot;
 
-//        if (cycleCounter % loggerUpdatePeriod == 0) {
-//            logger.logData(System.currentTimeMillis()-startTime,drivetrain.x,drivetrain.y,drivetrain.currentheading,velocityX,velocityY,velocityTh,stoneInRobot,stacker.stoneClamped,tryingToDeposit,stacker.isArmHome(),stacker.isArmDown(),stacker.isArmOut());
-//        }
-
+        // calculating velocity/acceleration
         double curTime = (double) System.currentTimeMillis() / 1000;
         double timeDiff = curTime - prevTime;
-        //calculating velocity/acceleration
         xdot = (drivetrain.x - prevX) / timeDiff;
         ydot = (drivetrain.y - prevY) / timeDiff;
         w = (drivetrain.currentheading - prevTh) / timeDiff;
-        xdotdot = (xdot-prevxdot)/timeDiff;
-        ydotdot = (ydot-prevydot)/timeDiff;
+        xdotdot = (xdot - prevxdot) / timeDiff;
+        ydotdot = (ydot - prevydot) / timeDiff;
+        a = (w - prevW) / timeDiff;
 
-        //setting tracking variables for old states
+        // log data
+        if (cycleCounter % loggerUpdatePeriod == 0) {
+            logger.logData(System.currentTimeMillis()-startTime,drivetrain.x,drivetrain.y,drivetrain.currentheading,xdot,ydot,w,xdotdot,ydotdot,a,stoneInRobot,stacker.stoneClamped,tryingToDeposit,stacker.isArmHome(),stacker.isArmDown(),stacker.isArmOut());
+        }
+
+        // remember old values so calc velocity/acceleration
         prevX = drivetrain.x;
         prevY = drivetrain.y;
         prevTh = drivetrain.currentheading;
         prevTime = curTime;
         prevydot = ydot;
         prevxdot = xdot;
+        prevW = w;
 
+        // telemetry
         drawRobot(drivetrain.x, drivetrain.y, drivetrain.currentheading);
         addPacket("X", drivetrain.x);
         addPacket("Y", drivetrain.y);
@@ -205,10 +237,27 @@ public class Robot {
         addPacket("is stone in robot", stoneInRobot);
         addPacket("distance", drivetrain.distance);
         addPacket("robot velocity", Math.sqrt(Math.pow(xdot,2) + Math.pow(ydot, 2)));
-//        addPacket("arm", stacker.isArmHome() + " " + stacker.isArmDown() + " " + stacker.isArmOut() + " " );
+        addPacket("arm", "home:" + stacker.isArmHome() + " down:" + stacker.isArmDown() + " out:" + stacker.isArmOut() + " deposit:" + tryingToDeposit);
         addPacket("loop time", timeDiff);
         addPacket("update frequency(hz)", 1/timeDiff);
         sendPacket();
+    }
+
+    public void deposit() {
+        if (!stacker.isArmOut()) {
+            tryingToDeposit = true;
+        }
+    }
+
+    public void depositAuto() {
+        if (!stacker.isArmOut() && stoneInRobot) {
+            tryingToDeposit = true;
+        }
+    }
+
+    public Waypoint currentRobotWaypoint(){
+        return new Waypoint(drivetrain.x, drivetrain.y, drivetrain.currentheading,
+                xdot, ydot, xdotdot, ydotdot, 0);
     }
 
     public void addPacket(String key, Object value) {
@@ -223,7 +272,8 @@ public class Robot {
         double theta = pi/2 + robottheta;
         double[] ycoords = {r * Math.sin(pi / 4 + theta) + y, r * Math.sin(3 * pi / 4 + theta) + y, r * Math.sin(5 * pi / 4 + theta) + y, r * Math.sin(7 * pi / 4 + theta) + y};
         double[] xcoords = {r * Math.cos(pi / 4 + theta) + x, r * Math.cos(3 * pi / 4 + theta) + x, r * Math.cos(5 * pi / 4 + theta) + x, r * Math.cos(7 * pi / 4 + theta) + x};
-        packet.fieldOverlay().setFill("green").fillPolygon(xcoords,ycoords);
+        if (stoneInRobot) {packet.fieldOverlay().setFill("yellow").fillPolygon(xcoords,ycoords);}
+        else {packet.fieldOverlay().setFill("green").fillPolygon(xcoords,ycoords);}
     }
 
     public void sendPacket() {
@@ -231,28 +281,19 @@ public class Robot {
         packet = new TelemetryPacket();
     }
 
-    public void deposit() {
-        if (!stacker.isArmOut()) {
-            tryingToDeposit = true;
-        }
-    }
-
-    public void depositAuto() {
-        if (!stacker.isArmOut() && stoneInRobot) {
-            tryingToDeposit = true;
-            //depositAuto = true;
-        }
-    }
     public void log(String message) {
         Log.w("robot", " ");
         Log.w("robot", message + " -------------------------------------------------------------------------");
     }
-    public Waypoint currentRobotWaypoint(){
-        return new Waypoint(drivetrain.x, drivetrain.y, drivetrain.currentheading,
-                xdot, ydot, xdotdot, ydotdot, 0);
-    }
 
-//    public void setSafeControls(double x, double y, double theta) {
-//        drivetrain.setTargetPoint();
-//    }
+    public double getBatteryVoltage() {
+        double result = -1;
+        for (VoltageSensor sensor : op.hardwareMap.voltageSensor) {
+            double voltage = sensor.getVoltage();
+            if (voltage > 0) {
+                result = Math.min(result, voltage);
+            }
+        }
+        return result;
+    }
 }

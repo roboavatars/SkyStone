@@ -34,8 +34,8 @@ public class Intake {
     }
 
     public void setControls(double intakePower) {
-        leftIntake.setPower(intakePower);
-        rightIntake.setPower(intakePower);
+        leftIntake.setPower(-intakePower);
+        rightIntake.setPower(-intakePower);
     }
 
     public boolean intakeOn() {

@@ -17,11 +17,8 @@ public class FoundationGrabber {
     private Servo rightGrabber;
     private Rev2mDistanceSensor autoAlignSensor;
 
-    private final double grabberHome = 1;
-    private final double grabberTolerance = 0.1;
-
-    public static double Lhome = 0.6;
-    public static double Rhome = 0.44;
+    public static double Lhome = 0.65;
+    public static double Rhome = 0.37;
     public static double Lclamped = 0.27;
     public static double Rclamped = 0.8;
 
@@ -54,7 +51,7 @@ public class FoundationGrabber {
         rightGrabber.setPosition(Rclamped);
     }
 
-    public void extendRangeSensor(){
+    /*public void extendRangeSensor(){
         rightGrabber.setPosition(0.75);
     }
     public double getDistance(){
@@ -63,9 +60,5 @@ public class FoundationGrabber {
 
     public double getGrabberPosition() {
         return rightGrabber.getPosition();
-    }
-
-    public boolean isGrabberHome() {
-        return Math.abs(getGrabberPosition() - grabberHome) < grabberTolerance;
-    }
+    }*/
 }

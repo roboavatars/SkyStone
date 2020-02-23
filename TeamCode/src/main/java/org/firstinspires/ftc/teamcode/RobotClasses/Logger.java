@@ -17,7 +17,6 @@ public class Logger {
 
     private static File robotDataLog;
     private static String basePath = "/sdcard/FIRST/robotLogs/RobotData";
-    //private static String basePath = "TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Tests/TestLog";
     private static FileWriter fileWriter;
     private static BufferedReader bufferedReader;
     private String data = "";
@@ -28,7 +27,7 @@ public class Logger {
             data = "";
             robotDataLog = new File(getLogName(true));
             fileWriter = new FileWriter(robotDataLog);
-            fileWriter.write("Timestamp,SinceStart,X,Y,Theta,VelocityX,VelocityY,VelocityTheta,StoneInRobot,StoneClamped,TryingToDeposit,ArmIsHome,ArmIsDown,ArmIsOut\n");
+            fileWriter.write("Timestamp,SinceStart,X,Y,Theta,VelocityX,VelocityY,VelocityTheta,AccelX,AccelY,AccelTheta,StoneInRobot,StoneClamped,TryingToDeposit,ArmIsHome,ArmIsDown,ArmIsOut\n");
         } catch (Exception e) {e.printStackTrace();}
     }
 
@@ -48,9 +47,9 @@ public class Logger {
         else return basePath + getLastFileNumber() + ".csv";
     }
 
-    public void logData(double timeSinceSt, double x, double y, double theta, double velocityx, double velocityy, double velocitytheta, boolean stoneInRobot, boolean stoneClamped, boolean tryingToDeposit, boolean armIsHome, boolean armIsDown, boolean armIsOut) {
-        SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss.SSS"); Date d = new Date();
-        data = data + df.format(d)+","+timeSinceSt+","+x+","+y+","+theta+","+velocityx+","+velocityy+","+velocitytheta+","+stoneInRobot+","+stoneClamped+","+tryingToDeposit+","+armIsHome+","+armIsDown+","+armIsOut+"\n";
+    public void logData(double timeSinceSt, double x, double y, double theta, double velocityx, double velocityy, double velocitytheta, double accelx, double accely, double accelTheta, boolean stoneInRobot, boolean stoneClamped, boolean tryingToDeposit, boolean armIsHome, boolean armIsDown, boolean armIsOut) {
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss.SSS"); Date d = new Date();
+        data += df.format(d)+","+timeSinceSt+","+x+","+y+","+theta+","+velocityx+","+velocityy+","+velocitytheta+","+accelx+","+accely+","+accelTheta+","+stoneInRobot+","+stoneClamped+","+tryingToDeposit+","+armIsHome+","+armIsDown+","+armIsOut+"\n";
     }
 
     public void stopLogging() {
@@ -107,14 +106,4 @@ public class Logger {
         } catch (IOException e) {e.printStackTrace();}
         return dataArray;
     }
-
-//    public static void main(String[] args) {
-//        double[] initialPosition = Logger.readPos();
-//        System.out.println("Starting Position: " + Arrays.toString(initialPosition));
-//
-//        Logger logger = new Logger();
-//        logger.startLogging();
-//        logger.logData(0,-1,-1,-1,-100,-100,-100,false,false,false,false,false,false);
-//        logger.stopLogging();
-//    }
 }
