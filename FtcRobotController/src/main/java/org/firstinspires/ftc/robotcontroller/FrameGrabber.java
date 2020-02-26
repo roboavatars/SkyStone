@@ -20,7 +20,7 @@ import java.io.File;
 @SuppressLint("SdCardPath")
 public class FrameGrabber implements CvCameraViewListener2 {
 
-    private final String outputPath = "/sdcard/FIRST/cameraFrames/input";
+    private final String outputPath = "/sdcard/FIRST/input/input";
     private int saveCount = 1;
     private Mat curMat;
 
@@ -30,7 +30,7 @@ public class FrameGrabber implements CvCameraViewListener2 {
         log("camera started");
 
         // clear folder of images
-        File dir = new File("/sdcard/FIRST/cameraFrames/");
+        File dir = new File("/sdcard/FIRST/input/");
         String[] children = dir.list();
         if (children != null) {for (String child : children) {new File(dir, child).delete();}}
         //
@@ -44,6 +44,7 @@ public class FrameGrabber implements CvCameraViewListener2 {
         Mat inputFrame = cameraFrame.rgba();
         Mat recoloredFrame = new Mat();
         Imgproc.cvtColor(inputFrame, recoloredFrame, Imgproc.COLOR_BGR2RGB);
+        Imgcodecs.imwrite(outputPath + saveCount + ".jpg", recoloredFrame); saveCount++;
         Mat resizedFrame = new Mat();
         Imgproc.resize(recoloredFrame, resizedFrame, new Size(240, 180));
         curMat = resizedFrame;

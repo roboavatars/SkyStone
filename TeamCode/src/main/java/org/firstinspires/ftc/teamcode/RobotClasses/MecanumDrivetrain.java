@@ -62,6 +62,12 @@ public class MecanumDrivetrain {
     private double yk = 0.1;
     private double thetak = 0.8;
 
+
+    public double deltapod1;
+    public double deltapod2;
+    public double deltapod3;
+
+
     private final double xyTolerance = 1;
     private final double thetaTolerance = Math.PI/35;
     private double OdometryTrackWidth = 13.74;
@@ -81,7 +87,7 @@ public class MecanumDrivetrain {
     private double lastFLPower = 0;
     private double lastBLPower = 0;
 
-    public static double motorUpdateTolerance = 0.0;
+    public static double motorUpdateTolerance = 0.05;
 
     //Constructor
     public MecanumDrivetrain(LinearOpMode opMode, double initialx, double initialy, double initialtheta, boolean isRedAuto) {
@@ -302,11 +308,11 @@ public class MecanumDrivetrain {
             double pod3 = -response.getEncoder(2) * 0.00300622055 * 2;
 
             distance = response.getAnalogInput(0);
-            stoneInRobot = distance > 30;
+            stoneInRobot = distance > 150;
 
-            double deltapod1 = pod1 - lastpod1;
-            double deltapod2 = pod2 - lastpod2;
-            double deltapod3 = pod3 - lastpod3;
+            deltapod1 = pod1 - lastpod1;
+            deltapod2 = pod2 - lastpod2;
+            deltapod3 = pod3 - lastpod3;
 
             lastx = x;
             lasty = y;

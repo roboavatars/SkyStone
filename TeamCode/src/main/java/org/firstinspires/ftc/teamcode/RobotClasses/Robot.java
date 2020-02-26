@@ -29,14 +29,14 @@ public class Robot {
     public boolean intakeManual = false;
     private boolean stoneInTimeSaved = false;
 
-    private boolean isAuto;
+    public boolean yeetmode = false;
     private boolean firstLoop = true;
 
     // Class constants
-    private final int armTicksUpdatePeriod = 5;
+    private final int armTicksUpdatePeriod = 7;
     private final int loggerUpdatePeriod = 2;
-    public final double intakePower = 0.7;
-    private final double armDownWaitTime = 600; //milliseconds
+    public final double intakePower = 0.6;
+    private final double armDownWaitTime = 200; //milliseconds
 
     private int cycleCounter = 0;
     private double stoneInTime;
@@ -54,7 +54,7 @@ public class Robot {
     private FtcDashboard dashboard;
     private TelemetryPacket packet;
 
-    public Robot(LinearOpMode op, double initX, double initY, double initTheta, boolean isAuto, boolean isRed) {
+    public Robot(LinearOpMode op, double initX, double initY, double initTheta, boolean isRed) {
         drivetrain = new MecanumDrivetrain(op, initX, initY, initTheta, isRed);
         intake = new Intake(op);
         stacker = new Stacker(op);
@@ -63,7 +63,6 @@ public class Robot {
         logger = new Logger();
 
         this.op = op;
-        this.isAuto = isAuto;
         dashboard = FtcDashboard.getInstance();
         packet = new TelemetryPacket();
 
@@ -86,7 +85,7 @@ public class Robot {
         }
 
         // teleop auto state changes
-        if (!isAuto) {
+        if (!yeetmode) {
             // return arm home after depositing
             if (!stoneInRobot && !tryingToDeposit) {
                 stacker.goHome();
@@ -216,9 +215,9 @@ public class Robot {
         a = (w - prevW) / timeDiff;
 
         // log data
-        if (cycleCounter % loggerUpdatePeriod == 0) {
-            logger.logData(System.currentTimeMillis()-startTime,drivetrain.x,drivetrain.y,drivetrain.currentheading,xdot,ydot,w,xdotdot,ydotdot,a,stoneInRobot,stacker.stoneClamped,tryingToDeposit,stacker.isArmHome(),stacker.isArmDown(),stacker.isArmOut());
-        }
+//        if (cycleCounter % loggerUpdatePeriod == 0) {
+//            logger.logData(System.currentTimeMillis()-startTime,drivetrain.x,drivetrain.y,drivetrain.currentheading,xdot,ydot,w,xdotdot,ydotdot,a,stoneInRobot,stacker.stoneClamped,tryingToDeposit,stacker.isArmHome(),stacker.isArmDown(),stacker.isArmOut());
+//        }
 
         // remember old values so calc velocity/acceleration
         prevX = drivetrain.x;
@@ -238,8 +237,11 @@ public class Robot {
         addPacket("distance", drivetrain.distance);
         addPacket("robot velocity", Math.sqrt(Math.pow(xdot,2) + Math.pow(ydot, 2)));
         addPacket("arm", "home:" + stacker.isArmHome() + " down:" + stacker.isArmDown() + " out:" + stacker.isArmOut() + " deposit:" + tryingToDeposit);
-        addPacket("loop time", timeDiff);
         addPacket("update frequency(hz)", 1/timeDiff);
+        addPacket("deltapod1: ", drivetrain.deltapod1);
+        addPacket("deltapod2: ", drivetrain.deltapod2);
+        addPacket("deltapod3: ", drivetrain.deltapod3);
+
         sendPacket();
     }
 

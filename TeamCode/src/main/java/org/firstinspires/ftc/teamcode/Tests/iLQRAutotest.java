@@ -16,7 +16,7 @@ public class iLQRAutotest extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        Robot robot = new Robot(this,9,111, 0, true, true);
+        Robot robot = new Robot(this,9,111, 0, true);
         waitForStart();
 
         double [][] x0 = {{9},{111}};

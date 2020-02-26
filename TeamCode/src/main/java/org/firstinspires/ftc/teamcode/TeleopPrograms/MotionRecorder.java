@@ -13,7 +13,7 @@ public class MotionRecorder extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        robot = new Robot(this, 9, 111, 0, false, true);
+        robot = new Robot(this, 9, 111, 0, false);
         robot.logger.startLogging();
 
         waitForStart();

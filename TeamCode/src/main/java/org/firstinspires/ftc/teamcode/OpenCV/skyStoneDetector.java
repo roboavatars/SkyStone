@@ -118,7 +118,8 @@ public class skyStoneDetector extends Thread {
      */
     private double detectSkyStone (Mat input) {
         double ssPosValue = -1;
-        Imgcodecs.imwrite(inputPath + (frameNum % 200) + ".jpg", input);
+        //Imgcodecs.imwrite(inputPath + (frameNum % 200) + ".jpg", input);
+        //Imgcodecs.imwrite(inputPath + frameNum + ".jpg", input);
 
         // Convert to HSV (Saturation)
         Mat HSV = new Mat();

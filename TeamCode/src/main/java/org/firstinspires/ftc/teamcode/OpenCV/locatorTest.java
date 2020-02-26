@@ -22,7 +22,7 @@ public class locatorTest extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        Robot robot = new Robot(this, 0, 0, 0, true,false);
+        Robot robot = new Robot(this, 0, 0, 0, true);
         stoneLocator2 locator = new stoneLocator2(this);
         FtcDashboard dashboard = FtcDashboard.getInstance();
 

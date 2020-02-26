@@ -34,7 +34,7 @@ public class CapstoneDeposit {
     }
 
     public void goHome(){
-        capstoneDeposit.setPosition(0.2);
+        capstoneDeposit.setPosition(0.15);
     }
 
 }

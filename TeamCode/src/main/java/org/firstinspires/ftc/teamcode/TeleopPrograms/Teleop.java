@@ -26,7 +26,7 @@ public class Teleop extends LinearOpMode {
         /*double[] initialPosition = Logger.readPos();
         telemetry.addData("Starting Position", Arrays.toString(initialPosition)); telemetry.update();
         robot = new Robot(this, initialPosition[0], initialPosition[1], initialPosition[2]);*/
-        robot = new Robot(this, 0, 0, 0, false, false);
+        robot = new Robot(this, 0, 0, 0, false);
         robot.logger.startLogging();
         robot.stacker.unClampStone();
         robot.stacker.goHome();
@@ -82,19 +82,16 @@ public class Teleop extends LinearOpMode {
             }
 
             // stacker/lift manual controls
-//            if (gamepad1.dpad_up) {
-//                robot.stacker.adjustArm(0.3, -50);
-//            } else if (gamepad1.dpad_down) {
-//                robot.stacker.adjustArm(0.3, 50);
-//            } else if (gamepad1.y) {
-//                robot.stacker.adjustLift(0.3,-50);
-//            } else if (gamepad1.a) {
-//                robot.stacker.adjustLift(0.3,50);
-//            }
+            if(gamepad2.right_trigger>0){
+                robot.stacker.manualArmOffset += 2;
+            }
+            else if(gamepad2.left_trigger>0){
+                robot.stacker.manualArmOffset -= 2;
+            }
 
             // robot centric
             if (robotCentric /*&& (gamepad1.left_stick_x!=0 || gamepad1.right_stick_x!=0 || gamepad1.left_stick_y !=0)*/) {
-                robot.drivetrain.setControls(-gamepad1.left_stick_x, -gamepad1.left_stick_y, -gamepad1.right_stick_x);
+                robot.drivetrain.setControls(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x);
                 //robot.isManualAlign = true;
             }
             // field centric

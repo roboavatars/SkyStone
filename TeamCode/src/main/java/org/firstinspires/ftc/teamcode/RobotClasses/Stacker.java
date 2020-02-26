@@ -20,9 +20,10 @@ public class Stacker {
 
     // clamp positions
     private final double clampPos = 0.01;
-    private final double unClampPos = 0.55;
+    private final double unClampPos = 0.7;
 
     public boolean stoneClamped = false;
+    public int manualArmOffset = 0;
 
     // arm/lift deposit positions
     // the lower the pos value, the higher the arm
@@ -37,8 +38,8 @@ public class Stacker {
 
     private final int armOut = 500;
     private final int armDown = -30;
-    private final int armHome = 50;
-    private final int armTolerance = 30;
+    private final int armHome = 25;
+    private final int armTolerance = 25;
     private final int liftHome = 20;
     private final int liftTolerance = 10;
     private final int moveLiftUpHeight = 400;
@@ -54,7 +55,15 @@ public class Stacker {
     //OpMode Stuff
     private LinearOpMode op;
     private HardwareMap hardwareMap;
-    
+
+
+    //caching stuff
+    private int armLastTargetPos = 0;
+    private double armLastTargetPower = 0;
+
+    private int liftLastTargetPos = 0;
+    private double liftLastTargetPower = 0;
+
     public Stacker(LinearOpMode op) {
         
         this.op = op;
@@ -72,39 +81,44 @@ public class Stacker {
         liftMotor.setTargetPositionTolerance(0);
         liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         liftMotor.setVelocityPIDFCoefficients(2,0.5,0, 15);
-        op.telemetry.addLine(depositMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION).toString());
+        liftMotor.setPositionPIDFCoefficients(18);
+//        op.telemetry.addLine(depositMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION).toString());
 
         depositMotor.setTargetPosition(0);
         depositMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         depositMotor.setTargetPositionTolerance(0);
         depositMotor.setPositionPIDFCoefficients(18);
         depositMotor.setVelocityPIDFCoefficients(2,0.3,0,20);
-        op.telemetry.addLine(depositMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).toString());
+//        op.telemetry.addLine(depositMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).toString());
 
 
         liftMotor.setPower(0);
         depositMotor.setPower(0);
+        stoneClamp.setPosition(unClampPos);
 
         op.telemetry.addData("Status", "Stacker Initialized");
 
     }
     
     public void setLiftControls(double power, int ticks) {
-        liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        liftMotor.setPower(power);
-        liftMotor.setTargetPosition(ticks);
+        if(power != liftLastTargetPower){
+            liftMotor.setPower(power);
+            liftLastTargetPower = power;
+        }
+        if(ticks != liftLastTargetPos){
+            liftMotor.setTargetPosition(ticks);
+            liftLastTargetPos = ticks;
+        }
     }
     public void setDepositControls(double power, int ticks) {
-        liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        depositMotor.setTargetPosition(-ticks);
-        depositMotor.setPower(power);
-    }
-
-    public void adjustLift(double power, int ticks) {
-        setLiftControls(power, liftPos[currentStackHeight]+ticks);
-    }
-    public void adjustArm(double power, int ticks) {
-        setDepositControls(power, armPos[currentStackHeight]+ticks);
+        if(power != armLastTargetPower){
+            depositMotor.setPower(power);
+            armLastTargetPower = power;
+        }
+        if(ticks != armLastTargetPos){
+            depositMotor.setTargetPosition(-ticks);
+            armLastTargetPos = ticks;
+        }
     }
 
     public void goHome() {
@@ -113,11 +127,11 @@ public class Stacker {
         } else {
             setDepositControls(0.5, armHome);
         }
-        if (liftTicks > -50){
-            liftMotor.setPositionPIDFCoefficients(18);
-        } else{
-            liftMotor.setPositionPIDFCoefficients(5);
-        }
+//        if (liftTicks > -50){
+//            liftMotor.setPositionPIDFCoefficients(18);
+//        } else{
+//            liftMotor.setPositionPIDFCoefficients(5);
+//        }
         setLiftControls(1.0, liftHome);
     }
     public void goDown() {
@@ -133,7 +147,7 @@ public class Stacker {
 
     public void deposit() {
         if (liftMin[currentStackHeight] > liftTicks){
-            setDepositControls(0.44, armPos[currentStackHeight]);
+            setDepositControls(0.44, armPos[currentStackHeight] + manualArmOffset);
         }
         else{
             setDepositControls(0.44, armIntermediatePos);
@@ -141,7 +155,7 @@ public class Stacker {
         setLiftControls(0.8, liftPos[currentStackHeight]-300);
     }
     public void depositAuto() {
-        setDepositControls(1.0, autoDepositPos);
+        setDepositControls(0.6, autoDepositPos);
     }
 
     public boolean isArmHome() {
@@ -185,12 +199,16 @@ public class Stacker {
     }
     
     public void clampStone() {
-        stoneClamp.setPosition(clampPos);
-        stoneClamped = true;
+        if(!stoneClamped){
+            stoneClamp.setPosition(clampPos);
+            stoneClamped = true;
+        }
     }
     public void unClampStone() {
-        stoneClamp.setPosition(unClampPos);
-        stoneClamped = false;
+        if(stoneClamped){
+            stoneClamp.setPosition(unClampPos);
+            stoneClamped = false;
+        }
     }
     
     public int getLiftPosition() {
@@ -221,9 +239,6 @@ public class Stacker {
         liftVelocity = response.getVelocity(3);
     }
 
-    public void setArmPower(double p){
-        depositMotor.setPower(p);
-    }
     public double getArmAngle(){
         return 2*Math.PI*(armTicks/2-69.0)/806.4;
     }
