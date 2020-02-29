@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.TeleopPrograms;
 
 import android.util.Log;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -64,6 +65,10 @@ public class Teleop extends LinearOpMode {
             // capstone deposit
             if (gamepad2.a) {robot.capstoneDeposit.attachCapstone();}
             else {robot.capstoneDeposit.goHome();}
+
+            if(gamepad2.x){
+                robot.cheesemode = true;
+            }
 
             // increase stack level
             if (gamepad2.dpad_up && dpadUp) {

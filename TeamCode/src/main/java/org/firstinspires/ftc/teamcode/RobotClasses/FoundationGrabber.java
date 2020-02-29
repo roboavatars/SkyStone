@@ -15,7 +15,6 @@ public class FoundationGrabber {
     //Electronics
     private Servo leftGrabber;
     private Servo rightGrabber;
-    private Rev2mDistanceSensor autoAlignSensor;
 
     public static double Lhome = 0.65;
     public static double Rhome = 0.37;
@@ -34,10 +33,6 @@ public class FoundationGrabber {
 
         leftGrabber = hardwareMap.get(Servo.class, "leftGrabber");
         rightGrabber = hardwareMap.get(Servo.class, "rightGrabber");
-        autoAlignSensor = hardwareMap.get(Rev2mDistanceSensor.class, "autoAlignSensor");
-
-        autoAlignSensor.initialize();
-
         op.telemetry.addData("Status", "Grabbers Initialized");
         op.telemetry.update();
     }

@@ -30,7 +30,7 @@ public class skyStoneDetector extends Thread {
 
     // File Paths
     private final static String basePath = "/sdcard/FIRST/procFiles/";
-    private final static String inputPath = "/sdcard/FIRST/input/input";
+    private final static String inputPath = "/sdcard/FIRST/input/";
     private final static String satFilteredPath = basePath + "sFiltered";
     private final static String openClosePath = basePath + "openClose";
     private final static String croppedPath = basePath + "croppedImage";
@@ -98,7 +98,7 @@ public class skyStoneDetector extends Thread {
             interrupt();
             //log("Avg stone is view: " + String.format("%.2f", stoneSum / frameNum));
         } else {
-            Mat in = Imgcodecs.imread(testPath + "test.jpg", Imgcodecs.IMREAD_COLOR);
+            Mat in = Imgcodecs.imread(inputPath + "input74.jpg", Imgcodecs.IMREAD_COLOR);
             Imgproc.resize(in, in, new Size(240, 180));
             ssPos = detectSkyStone(in);
         }
@@ -214,7 +214,7 @@ public class skyStoneDetector extends Thread {
                 if (isRed) {
                     ssXPos = darkAreas.get(0);
                     if (ssXPos > 60 && ssXPos < 105) {ssPosValue = 1;} // left
-                    else if((ssXPos > 0 && ssXPos < 10) || (ssXPos > 105 && ssXPos < 165)) {ssPosValue = 2;} // middle
+                    else if((ssXPos > 105 && ssXPos < 165)) {ssPosValue = 2;} // middle
                     else if ((ssXPos > 10 && ssXPos < 60) || (ssXPos > 165 && ssXPos < 230)) {ssPosValue = 3;} // right
                 } else {
                     if (darkAreas.size() > 1) {ssXPos = darkAreas.get(1);}

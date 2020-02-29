@@ -62,21 +62,22 @@ public class newPathBasedAuto extends LinearOpMode {
 
         // Skystone Position Variables
         int skystonePos = (int) detector.getPosition();
-        double skystoneY = robot.drivetrain.y;
+        double skystoneY;
         if (skystonePos == 1) {
             skystoneY = 128;
         }
         else if (skystonePos == 2) {
             skystoneY = 121;
         }
-        else if (skystonePos == 3) {
+        else {
             skystoneY = 113;
+            skystonePos = 3; // if pos is -1
         }
 
         // Path time variables
         // stone 1 times
-        double skystone1Time = 1.25;
-        double toFoundation1Time = 3.25;
+        double skystone1Time = 1.5;
+        double toFoundation1Time = 3.5;
         double foundationPullTime = 2;
         double skystone2Time = 1.5;
         double toFoundation2Time = 1.75;
@@ -92,16 +93,16 @@ public class newPathBasedAuto extends LinearOpMode {
             toFoundation1Time = 3;
             skystone2Time = 1.75;
             toFoundation2Time = 1.75;
-            stone3Time = 1.75;
+            stone3Time = 1.65;
             toFoundation3Time = 1.75;
-            stone4Time = 1.5;
+            stone4Time = 2;
             toFoundation4Time = 1.5;
             stone5Time = 2;
             toFoundation5Time = 2.25;
 
         } else if(skystonePos == 3) {
             skystone1Time = 1.25;
-            toFoundation1Time = 2.75;
+            toFoundation1Time = 3;
             skystone2Time = 1.5;
             toFoundation2Time = 1.5;
             stone3Time = 1.5;
@@ -114,8 +115,8 @@ public class newPathBasedAuto extends LinearOpMode {
 
         // stone 3-5 locations
         Point2D[][] stoneLocations = {
-                {new Point2D(54, 100), new Point2D(72, 113), new Point2D(57, 122)},
-                {new Point2D(55,112), new Point2D(60,93), new Point2D(44,128)},
+                {new Point2D(54, 100), new Point2D(75, 115), new Point2D(57, 122)},
+                {new Point2D(55,112), new Point2D(70,93), new Point2D(44,128)},
                 {new Point2D(55,108), new Point2D(44,124), new Point2D(44,128)}
         };
 
@@ -125,7 +126,7 @@ public class newPathBasedAuto extends LinearOpMode {
         // Defining paths
         Waypoint[] skystone1PathWaypoints = {
                 new Waypoint(9,111,0,20,100,0,0),
-                new Waypoint(45,skystoneY,Math.PI / 4 + 0.2, 15, -100, 0, skystone1Time)
+                new Waypoint(47,skystoneY,Math.PI / 4 + 0.2, 15, -100, 0, skystone1Time)
         };
         Path skystone1Path = new Path(new ArrayList<>(Arrays.asList(skystone1PathWaypoints)));
         Spline skystone1ThetaSpline = new Spline(Math.PI/6 + 0.1, 2, 8, Math.PI / 4 + 0.2, 0, 0, skystone1Time);
@@ -140,6 +141,8 @@ public class newPathBasedAuto extends LinearOpMode {
         Path toFoundation4Path = null;
         Path stone5Path = null;
         Path toFoundation5Path = null;
+
+        detector.setActive(false);
 
         // Time Used to End Segments After a Certain Period of Time
         ElapsedTime time = new ElapsedTime();
@@ -160,7 +163,7 @@ public class newPathBasedAuto extends LinearOpMode {
                 Pose robotPose = skystone1Path.getRobotPose(currentTime);
                 robot.drivetrain.setTargetPoint(robotPose.getX(),robotPose.getY(),skystone1ThetaSpline.position(currentTime));
 
-                if (robot.stoneInRobot || time.seconds() > (skystone1Time + 0.5)) {
+                if (robot.stoneInRobot || time.seconds() > (skystone1Time + 1.5)) {
                     //setting variable to move on from this segment
                     skystone1 = true;
 
@@ -169,7 +172,7 @@ public class newPathBasedAuto extends LinearOpMode {
                             new Waypoint(robot.drivetrain.x, robot.drivetrain.y, robot.drivetrain.currentheading, -30, -100,0, 0),
                             new Waypoint(36, skystoneY - 25, Math.PI / 3, -50, -40,0, 1),
                             new Waypoint(31, 35, Math.PI / 2, -30, -30,0, 2),
-                            new Waypoint(48, 30, Math.PI, -20, 100,0, toFoundation1Time)
+                            new Waypoint(48, 30, Math.PI, -25, 100,0, toFoundation1Time)
                     };
                     toFoundation1Path = new Path(new ArrayList<>(Arrays.asList(toFoundation1PathWaypoints)));
 //                    robot.intake.setControls(0);
@@ -185,9 +188,15 @@ public class newPathBasedAuto extends LinearOpMode {
                 Pose robotPose = toFoundation1Path.getRobotPose(currentTime);
                 robot.drivetrain.setTargetPoint(robotPose.getX(),robotPose.getY(),robotPose.getTheta()+Math.PI);
 
-                if (time.seconds() > (toFoundation1Time )) {
+//                if (robot.drivetrain.x>42 && time.seconds()>toFoundation1Time-0.8 && robot.drivetrain.y<40) {
+//                    robot.grabber.grabFoundation();
+//                }
+                if(time.seconds()>toFoundation1Time+0.1){
                     robot.grabber.grabFoundation();
                 }
+//                if(robot.drivetrain.y>70 && robot.drivetrain.y<80){
+//                    robot.cheesemode = true;
+//                }
                 if (time.seconds() > (toFoundation1Time + 1)) {
                     toFoundation1 = true;
                     robot.depositAuto();
@@ -219,7 +228,7 @@ public class newPathBasedAuto extends LinearOpMode {
                     robot.letGo = true;
                 }
 
-                if (time.seconds() > foundationPullTime+2) {
+                if (time.seconds() > foundationPullTime+1) {
                     robot.grabber.releaseFoundation();
                     foundationPull = true;
                     depositX = robot.drivetrain.x; depositY = robot.drivetrain.y; depositTheta = robot.drivetrain.currentheading;
@@ -272,6 +281,10 @@ public class newPathBasedAuto extends LinearOpMode {
                 if(robot.drivetrain.y<72){
                     robot.depositAuto();
                 }
+//                if(robot.drivetrain.y>80 && robot.drivetrain.y<120){
+//                    robot.cheesemode = true;
+//                }
+
                 if (time.seconds() > (toFoundation2Time + 0.5)) {
                     toFoundation2 = true;
                     Waypoint[] stone3PathWaypoints;
@@ -324,7 +337,9 @@ public class newPathBasedAuto extends LinearOpMode {
 
                 Pose robotPose = toFoundation3Path.getRobotPose(currentTime);
                 robot.drivetrain.setTargetPoint(robotPose.getX(), robotPose.getY(), robotPose.getTheta()+Math.PI);
-
+//                if(robot.drivetrain.y>80 && robot.drivetrain.y<120){
+//                    robot.cheesemode = true;
+//                }
                 if(robot.drivetrain.y<70){
                     robot.depositAuto();
                 }
@@ -386,6 +401,9 @@ public class newPathBasedAuto extends LinearOpMode {
                 if(robot.drivetrain.y<70){
                     robot.depositAuto();
                 }
+//                if(robot.drivetrain.y>80 && robot.drivetrain.y<120){
+//                    robot.cheesemode = true;
+//                }
                 if (time.seconds() > (toFoundation4Time + 0.5)) {
                     toFoundation4 = true;
                     Waypoint[] stone5PathWaypoints;
@@ -433,7 +451,9 @@ public class newPathBasedAuto extends LinearOpMode {
 
                 Pose robotPose = toFoundation5Path.getRobotPose(currentTime);
                 robot.drivetrain.setTargetPoint(robotPose.getX(), robotPose.getY(), robotPose.getTheta()+Math.PI);
-
+//                if(robot.drivetrain.y>80 && robot.drivetrain.y<120){
+//                    robot.cheesemode = true;
+//                }
                 if(robot.drivetrain.y<70){
                     robot.depositAuto();
                 }
@@ -452,7 +472,7 @@ public class newPathBasedAuto extends LinearOpMode {
             }
 
             //adding relevant information to telemetry
-            robot.addPacket("Battery Voltage", robot.getBatteryVoltage());
+//            robot.addPacket("Battery Voltage", robot.getBatteryVoltage());
             robot.addPacket("Time", (System.currentTimeMillis()-robot.startTime)/1000);
             robot.addPacket("Skystone Position", skystonePos);
         }

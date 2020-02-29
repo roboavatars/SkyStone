@@ -33,7 +33,6 @@ public class locatorTest extends LinearOpMode {
         telemetry.update();
 
         waitForStart();
-        robot.intake.intakeOn();
         timer.reset();
 
         gotoX = 0;

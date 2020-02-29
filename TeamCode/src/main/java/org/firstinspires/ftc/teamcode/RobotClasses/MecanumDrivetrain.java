@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.RobotClasses;
 
 import android.util.Log;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.lynx.LynxEmbeddedIMU;
 import com.qualcomm.hardware.lynx.LynxI2cDeviceSynchV2;
@@ -22,6 +23,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
+@Config
 @SuppressWarnings("FieldCanBeLocal")
 public class MecanumDrivetrain {
 
@@ -70,7 +72,7 @@ public class MecanumDrivetrain {
 
     private final double xyTolerance = 1;
     private final double thetaTolerance = Math.PI/35;
-    private double OdometryTrackWidth = 13.74;
+    public static double OdometryTrackWidth = 13.95;
     private double OdometryHorizontalOffset = 3.17;
     private final double OdometryHeadingThreshold = Math.PI/8;
 
@@ -177,8 +179,20 @@ public class MecanumDrivetrain {
             BRpower /= maxpower;
         }
 
+        if (xdot == 0 && ydot == 0 && w == 0) {
+            //set motor powers
+            motorFrontRight.setPower(FRpower);
+            motorBackLeft.setPower(BLpower);
+            motorFrontLeft.setPower(FLpower);
+            motorBackRight.setPower(BRpower);
 
-        if(Math.abs(FRpower-lastFRPower)>motorUpdateTolerance || Math.abs(FLpower-lastFLPower)>motorUpdateTolerance
+            //cache new motor powers
+            lastFRPower = FRpower;
+            lastFLPower = FLpower;
+            lastBRPower = BRpower;
+            lastBLPower = BLpower;
+        }
+        else if(Math.abs(FRpower-lastFRPower)>motorUpdateTolerance || Math.abs(FLpower-lastFLPower)>motorUpdateTolerance
             || Math.abs(BRpower-lastBRPower)>motorUpdateTolerance || Math.abs(BLpower-lastBLPower)>motorUpdateTolerance){
 
             //set motor powers
@@ -214,7 +228,7 @@ public class MecanumDrivetrain {
         else{
             thetacontrol = currentheading-thetatarget;
         }
-        Log.w("auto", "thetacontrol: " + thetacontrol);
+        //Log.w("auto", "thetacontrol: " + thetacontrol);
 
         setGlobalControls(-xk*(x-xtarget),-yk*(y-ytarget),-thetak*(thetacontrol));
     }
@@ -303,7 +317,7 @@ public class MecanumDrivetrain {
     public void updatePose(){
         try {
             LynxGetBulkInputDataResponse response = RevBulkData();
-            double pod1 = -response.getEncoder(1) * 0.00300622055 * 2;
+            double pod1 = -response.getEncoder(3) * 0.00300622055 * 2;
             double pod2 = response.getEncoder(0) * 0.00300622055 * 2;
             double pod3 = -response.getEncoder(2) * 0.00300622055 * 2;
 
@@ -313,6 +327,11 @@ public class MecanumDrivetrain {
             deltapod1 = pod1 - lastpod1;
             deltapod2 = pod2 - lastpod2;
             deltapod3 = pod3 - lastpod3;
+
+            Log.w("auto", deltapod1 + " " + deltapod2 + " " + deltapod3);
+            if (deltapod1 == 0) {Log.w("auto", "pod 1 delta 0");}
+            if (deltapod2 == 0) {Log.w("auto", "pod 2 delta 0");}
+            if (deltapod3 == 0) {Log.w("auto", "pod 3 delta 0");}
 
             lastx = x;
             lasty = y;

@@ -38,7 +38,7 @@ public class Stacker {
 
     private final int armOut = 500;
     private final int armDown = -30;
-    private final int armHome = 25;
+    private final int armHome = 27;
     private final int armTolerance = 25;
     private final int liftHome = 20;
     private final int liftTolerance = 10;
@@ -55,7 +55,6 @@ public class Stacker {
     //OpMode Stuff
     private LinearOpMode op;
     private HardwareMap hardwareMap;
-
 
     //caching stuff
     private int armLastTargetPos = 0;
@@ -90,7 +89,6 @@ public class Stacker {
         depositMotor.setPositionPIDFCoefficients(18);
         depositMotor.setVelocityPIDFCoefficients(2,0.3,0,20);
 //        op.telemetry.addLine(depositMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).toString());
-
 
         liftMotor.setPower(0);
         depositMotor.setPower(0);

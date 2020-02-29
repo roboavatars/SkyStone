@@ -1,9 +1,9 @@
 package org.firstinspires.ftc.teamcode.RobotClasses;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -13,10 +13,17 @@ public class Intake {
     //Electronics
     private DcMotorEx leftIntake;
     private DcMotorEx rightIntake;
+    private Servo stonePushServo;
+
+    private final double stonePushPos = 0.9;
+    private final double homePos = 0.27;
+    public boolean stonePushed;
 
     //OpMode Stuff
     private LinearOpMode op;
     private HardwareMap hardwareMap;
+
+    private double lastIntakePower = 0;
 
     public Intake(LinearOpMode op){
 
@@ -25,20 +32,33 @@ public class Intake {
 
         leftIntake = hardwareMap.get(DcMotorEx.class, "leftIntake");
         rightIntake = hardwareMap.get(DcMotorEx.class, "rightIntake");
+        stonePushServo = hardwareMap.get(Servo.class, "stonePushServo");
 
         leftIntake.setDirection(DcMotor.Direction.REVERSE);
         rightIntake.setDirection(DcMotor.Direction.FORWARD);
+
+        stoneServoHome();
 
         op.telemetry.addData("Status", "Intake Initialized");
         op.telemetry.update();
     }
 
     public void setControls(double intakePower) {
-        leftIntake.setPower(-intakePower);
-        rightIntake.setPower(-intakePower);
+        if(Math.abs(intakePower-lastIntakePower)>0.1){
+            leftIntake.setPower(-intakePower);
+            rightIntake.setPower(-intakePower);
+            lastIntakePower = intakePower;
+        }
+
     }
 
-    public boolean intakeOn() {
-        return (leftIntake.getPower() > 0) && (rightIntake.getPower() > 0);
+    public void pushStoneIn() {
+        stonePushServo.setPosition(stonePushPos);
+        stonePushed = true;
+    }
+
+    public void stoneServoHome() {
+        stonePushServo.setPosition(homePos);
+        stonePushed = false;
     }
 }
