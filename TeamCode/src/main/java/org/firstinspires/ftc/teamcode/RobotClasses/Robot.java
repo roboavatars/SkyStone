@@ -49,11 +49,6 @@ public class Robot {
     private double prevX, prevY, prevTh, xdot, ydot, w, prevxdot, prevydot, prevW, prevTime, xdotdot, ydotdot, a;
     public double startTime;
 
-    //auto align stuff
-    private final double AlignDistance = 5.7;
-    public boolean isAutoAlign = false;
-    public boolean isManualAlign = false;
-
     private LinearOpMode op;
     private FtcDashboard dashboard;
     private TelemetryPacket packet;
@@ -167,30 +162,7 @@ public class Robot {
             // check if we should go to deposit position
             else if (tryingToDeposit && !downStacked) {
                 stacker.deposit();
-                /*if (stacker.currentStackHeight > 0) {
-                    grabber.extendRangeSensor();
-                }*/
             }
-
-//            if (tryingToDeposit && (!letGo /*|| depositAuto*/) && cycleCounter % 2 == 0 && stacker.currentStackHeight > 0 && !isManualAlign) {
-//                grabber.extendRangeSensor();
-//                double distance = grabber.getDistance();
-//                op.telemetry.addData("align dist", distance);
-//                if (Math.abs(distance - AlignDistance) < 7) {
-//                    drivetrain.setControls(-0.25 * (distance - AlignDistance), -0.15, 0);
-//                } else {
-//                    drivetrain.setControls(0, 0, 0);
-//                }
-//                isAutoAlign = true;
-//
-////                if (depositAuto) {
-////                    if (Math.abs(distance - AlignDistance) < 0.5 || Math.abs(distance - AlignDistance) > 12) {
-////                        letGo = true;
-////                    }
-////                }
-//            } else if (cycleCounter % 2 == 0) {
-//                isAutoAlign = false;
-//            }
         }
         // auto auto state changes
         else {

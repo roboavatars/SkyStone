@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 @SuppressWarnings("FieldCanBeLocal")
 public class Intake {
 
-    //Electronics
+    // electronics
     private DcMotorEx leftIntake;
     private DcMotorEx rightIntake;
     private Servo stonePushServo;
@@ -19,7 +19,7 @@ public class Intake {
     private final double homePos = 0.27;
     public boolean stonePushed;
 
-    //OpMode Stuff
+    // opmode stuff
     private LinearOpMode op;
     private HardwareMap hardwareMap;
 
@@ -44,12 +44,11 @@ public class Intake {
     }
 
     public void setControls(double intakePower) {
-        if(Math.abs(intakePower-lastIntakePower)>0.1){
+        if (Math.abs(intakePower - lastIntakePower) > 0.1){
             leftIntake.setPower(-intakePower);
             rightIntake.setPower(-intakePower);
             lastIntakePower = intakePower;
         }
-
     }
 
     public void pushStoneIn() {

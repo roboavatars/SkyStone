@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.RobotClasses.Robot;
 
-@TeleOp
+@TeleOp @Disabled
 public class MotionRecorder extends LinearOpMode {
 
     private Robot robot;

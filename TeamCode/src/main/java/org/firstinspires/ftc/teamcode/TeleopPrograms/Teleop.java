@@ -87,26 +87,18 @@ public class Teleop extends LinearOpMode {
             }
 
             // stacker/lift manual controls
-            if(gamepad2.right_trigger>0){
+            if (gamepad2.right_trigger > 0){
                 robot.stacker.manualArmOffset += 2;
-            }
-            else if(gamepad2.left_trigger>0){
+            } else if (gamepad2.left_trigger > 0){
                 robot.stacker.manualArmOffset -= 2;
             }
 
-            // robot centric
-            if (robotCentric /*&& (gamepad1.left_stick_x!=0 || gamepad1.right_stick_x!=0 || gamepad1.left_stick_y !=0)*/) {
+            // robot/field centric
+            if (robotCentric) {
                 robot.drivetrain.setControls(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x);
-                //robot.isManualAlign = true;
-            }
-            // field centric
-            else {
+            } else {
                 robot.drivetrain.setGlobalControls(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x);
             }
-            /*else{
-                robot.isManualAlign = false;
-                robot.drivetrain.setControls(0,0,0);
-            }*/
 
             robot.update();
             telemetry.addData("arm ticks", robot.stacker.getArmPosition());

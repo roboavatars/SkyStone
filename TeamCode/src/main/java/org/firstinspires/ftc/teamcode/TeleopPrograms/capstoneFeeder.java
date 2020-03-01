@@ -99,14 +99,7 @@ public class capstoneFeeder extends LinearOpMode {
                     dpadDown = true;
                 }
 
-                if (robotCentric && (gamepad1.left_stick_x!=0 || gamepad1.right_stick_x!=0 || gamepad1.left_stick_y !=0)) {
-                    robot.drivetrain.setControls(-gamepad1.left_stick_x, -gamepad1.left_stick_y, -gamepad1.right_stick_x);
-                    robot.isManualAlign = true;
-                }
-                else{
-                    robot.isManualAlign = false;
-                    robot.drivetrain.setControls(0,0,0);
-                }
+                robot.drivetrain.setControls(-gamepad1.left_stick_x, -gamepad1.left_stick_y, -gamepad1.right_stick_x);
 
                 double prev = time.milliseconds();
                 robot.update();

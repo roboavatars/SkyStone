@@ -7,11 +7,9 @@ import com.qualcomm.robotcore.hardware.Servo;
 @SuppressWarnings("FieldCanBeLocal")
 public class CapstoneDeposit {
 
-    //Electronics
     private Servo capstoneDeposit;
 
-
-    //OpMode Stuff
+    // opmode stuff
     private LinearOpMode op;
     private HardwareMap hardwareMap;
 
@@ -22,12 +20,7 @@ public class CapstoneDeposit {
 
         capstoneDeposit = hardwareMap.get(Servo.class, "capstoneDeposit");
         goHome();
-
-
-        op.telemetry.addData("Status", "Grabbers Initialized");
-        op.telemetry.update();
     }
-
 
     public void attachCapstone() {
         capstoneDeposit.setPosition(0.75);
