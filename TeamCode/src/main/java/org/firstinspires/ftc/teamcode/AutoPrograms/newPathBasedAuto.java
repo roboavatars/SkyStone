@@ -35,7 +35,6 @@ public class newPathBasedAuto extends LinearOpMode {
         // Initialize Robot
         robot = new Robot(this, 9, 111, 0, true);
         robot.logger.startLogging();
-        robot.grabber.releaseFoundation();
         robot.intake.setControls(0);
         robot.stacker.unClampStone();
         robot.stacker.goHome();
@@ -162,7 +161,9 @@ public class newPathBasedAuto extends LinearOpMode {
                 double currentTime = Math.min(skystone1Time, time.seconds());
                 Pose robotPose = skystone1Path.getRobotPose(currentTime);
                 robot.drivetrain.setTargetPoint(robotPose.getX(),robotPose.getY(),skystone1ThetaSpline.position(currentTime));
-
+                if(time.seconds()>0.5){
+                    robot.grabber.releaseFoundation();
+                }
                 if (robot.stoneInRobot || time.seconds() > (skystone1Time + 1.5)) {
                     //setting variable to move on from this segment
                     skystone1 = true;
@@ -203,7 +204,7 @@ public class newPathBasedAuto extends LinearOpMode {
                     Waypoint[] foundationPullWaypoints = new Waypoint[] {
                             new Waypoint(robot.drivetrain.x, robot.drivetrain.y, robot.drivetrain.currentheading, 5, 30,0, 0),
                             new Waypoint(33, 30, Math.PI , 30, 30,0,0.75),
-//                new Waypoint(27, 35, 3*Math.PI / 4, 40, 10,-2, 1.25),
+//                            new Waypoint(27, 35, 3*Math.PI / 4, 40, 10,-2, 1.25),
                             new Waypoint(28, 65, Math.PI/2, 60, 10,0, foundationPullTime)
                     };
                     foundationPullPath = new Path(new ArrayList<>(Arrays.asList(foundationPullWaypoints)));
@@ -301,9 +302,7 @@ public class newPathBasedAuto extends LinearOpMode {
                                 new Waypoint(31, stoneLocations[skystonePos-1][0].getY() - 18, Math.PI / 3, 30, 10,-3, 1.25),
                                 new Waypoint(stoneLocations[skystonePos-1][0].getX(), stoneLocations[skystonePos-1][0].getY(), Math.PI/4, 10, -100,0, stone3Time)
                         };
-
                     }
-
                     stone3Path = new Path(new ArrayList<>(Arrays.asList(stone3PathWaypoints)));
 //                    robot.intake.setControls(0.7);
                     time.reset();

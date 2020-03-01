@@ -31,7 +31,7 @@ public class Robot {
     private boolean liftedUp = false;
     public boolean intakeManual = false;
     private boolean stoneInTimeSaved = false;
-    private boolean armDownTimeSaved = false;
+    //private boolean armDownTimeSaved = false;
 
     public boolean yeetmode = false;
     public boolean cheesemode = false;
@@ -42,11 +42,11 @@ public class Robot {
     private final int loggerUpdatePeriod = 2;
     public final double intakePower = 0.7;
     private final double armDownWaitTime = 200; //Milliseconds
-    private final double stonePushWaitTime = 1000;
+    private final double stonePushWaitTime = 700;
 
     private int cycleCounter = 0;
     private double stoneInTime;
-    private double armDownTime;
+    //private double armDownTime;
 
     // Velocity/Acceleration Stuff
     private double prevX, prevY, prevTh, xdot, ydot, w, prevxdot, prevydot, prevW, prevTime, xdotdot, ydotdot, a;
@@ -131,25 +131,21 @@ public class Robot {
 //            }
 
             // When Stone is Intaked Save Time for Clamping Delay
-            else if (stoneInRobot && !tryingToDeposit && stacker.isArmHome() && !stoneInTimeSaved && !armDownTimeSaved) {
+            else if (stoneInRobot && !tryingToDeposit && stacker.isArmHome() && !stoneInTimeSaved) {
                 stoneInTime = System.currentTimeMillis();
                 stoneInTimeSaved = true;
                 intake.pushStoneIn();
             }
 
             // Move Arm to Clamping Position When Delay is Over
-            else if (stoneInRobot && stacker.isArmHome() && !tryingToDeposit && stoneInTimeSaved && !armDownTimeSaved && (System.currentTimeMillis()-stoneInTime)>armDownWaitTime) {
+            else if (stoneInRobot && stacker.isArmHome() && !tryingToDeposit && stoneInTimeSaved && (System.currentTimeMillis()-stoneInTime)>armDownWaitTime) {
                 stacker.goDown();
-                stoneInTimeSaved = false;
-
-                armDownTime = System.currentTimeMillis();
-                armDownTimeSaved = true;
             }
 
             // Move Intake Servo Once Stone is Clamped
-            else if (stoneInRobot && stacker.isArmDown() && stacker.stoneClamped && !tryingToDeposit && !stoneInTimeSaved && armDownTimeSaved && (System.currentTimeMillis()-armDownTime)>stonePushWaitTime) {
+            else if (stoneInRobot && stacker.isArmDown() && stacker.stoneClamped && !tryingToDeposit && stoneInTimeSaved && (System.currentTimeMillis()-stoneInTime)>stonePushWaitTime) {
                 intake.stoneServoHome();
-                armDownTimeSaved = false;
+                stoneInTimeSaved = false;
             }
 
             // Check if We Should Downstack
@@ -181,32 +177,26 @@ public class Robot {
         }
         // Auto State Changes
         else {
-            // return arm home after depositing
-            if(!tryingToDeposit && !stoneInRobot){
+            // Return Arm Home After Depositing
+            if (!stoneInRobot && !tryingToDeposit) {
                 stacker.goHome();
                 intake.setControls(intakePower);
             }
 
             // When Stone is Intaked Save Time for Clamping Delay
-            else if (stoneInRobot && !tryingToDeposit && stacker.isArmHome() && !stoneInTimeSaved && !armDownTimeSaved) {
+            else if (stoneInRobot && stacker.isArmHome() && !tryingToDeposit && !stoneInTimeSaved /*&& !armDownTimeSaved*/) {
                 stoneInTime = System.currentTimeMillis();
                 stoneInTimeSaved = true;
                 intake.pushStoneIn();
             }
 
             // Move Arm to Clamping Position When Delay is Over
-            else if (stoneInRobot && stacker.isArmHome() && !tryingToDeposit && stoneInTimeSaved && !armDownTimeSaved && (System.currentTimeMillis()-stoneInTime)>armDownWaitTime) {
+            else if (stoneInRobot && stacker.isArmHome() && !tryingToDeposit && stoneInTimeSaved /*&& !armDownTimeSaved*/ && (System.currentTimeMillis()-stoneInTime)>armDownWaitTime) {
                 stacker.goDown();
-                stoneInTimeSaved = false;
+                //stoneInTimeSaved = false;
 
-                armDownTime = System.currentTimeMillis();
-                armDownTimeSaved = true;
-            }
-
-            // Move Intake Servo Once Stone is Clamped
-            else if (stoneInRobot && stacker.isArmDown() && stacker.stoneClamped && !tryingToDeposit && !stoneInTimeSaved && armDownTimeSaved && (System.currentTimeMillis()-armDownTime)>stonePushWaitTime) {
-                intake.stoneServoHome();
-                armDownTimeSaved = false;
+                //armDownTime = System.currentTimeMillis();
+                //armDownTimeSaved = true;
             }
 
             // Clamp Stone After Arm is Moved to Clamping Position
@@ -215,9 +205,15 @@ public class Robot {
                 intake.setControls(0);
             }
 
+            // Move Intake Servo Once Stone is Clamped
+            else if (stoneInRobot && stacker.isArmDown() && stacker.stoneClamped && !tryingToDeposit && stoneInTimeSaved && (System.currentTimeMillis()-stoneInTime)>stonePushWaitTime/*!stoneInTimeSaved && armDownTimeSaved && (System.currentTimeMillis()-armDownTime)>stonePushWaitTime*/) {
+                intake.stoneServoHome();
+                stoneInTimeSaved = false;
+                //armDownTimeSaved = false;
+            }
+
             // Check if We Should Deposit Stone
             else if (stoneInRobot && tryingToDeposit && !stacker.atAutoDepositPos()) {
-                intake.stoneServoHome();
                 stacker.depositAuto();
             }
 

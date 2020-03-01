@@ -15,8 +15,8 @@ public class FoundationGrabber {
     private Servo rightGrabber;
 
     // Constants
-    public static double Lhome = 0.65;
-    public static double Rhome = 0.37;
+    public static double Lhome = 0.55;
+    public static double Rhome = 0.45;
     public static double Lclamped = 0.27;
     public static double Rclamped = 0.8;
 

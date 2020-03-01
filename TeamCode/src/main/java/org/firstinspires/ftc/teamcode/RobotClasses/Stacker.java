@@ -31,7 +31,7 @@ public class Stacker {
     // The Lower the Pos Value, The Higher the Arm
     private final int[] armPos = {1320, 1320, 1320, 1320, 635, 635, 635, 635, 635, 635, 635, 635, 635};
     private final int[] liftPos = {-640, -1092, -1544, -1996, 0, -500, -1050, -1430, -1950, -2530, -3110, -3690, -4270};
-    private final int[] liftMin = {0, 0, 0, -500, 0, 0, -500, -900, -1400, -1800, -2380, -2960, -3540};
+    private final int[] liftMin = {0, 0, 0, -500, 0, 0, -500, -900, -1400, -1800, -2380, -2960, -3540}; // min lift ticks to raise arm
     private int autoDepositPos = 950;
 
     public int currentStackHeight = 0;
@@ -182,7 +182,7 @@ public class Stacker {
         return Math.abs(liftTicks - (liftPos[currentStackHeight])) < 100 && !isLiftMoving();
     }
     public boolean isLiftUp() {
-        return Math.abs(getLiftPosition() - (liftPos[currentStackHeight]- moveLiftUpHeight)) < 40 && !isLiftMoving();
+        return Math.abs(getLiftPosition() - (liftPos[currentStackHeight] - moveLiftUpHeight)) < 40 && !isLiftMoving();
     }
     public boolean isLiftMoving() {
         return Math.abs(liftVelocity) > liftVelocityTolerance;
@@ -190,7 +190,7 @@ public class Stacker {
 
     // Stack Level Methods
     public void nextLevel() {
-        currentStackHeight = Math.min(currentStackHeight + 1, 9);
+        currentStackHeight = Math.min(currentStackHeight + 1, 13);
     }
     public void lastLevel() {
         currentStackHeight = Math.max(currentStackHeight - 1, 0);

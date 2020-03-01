@@ -20,9 +20,6 @@ public class CapstoneDeposit {
 
         capstoneDeposit = hardwareMap.get(Servo.class, "capstoneDeposit");
         goHome();
-
-        op.telemetry.addData("Status", "Grabbers Initialized");
-        op.telemetry.update();
     }
 
     public void attachCapstone() {

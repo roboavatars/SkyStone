@@ -10,8 +10,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class ClampTest extends LinearOpMode {
 
     private Servo clamp;
-    public static double stonePushPos = 0;
-    public static double homePos = 1;
+    public static double stonePushPos = 0.85;
+    public static double homePos = 0.2;
     public static boolean home = true;
 
     @Override
