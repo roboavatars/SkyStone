@@ -10,17 +10,21 @@ import org.firstinspires.ftc.teamcode.RobotClasses.Robot;
 
 import java.util.Arrays;
 
-@TeleOp @Disabled
+@TeleOp
+@Disabled
 public class capstoneFeeder extends LinearOpMode {
+    // Robot Class
     private Robot robot;
+
+    // Booleans
     private boolean robotCentric = true;
     private boolean dpadUp = true;
     private boolean dpadDown = true;
     private boolean leftBumper = true;
     private boolean a = true;
     private boolean rightBumper = true;
-
     private boolean shouldDeposit = false;
+
     @Override
     public void runOpMode() {
         double[] initialPosition = Logger.readPos();
@@ -35,33 +39,25 @@ public class capstoneFeeder extends LinearOpMode {
         robot.intakeManual = true;
         robot.stacker.currentStackHeight = 7;
         while (opModeIsActive()) {
-
-
-
             if (gamepad2.y && a){
                 a = false;
                 shouldDeposit = !shouldDeposit;
-            }
-            else if (!a && !gamepad2.y) {
+            } else if (!a && !gamepad2.y) {
                 a = true;
             }
-
 
             if(!shouldDeposit){
                 if (gamepad1.right_bumper) {
                     robot.intake.setControls(0.6);
-                }
-                else if(gamepad1.left_bumper){
+                } else if(gamepad1.left_bumper){
                     robot.intake.setControls(-0.5);
-                }
-                else{
+                } else{
                     robot.intake.setControls(0);
                 }
                 robot.drivetrain.setControls(-gamepad1.left_stick_x, -gamepad1.left_stick_y, -gamepad1.right_stick_x);
                 robot.stacker.setDepositControls(1,-75);
 
-            }
-            else{
+            } else{
                 if (gamepad2.right_bumper && rightBumper) rightBumper = false;
                 else if (!rightBumper && !gamepad2.right_bumper) {
                     robot.deposit();
@@ -104,6 +100,7 @@ public class capstoneFeeder extends LinearOpMode {
                 double prev = time.milliseconds();
                 robot.update();
                 double now = time.milliseconds();
+
                 telemetry.addData("loop time", now-prev);
                 telemetry.addData("arm ticks", robot.stacker.getArmPosition());
                 telemetry.addData("slide ticks", robot.stacker.getLiftPosition());

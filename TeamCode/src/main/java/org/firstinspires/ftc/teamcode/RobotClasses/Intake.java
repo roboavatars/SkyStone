@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.RobotClasses;
 
 import com.acmerobotics.dashboard.config.Config;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -8,22 +9,23 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 @SuppressWarnings("FieldCanBeLocal")
+//@Config
 public class Intake {
 
-    // electronics
+    // Electronics
     private DcMotorEx leftIntake;
     private DcMotorEx rightIntake;
     private Servo stonePushServo;
 
     private final double stonePushPos = 0.9;
     private final double homePos = 0.27;
+    private double lastIntakePower = 0;
+    private double motorUpdateTolerance = 0.1;
     public boolean stonePushed;
 
-    // opmode stuff
+    // OpMode Stuff
     private LinearOpMode op;
     private HardwareMap hardwareMap;
-
-    private double lastIntakePower = 0;
 
     public Intake(LinearOpMode op){
 
@@ -44,7 +46,7 @@ public class Intake {
     }
 
     public void setControls(double intakePower) {
-        if (Math.abs(intakePower - lastIntakePower) > 0.1){
+        if (Math.abs(intakePower - lastIntakePower) > motorUpdateTolerance){
             leftIntake.setPower(-intakePower);
             rightIntake.setPower(-intakePower);
             lastIntakePower = intakePower;

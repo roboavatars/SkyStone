@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.RobotClasses;
 
+import com.acmerobotics.dashboard.config.Config;
+
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.lynx.commands.core.LynxGetBulkInputDataCommand;
 import com.qualcomm.hardware.lynx.commands.core.LynxGetBulkInputDataResponse;
@@ -10,32 +12,33 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 @SuppressWarnings("FieldCanBeLocal")
+//@Config
 public class Stacker {
     
-    // electronics
+    // Electronics
     private LynxModule module;
     private DcMotorEx liftMotor;
     private DcMotorEx depositMotor;
     private Servo stoneClamp;
 
-    // clamp positions
+    // Clamp Positions
     private final double clampPos = 0.01;
     private final double unClampPos = 0.7;
 
     public boolean stoneClamped = false;
 
-    // arm/lift deposit positions
-    // the lower the pos value, the higher the arm
-    private final int[] armPos = {1320, 1320, 1320, 1320, 635, 635, 635, 635, 635, 635};
-    private final int[] liftPos = {-640, -1092, -1544, -1996, 0, -500, -1050, -1430, -1950, -2530};
-    private final int[] liftMin = {0, 0, 0, -500, 0, 0, -500, -900, -1400, -1800};
+    // Arm/Lift Deposit Positions
+    // The Lower the Pos Value, The Higher the Arm
+    private final int[] armPos = {1320, 1320, 1320, 1320, 635, 635, 635, 635, 635, 635, 635, 635, 635};
+    private final int[] liftPos = {-640, -1092, -1544, -1996, 0, -500, -1050, -1430, -1950, -2530, -3110, -3690, -4270};
+    private final int[] liftMin = {0, 0, 0, -500, 0, 0, -500, -900, -1400, -1800, -2380, -2960, -3540};
     private int autoDepositPos = 950;
 
     public int currentStackHeight = 0;
     private int armTicks = 0;
     private int liftTicks = 0;
 
-    // encoder positions
+    // Encoder Positions
     private final int armOut = 500;
     private final int armDown = -30;
     private final int armHome = 27;
@@ -47,24 +50,23 @@ public class Stacker {
 
     public int manualArmOffset = 0;
 
-    // velocity variables- unit is ticks/second
+    // Velocity Variables (Ticks/Second)
     private double armVelocity = 0;
     private double liftVelocity = 0;
     private final int armVelocityTolerance = 2;
     private final int liftVelocityTolerance = 5;
 
-    // opmode stuff
+    // OpMode Stuff
     private LinearOpMode op;
     private HardwareMap hardwareMap;
 
-    // caching stuff
+    // Caching Stuff
     private int armLastTargetPos = 0;
     private double armLastTargetPower = 0;
     private int liftLastTargetPos = 0;
     private double liftLastTargetPower = 0;
 
     public Stacker(LinearOpMode op) {
-        
         this.op = op;
         this.hardwareMap = op.hardwareMap;
 
@@ -84,10 +86,10 @@ public class Stacker {
         //op.telemetry.addLine(depositMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION).toString());
 
         depositMotor.setTargetPosition(0);
-        depositMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         depositMotor.setTargetPositionTolerance(0);
-        depositMotor.setPositionPIDFCoefficients(18);
+        depositMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         depositMotor.setVelocityPIDFCoefficients(2,0.3,0,20);
+        depositMotor.setPositionPIDFCoefficients(18);
         //op.telemetry.addLine(depositMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).toString());
 
         liftMotor.setPower(0);
@@ -97,7 +99,7 @@ public class Stacker {
         op.telemetry.addData("Status", "Stacker Initialized");
     }
 
-    // basic arm movement
+    // Basic Arm Movement
     public void setDepositControls(double power, int ticks) {
         if (power != armLastTargetPower) {
             depositMotor.setPower(power);
@@ -109,7 +111,7 @@ public class Stacker {
         }
     }
 
-    // basic lift movement
+    // Basic Lift Movement
     public void setLiftControls(double power, int ticks) {
         if (power != liftLastTargetPower) {
             liftMotor.setPower(power);
@@ -121,25 +123,20 @@ public class Stacker {
         }
     }
 
-    // set arm position methods
+    // Set Arm Position Methods
     public void goHome() {
         if (armTicks < 40) {
             setDepositControls(1, armHome);
         } else {
             setDepositControls(0.5, armHome);
         }
-//        if (liftTicks > -50) {
-//            liftMotor.setPositionPIDFCoefficients(18);
-//        } else {
-//            liftMotor.setPositionPIDFCoefficients(5);
-//        }
         setLiftControls(1.0, liftHome);
     }
     public void goDown() {
         setDepositControls(1.0, armDown);
     }
 
-    // set lift position methods
+    // Set Lift Position Methods
     public void downStack() {
         setLiftControls(1.0, liftPos[currentStackHeight]);
     }
@@ -147,7 +144,7 @@ public class Stacker {
         setLiftControls(1, liftPos[currentStackHeight] - moveLiftUpHeight);
     }
 
-    // depositing methods
+    // Depositing Methods
     public void deposit() {
         if (liftMin[currentStackHeight] > liftTicks) {
             setDepositControls(0.44, armPos[currentStackHeight] + manualArmOffset);
@@ -160,7 +157,7 @@ public class Stacker {
         setDepositControls(0.6, autoDepositPos);
     }
 
-    // check arm state methods
+    // Arm State Methods
     public boolean isArmHome() {
         return Math.abs(getArmPosition() - armHome) < armTolerance;
     }
@@ -177,7 +174,7 @@ public class Stacker {
         return Math.abs(armVelocity) > armVelocityTolerance;
     }
 
-    // check lift state methods
+    // Lift State Methods
     public boolean isLiftHome() {
         return Math.abs(getLiftPosition() - liftHome) < liftTolerance;
     }
@@ -191,7 +188,7 @@ public class Stacker {
         return Math.abs(liftVelocity) > liftVelocityTolerance;
     }
 
-    // change stack level methods
+    // Stack Level Methods
     public void nextLevel() {
         currentStackHeight = Math.min(currentStackHeight + 1, 9);
     }
@@ -202,7 +199,7 @@ public class Stacker {
         currentStackHeight = level;
     }
 
-    // clamp/unclamp stone methods
+    // Stone Clamp/Unclamp Methods
     public void clampStone() {
         if (!stoneClamped) {
             stoneClamp.setPosition(clampPos);
@@ -216,7 +213,7 @@ public class Stacker {
         }
     }
 
-    // get encoder ticks methods
+    // Encoder Tick Methods
     public int getArmPosition() {
         return armTicks;
     }
@@ -224,12 +221,12 @@ public class Stacker {
         return liftTicks;
     }
 
-    // get angle of arm
+    // Get Angle of Arm
     public double getArmAngle() {
         return 2 * Math.PI * (armTicks / 2 - 69.0) / 806.4;
     }
 
-    // arm/lift bulk read methods
+    // Arm/Lift Bulk Read Methods
     public LynxGetBulkInputDataResponse RevBulkData(){
         LynxGetBulkInputDataResponse response;
         try {
@@ -241,6 +238,7 @@ public class Stacker {
         }
         return response;
     }
+
     public void update() {
         LynxGetBulkInputDataResponse response = RevBulkData();
 

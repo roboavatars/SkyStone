@@ -51,9 +51,7 @@ public class SixWheelDrivetrain {
     private double prevrightinches=0;
 
     //Constructor
-    public SixWheelDrivetrain(HardwareMap hardwareMap, LinearOpMode opMode, double initialX,
-                              double initialY, double initialtheta){
-
+    public SixWheelDrivetrain(HardwareMap hardwareMap, LinearOpMode opMode, double initialX, double initialY, double initialtheta){
         this.opMode = opMode;
         this.hardwareMap = hardwareMap;
 
@@ -76,7 +74,6 @@ public class SixWheelDrivetrain {
         motorBackLeft.setMode(RunMode.STOP_AND_RESET_ENCODER);
         motorBackRight.setMode(RunMode.STOP_AND_RESET_ENCODER);
 
-
         motorBackLeft.setDirection(Direction.REVERSE);
         motorFrontLeft.setDirection(Direction.REVERSE);
 
@@ -84,7 +81,6 @@ public class SixWheelDrivetrain {
         motorFrontLeft.setMode(RunMode.RUN_USING_ENCODER);
         motorBackRight.setMode(RunMode.RUN_USING_ENCODER);
         motorBackLeft.setMode(RunMode.RUN_USING_ENCODER);
-
 
         imu = new LynxEmbeddedIMU(new BetterI2cDeviceSynchImplOnSimple(
                 new LynxI2cDeviceSynchV2(hardwareMap.appContext, module, 0), true
@@ -96,7 +92,6 @@ public class SixWheelDrivetrain {
         opMode.telemetry.update();
 
     }
-
 
     private static class BetterI2cDeviceSynchImplOnSimple extends I2cDeviceSynchImplOnSimple {
         private BetterI2cDeviceSynchImplOnSimple(I2cDeviceSynchSimple simple, boolean isSimpleOwned) {
@@ -124,7 +119,6 @@ public class SixWheelDrivetrain {
         return versionBuilder.toString();
     }
 
-
     public void setRightPower(double power){
         motorFrontRight.setPower(power);
         motorBackRight.setPower(power);
@@ -136,10 +130,8 @@ public class SixWheelDrivetrain {
     }
 
     public double getAngle(){
-
         angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
         deltaheading = angles.firstAngle + initialheading - lastheading;
-
 
         if (deltaheading < -Math.PI)
             deltaheading += 2*Math.PI ;
@@ -171,6 +163,7 @@ public class SixWheelDrivetrain {
         }
         return response;
     }
+
     public void updatePose(){
         LynxGetBulkInputDataResponse response = RevBulkData();
 
@@ -185,16 +178,16 @@ public class SixWheelDrivetrain {
 
         prevleftinches = response.getEncoder(3);
         prevrightinches = response.getEncoder(0);
-
     }
+
     public void setControls(double velo, double angularvelo){
         motorFrontRight.setVelocity(inchestoticks(velo + angularvelo*15));
         motorBackRight.setVelocity(inchestoticks(velo + angularvelo*15));
         motorFrontLeft.setVelocity(inchestoticks(velo - angularvelo*15));
         motorBackLeft.setVelocity(inchestoticks(velo - angularvelo*15));
     }
+
     public double inchestoticks(double inches){
         return inches/12.56*560.0;
     }
-
 }

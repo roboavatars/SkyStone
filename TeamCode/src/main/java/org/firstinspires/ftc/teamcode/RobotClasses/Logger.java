@@ -9,28 +9,32 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 
-@SuppressWarnings("FieldCanBeLocal") @SuppressLint("SdCardPath")
+@SuppressLint("SdCardPath")
 public class Logger {
 
-    private static File robotDataLog;
     private static String basePath = "/sdcard/FIRST/robotLogs/RobotData";
     private static FileWriter fileWriter;
     private static BufferedReader bufferedReader;
     private String data = "";
-    private ArrayList<double[]> dataArray;
 
+    /**
+     * Creates a new file and writes first row
+     * This method must be used before logging
+     */
     public void startLogging() {
         try {
             data = "";
-            robotDataLog = new File(getLogName(true));
+            File robotDataLog = new File(getLogName(true));
             fileWriter = new FileWriter(robotDataLog);
             fileWriter.write("Timestamp,SinceStart,X,Y,Theta,VelocityX,VelocityY,VelocityTheta,AccelX,AccelY,AccelTheta,StoneInRobot,StoneClamped,TryingToDeposit,ArmIsHome,ArmIsDown,ArmIsOut\n");
         } catch (Exception e) {e.printStackTrace();}
     }
 
+    /**
+     * Searches the list of files to find the last file number that exists
+     */
     public static double getLastFileNumber() {
         int logNum = 1;
         while (true) {
@@ -41,17 +45,26 @@ public class Logger {
         return logNum - 1;
     }
 
-    public static String getLogName(boolean fileWrite) {
+    /**
+     * Takes the file number from getLastFileNumber() and converts it to a file name
+     */
+    private static String getLogName(boolean fileWrite) {
         System.out.println(basePath + (int)(getLastFileNumber()+ 1) + ".csv");
         if (fileWrite) return basePath + (int)(getLastFileNumber()+ 1) + ".csv";
         else return basePath + getLastFileNumber() + ".csv";
     }
 
+    /**
+     * Adds data to string
+     */
     public void logData(double timeSinceSt, double x, double y, double theta, double velocityx, double velocityy, double velocitytheta, double accelx, double accely, double accelTheta, boolean stoneInRobot, boolean stoneClamped, boolean tryingToDeposit, boolean armIsHome, boolean armIsDown, boolean armIsOut) {
         @SuppressLint("SimpleDateFormat") SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss.SSS"); Date d = new Date();
         data += df.format(d)+","+timeSinceSt+","+x+","+y+","+theta+","+velocityx+","+velocityy+","+velocitytheta+","+accelx+","+accely+","+accelTheta+","+stoneInRobot+","+stoneClamped+","+tryingToDeposit+","+armIsHome+","+armIsDown+","+armIsOut+"\n";
     }
 
+    /**
+     * Writes string to file, closes file
+     */
     public void stopLogging() {
         try {
             fileWriter.write(data);
@@ -60,6 +73,9 @@ public class Logger {
         catch (Exception e) {e.printStackTrace();}
     }
 
+    /**
+     * Reads position from last written file
+     */
     public static double[] readPos() {
         String curLine; int lineNum = 0;
         double[] robotPos = new double[3];
@@ -90,7 +106,7 @@ public class Logger {
     public ArrayList<double[]> replay(String path) {
         String curLine;
         int lineNum = 0;
-        dataArray = new ArrayList<>();
+        ArrayList<double[]> dataArray = new ArrayList<>();
         try {
             File robotDataLog = new File(path);
             bufferedReader = new BufferedReader(new FileReader(robotDataLog));

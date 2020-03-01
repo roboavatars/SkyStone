@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.RobotClasses;
 import android.util.Log;
 
 import com.acmerobotics.dashboard.config.Config;
+
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.lynx.LynxEmbeddedIMU;
 import com.qualcomm.hardware.lynx.LynxI2cDeviceSynchV2;
@@ -23,77 +24,73 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-@Config
 @SuppressWarnings("FieldCanBeLocal")
+@Config
 public class MecanumDrivetrain {
 
     //1440 ticks per encoder revolution
     //4.3289 inches per wheel revolution
     double encoderCountsPerRevolution = 537.6;
 
-    //Motors of the drivetrain
+    // Motors of the drivetrain
     private DcMotorEx motorFrontRight;
     private DcMotorEx motorFrontLeft;
     private DcMotorEx motorBackRight;
     private DcMotorEx motorBackLeft;
     private ModernRoboticsAnalogOpticalDistanceSensor stoneSensor;
 
-    //copy of opmode related objects
+    // OpMode Stuff
     private LinearOpMode opMode;
     private HardwareMap hardwareMap;
 
-    //Objects for IMU and Rev Hub
+    // Objects for IMU and Rev Hub
     private LynxEmbeddedIMU imu;
     private LynxModule module;
 
-    //IMU related variables for storing states
+    // IMU related variables for storing states
     private Orientation angles;
     private double lastheading = 0;
     private double deltaheading = 0;
     public double currentheading = 0;
 
-    //Tracking x y coordinate position
+    // Tracking X Y coordinate position
     public double x=0;
     public double y=0;
     private double lastpod1 = 0;
     private double lastpod2 = 0;
     private double lastpod3 = 0;
 
-    //k variables for control of linear system
+    // K Variables for Control of Linear System
     private double xk = 0.1;
     private double yk = 0.1;
     private double thetak = 0.8;
 
-
-    public double deltapod1;
-    public double deltapod2;
-    public double deltapod3;
-
-
+    // Constants
     private final double xyTolerance = 1;
     private final double thetaTolerance = Math.PI/35;
     public static double OdometryTrackWidth = 13.95;
     private double OdometryHorizontalOffset = 3.17;
     private final double OdometryHeadingThreshold = Math.PI/8;
 
-    public double lastx = 0;
-    public double lasty = 0;
+    public double deltapod1;
+    public double deltapod2;
+    public double deltapod3;
+    private double lastx = 0;
+    private double lasty = 0;
     public boolean stoneInRobot = false;
     public double distance;
 
     private boolean isRed;
 
-    //motor caching stuff
+    // Motor Caching Stuff
     private double lastFRPower = 0;
     private double lastBRPower = 0;
     private double lastFLPower = 0;
     private double lastBLPower = 0;
-
     public static double motorUpdateTolerance = 0.05;
 
-    //Constructor
+    // Constructor
     public MecanumDrivetrain(LinearOpMode opMode, double initialx, double initialy, double initialtheta, boolean isRedAuto) {
-
         this.opMode = opMode;
         this.hardwareMap = opMode.hardwareMap;
 
@@ -133,7 +130,6 @@ public class MecanumDrivetrain {
 
         opMode.telemetry.addLine("ExH Version: " + getConciseLynxFirmwareVersion(module));
         opMode.telemetry.update();
-
     }
 
     private class BetterI2cDeviceSynchImplOnSimple extends I2cDeviceSynchImplOnSimple {
@@ -169,10 +165,9 @@ public class MecanumDrivetrain {
         double FLpower = -ydot+xdot-w;
         double BRpower = -ydot+xdot+w;
 
-        double maxpower = Math.max(Math.abs(FRpower),Math.max(Math.abs(BLpower),
-                Math.max(Math.abs(FLpower),Math.abs(BRpower))));
+        double maxpower = Math.max(Math.abs(FRpower),Math.max(Math.abs(BLpower), Math.max(Math.abs(FLpower),Math.abs(BRpower))));
 
-        if(maxpower > 1){
+        if (maxpower > 1) {
             FRpower /= maxpower;
             BLpower /= maxpower;
             FLpower /= maxpower;
@@ -180,28 +175,27 @@ public class MecanumDrivetrain {
         }
 
         if (xdot == 0 && ydot == 0 && w == 0) {
-            //set motor powers
+            // Set Motor Powers
             motorFrontRight.setPower(FRpower);
             motorBackLeft.setPower(BLpower);
             motorFrontLeft.setPower(FLpower);
             motorBackRight.setPower(BRpower);
 
-            //cache new motor powers
+            // Cache New Motor Powers
             lastFRPower = FRpower;
             lastFLPower = FLpower;
             lastBRPower = BRpower;
             lastBLPower = BLpower;
-        }
-        else if(Math.abs(FRpower-lastFRPower)>motorUpdateTolerance || Math.abs(FLpower-lastFLPower)>motorUpdateTolerance
-            || Math.abs(BRpower-lastBRPower)>motorUpdateTolerance || Math.abs(BLpower-lastBLPower)>motorUpdateTolerance){
+        } else if (Math.abs(FRpower - lastFRPower) > motorUpdateTolerance || Math.abs(FLpower - lastFLPower) > motorUpdateTolerance
+            || Math.abs(BRpower - lastBRPower) > motorUpdateTolerance || Math.abs(BLpower - lastBLPower) > motorUpdateTolerance) {
 
-            //set motor powers
+            // Set Motor Powers
             motorFrontRight.setPower(FRpower);
             motorBackLeft.setPower(BLpower);
             motorFrontLeft.setPower(FLpower);
             motorBackRight.setPower(BRpower);
 
-            //cache new motor powers
+            // Cache New Motor Powers
             lastFRPower = FRpower;
             lastFLPower = FLpower;
             lastBRPower = BRpower;
@@ -210,44 +204,42 @@ public class MecanumDrivetrain {
     }
 
     public void setTargetPoint(double xtarget, double ytarget, double thetatarget){
-        //make sure thetatarget is between 0 and 2pi
-        thetatarget = thetatarget%(Math.PI*2);
-        if(thetatarget<0){
+        // Make Sure thetatarget is Between 0 and 2pi
+        thetatarget = thetatarget % (Math.PI*2);
+        if(thetatarget < 0){
             thetatarget += Math.PI*2;
         }
-        //picking the smaller distance to rotate
+
+        // Picking the Smaller Distance to Rotate
         double thetacontrol = 0;
         if(currentheading-thetatarget>Math.PI){
-            thetacontrol = currentheading-thetatarget-2*Math.PI;
-
-        }
-        else if(currentheading-thetatarget<(-Math.PI)){
-            thetacontrol = currentheading-thetatarget+2*Math.PI;
-
-        }
-        else{
-            thetacontrol = currentheading-thetatarget;
+            thetacontrol = currentheading - thetatarget - 2*Math.PI;
+        } else if(currentheading - thetatarget<(-Math.PI)){
+            thetacontrol = currentheading - thetatarget + 2*Math.PI;
+        } else{
+            thetacontrol = currentheading - thetatarget;
         }
         //Log.w("auto", "thetacontrol: " + thetacontrol);
 
-        setGlobalControls(-xk*(x-xtarget),-yk*(y-ytarget),-thetak*(thetacontrol));
+        setGlobalControls(-xk * (x-xtarget),-yk * (y-ytarget),-thetak * (thetacontrol));
     }
 
     public void setTargetPoint(double xtarget, double ytarget, double thetatarget, double xK, double yK, double thetaK){
-        //make sure thetatarget is between 0 and 2pi
-        thetatarget = thetatarget%(Math.PI*2);
-        if(thetatarget<0){
+        // Make Sure thetatarget is Between 0 and 2pi
+        thetatarget = thetatarget % (Math.PI*2);
+        if(thetatarget < 0){
             thetatarget += Math.PI*2;
         }
-        //picking the smaller distance to rotate
+
+        // Picking the Smaller Distance to Rotate
         double thetacontrol = 0;
-        if(Math.abs(currentheading-thetatarget)>Math.PI){
-            thetacontrol = currentheading-thetatarget-2*Math.PI;
-        }else{
-            thetacontrol = currentheading-thetatarget;
+        if(Math.abs(currentheading - thetatarget)>Math.PI){
+            thetacontrol = currentheading - thetatarget - 2*Math.PI;
+        } else {
+            thetacontrol = currentheading - thetatarget;
         }
 
-        setGlobalControls(-xK*(x-xtarget),-yK*(y-ytarget),-thetaK*(thetacontrol));
+        setGlobalControls(-xK * (x-xtarget),-yK * (y-ytarget),-thetaK * (thetacontrol));
     }
 
     public void setTargetPointAuto(double xtarget, double ytarget, double thetatarget){
@@ -255,21 +247,21 @@ public class MecanumDrivetrain {
             xtarget = 144 - xtarget;
             thetatarget = (Math.PI) - thetatarget;
         }
-        //make sure thetatarget is between 0 and 2pi
-        thetatarget = thetatarget%(Math.PI*2);
+        // Make Sure thetatarget is Between 0 and 2pi
+        thetatarget = thetatarget % (Math.PI*2);
         if(thetatarget<0){
             thetatarget += Math.PI*2;
         }
-        //picking the smaller distance to rotate
+        // Picking the Smaller Distance to Rotate
         double thetacontrol = 0;
-        if(Math.abs(currentheading-thetatarget)>Math.PI){
-            thetacontrol = currentheading-thetatarget-2*Math.PI;
-        }else{
-            thetacontrol = currentheading-thetatarget;
+        if(Math.abs(currentheading - thetatarget) > Math.PI){
+            thetacontrol = currentheading - thetatarget - 2*Math.PI;
+        } else {
+            thetacontrol = currentheading - thetatarget;
         }
 
         Log.w("auto", "Targets: " + xtarget + " " + ytarget + " " + thetatarget + ", Current Pos: " + x + " " + y + " " + currentheading);
-        setGlobalControls(-xk*(x-xtarget),-yk*(y-ytarget),-thetak*(thetacontrol));
+        setGlobalControls(-xk * (x-xtarget),-yk * (y-ytarget),-thetak * (thetacontrol));
     }
 
     public void setTargetPointAuto(double xtarget, double ytarget, double thetatarget, double xK, double yK, double thetaK) {
@@ -277,17 +269,17 @@ public class MecanumDrivetrain {
             xtarget = 144 - xtarget;
             thetatarget = (Math.PI) - thetatarget;
         }
-        //make sure thetatarget is between 0 and 2pi
+        // Make Sure thetatarget is Between 0 and 2pi
         thetatarget = thetatarget%(Math.PI*2);
         if(thetatarget<0){
             thetatarget += Math.PI*2;
         }
-        //picking the smaller distance to rotate
+        // Picking the Smaller Distance to Rotate
         double thetacontrol = 0;
-        if(Math.abs(currentheading-thetatarget)>Math.PI){
-            thetacontrol = currentheading-thetatarget-2*Math.PI;
-        }else{
-            thetacontrol = currentheading-thetatarget;
+        if(Math.abs(currentheading - thetatarget) > Math.PI){
+            thetacontrol = currentheading - thetatarget - 2*Math.PI;
+        } else {
+            thetacontrol = currentheading - thetatarget;
         }
 
         Log.w("auto", "Targets: " + xtarget + " " + ytarget + " " + thetatarget + " (" + xK + " " + yK + " " + thetaK + "), Current Pos: " + x + " " + y + " " + currentheading);
@@ -298,7 +290,6 @@ public class MecanumDrivetrain {
         double xdot = xvelocity*Math.cos(-currentheading) - yvelocity*Math.sin(-currentheading);
         double ydot =  yvelocity*Math.cos(-currentheading) + xvelocity*Math.sin(-currentheading);
         setControls(xdot, ydot, w);
-
     }
 
     public LynxGetBulkInputDataResponse RevBulkData(){
@@ -306,8 +297,7 @@ public class MecanumDrivetrain {
         try {
             LynxGetBulkInputDataCommand command = new LynxGetBulkInputDataCommand(module);
             response = command.sendReceive();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             opMode.telemetry.addData("Exception", "bulk read exception");
             response = null;
         }
@@ -329,9 +319,9 @@ public class MecanumDrivetrain {
             deltapod3 = pod3 - lastpod3;
 
             Log.w("auto", deltapod1 + " " + deltapod2 + " " + deltapod3);
-            if (deltapod1 == 0) {Log.w("auto", "pod 1 delta 0");}
-            if (deltapod2 == 0) {Log.w("auto", "pod 2 delta 0");}
-            if (deltapod3 == 0) {Log.w("auto", "pod 3 delta 0");}
+            if (deltapod1 == 0) Log.w("auto", "pod 1 delta 0");
+            if (deltapod2 == 0) Log.w("auto", "pod 2 delta 0");
+            if (deltapod3 == 0) Log.w("auto", "pod 3 delta 0");
 
             lastx = x;
             lasty = y;
@@ -346,30 +336,24 @@ public class MecanumDrivetrain {
                 y += localy * Math.cos(currentheading) + localx * Math.sin(currentheading);
 
             } else {
+                x += (localx * Math.sin(currentheading + deltaheading) + localy * Math.cos(currentheading + deltaheading)
+                        - localx * Math.sin(currentheading) - localy * Math.cos(currentheading)) / deltaheading;
+                y += (localy * Math.sin(currentheading + deltaheading) - localx * Math.cos(currentheading + deltaheading)
+                        - localy * Math.sin(currentheading) + localx * Math.cos(currentheading)) / deltaheading;
+            }
 
-                x += (localx * Math.sin(currentheading + deltaheading)
-                        + localy * Math.cos(currentheading + deltaheading) - localx * Math.sin(currentheading)
-                        - localy * Math.cos(currentheading)) / deltaheading;
-                y += (localy * Math.sin(currentheading + deltaheading)
-                        - localx * Math.cos(currentheading + deltaheading) - localy * Math.sin(currentheading) +
-                        localx * Math.cos(currentheading)) / deltaheading;
-            }
             currentheading += deltaheading;
-            currentheading = currentheading%(Math.PI*2);
-            if(currentheading<0){
-                currentheading += Math.PI*2;
-            }
+            currentheading = currentheading % (Math.PI*2);
+            if (currentheading < 0) currentheading += Math.PI*2;
 
             lastpod1 = pod1;
             lastpod2 = pod2;
             lastpod3 = pod3;
         } catch (Exception e) {e.printStackTrace();}
-
     }
 
     public double getHeadingImu(){
-
-        angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
+        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
         deltaheading = angles.firstAngle - lastheading;
 
         //opMode.telemetry.addData("delta", deltaheading);
@@ -380,11 +364,9 @@ public class MecanumDrivetrain {
             deltaheading -= 2*Math.PI ;
 
         currentheading += deltaheading;
-
         lastheading = angles.firstAngle;
 
         return currentheading;
-
     }
 
     public void resetHeadingIMU(){
@@ -394,16 +376,14 @@ public class MecanumDrivetrain {
     }
 
     public boolean isAtPoseAuto(double targetx, double targety, double targettheta) {
-
         return isAtPoseAuto(targetx, targety, targettheta, xyTolerance, xyTolerance, thetaTolerance);
     }
+
     public boolean isAtPoseAuto(double targetx, double targety, double targettheta, double xtolerance, double ytolerance, double thetatolerance) {
         if (!isRed) {
             targetx = 144 - targetx;
             targettheta = Math.PI - targettheta;
         }
-        return (Math.abs(x - targetx) < xtolerance && Math.abs(y - targety) < ytolerance
-                && Math.abs(currentheading - targettheta) < thetatolerance);
+        return (Math.abs(x - targetx) < xtolerance && Math.abs(y - targety) < ytolerance && Math.abs(currentheading - targettheta) < thetatolerance);
     }
-
 }
