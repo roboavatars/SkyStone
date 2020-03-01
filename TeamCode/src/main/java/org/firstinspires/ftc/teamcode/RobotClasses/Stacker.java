@@ -65,6 +65,7 @@ public class Stacker {
     private double armLastTargetPower = 0;
     private int liftLastTargetPos = 0;
     private double liftLastTargetPower = 0;
+    private boolean setLiftPID = false;
 
     public Stacker(LinearOpMode op) {
         this.op = op;
@@ -79,9 +80,9 @@ public class Stacker {
         depositMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         
         liftMotor.setTargetPosition(0);
-        liftMotor.setTargetPositionTolerance(0);
+        liftMotor.setTargetPositionTolerance(5);
         liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        liftMotor.setVelocityPIDFCoefficients(2,0.5,0, 15);
+        liftMotor.setVelocityPIDFCoefficients(2,0.5,0, 5);
         liftMotor.setPositionPIDFCoefficients(18);
         //op.telemetry.addLine(depositMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION).toString());
 
@@ -129,6 +130,13 @@ public class Stacker {
             setDepositControls(1, armHome);
         } else {
             setDepositControls(0.5, armHome);
+        }
+        if (liftTicks > -50 && !setLiftPID) {
+            liftMotor.setPositionPIDFCoefficients(18);
+            setLiftPID = true;
+        } else if (setLiftPID && liftTicks <- 50) {
+            liftMotor.setPositionPIDFCoefficients(5);
+            setLiftPID = false;
         }
         setLiftControls(1.0, liftHome);
     }

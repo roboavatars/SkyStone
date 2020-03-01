@@ -192,7 +192,7 @@ public class newPathBasedAuto extends LinearOpMode {
 //                if (robot.drivetrain.x>42 && time.seconds()>toFoundation1Time-0.8 && robot.drivetrain.y<40) {
 //                    robot.grabber.grabFoundation();
 //                }
-                if(time.seconds()>toFoundation1Time+0.1){
+                if (time.seconds() > toFoundation1Time+0.1) {
                     robot.grabber.grabFoundation();
                 }
 //                if(robot.drivetrain.y>70 && robot.drivetrain.y<80){
@@ -205,7 +205,7 @@ public class newPathBasedAuto extends LinearOpMode {
                             new Waypoint(robot.drivetrain.x, robot.drivetrain.y, robot.drivetrain.currentheading, 5, 30,0, 0),
                             new Waypoint(33, 30, Math.PI , 30, 30,0,0.75),
 //                            new Waypoint(27, 35, 3*Math.PI / 4, 40, 10,-2, 1.25),
-                            new Waypoint(28, 65, Math.PI/2, 60, 10,0, foundationPullTime)
+                            new Waypoint(28, 53, Math.PI/2, 60, 10,0, foundationPullTime)
                     };
                     foundationPullPath = new Path(new ArrayList<>(Arrays.asList(foundationPullWaypoints)));
                     time.reset();
