@@ -16,13 +16,15 @@ public class MecanumTest extends LinearOpMode {
     @Override
     public void runOpMode() {
         robot = new Robot(this,9,111, 0, true);
+        robot.intakeManual = true;
+        robot.intake.setControls(0);
         waitForStart();
 
         while(opModeIsActive()){
 
             //robot.drivetrain.setTargetPointAuto(36,81, 0, 0.1, 0.1, 0.8);
 //            robot.addPacket("lift ticks", robot.stacker.getLiftPosition());
-            robot.drivetrain.setControls(0.6,0,-0.4);
+//            robot.drivetrain.setControls(0.6,0,-0.4);
             robot.update();
 
             Log.w("auto", String.format("%.5f", robot.drivetrain.x) + " " + String.format("%.5f", robot.drivetrain.y) + " " + String.format("%.5f", robot.drivetrain.currentheading));

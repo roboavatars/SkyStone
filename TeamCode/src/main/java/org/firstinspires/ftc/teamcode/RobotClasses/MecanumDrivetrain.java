@@ -68,7 +68,8 @@ public class MecanumDrivetrain {
     // Constants
     private final double xyTolerance = 1;
     private final double thetaTolerance = Math.PI/35;
-    public static double OdometryTrackWidth = 13.95;
+//    public static double OdometryTrackWidth = 13.95;
+    public static double OdometryTrackWidth = 13.74;
     private double OdometryHorizontalOffset = 3.17;
     private final double OdometryHeadingThreshold = Math.PI/8;
 
