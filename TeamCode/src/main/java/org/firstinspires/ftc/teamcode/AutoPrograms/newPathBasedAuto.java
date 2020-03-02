@@ -203,9 +203,9 @@ public class newPathBasedAuto extends LinearOpMode {
                     robot.depositAuto();
                     Waypoint[] foundationPullWaypoints = new Waypoint[] {
                             new Waypoint(robot.drivetrain.x, robot.drivetrain.y, robot.drivetrain.currentheading, 5, 30,0, 0),
-                            new Waypoint(33, 30, Math.PI , 30, 30,0,0.75),
+                            new Waypoint(33, 30, Math.PI , 30, 30,0,0.5),
 //                            new Waypoint(27, 35, 3*Math.PI / 4, 40, 10,-2, 1.25),
-                            new Waypoint(28, 53, Math.PI/2, 60, 10,0, foundationPullTime)
+                            new Waypoint(28, 60, Math.PI/2, 60, 10,0, foundationPullTime)
                     };
                     foundationPullPath = new Path(new ArrayList<>(Arrays.asList(foundationPullWaypoints)));
                     time.reset();
@@ -217,13 +217,21 @@ public class newPathBasedAuto extends LinearOpMode {
 //                if (robot.drivetrain.x > 38 && robot.drivetrain.currentheading > 2*Math.PI/3 ) {
 //                    robot.drivetrain.setControls(0.8, 0, 0);
 //                } else if (robot.drivetrain.currentheading > 2*Math.PI/3) {
-//                    robot.drivetrain.setControls(0.6,0,-0.35);
+//
 //                } else {
 //                    robot.drivetrain.setTargetPoint(33,58,Math.PI/2, 0.2, 0.2, 0.4);
 //                }
                 double currentTime = Math.min(foundationPullTime, time.seconds());
                 Pose robotPose = foundationPullPath.getRobotPose(currentTime);
-                robot.drivetrain.setTargetPoint(robotPose.getX(),robotPose.getY(),robotPose.getTheta(), 0.15, 0.15, 2.1);
+                robot.drivetrain.setTargetPoint(robotPose.getX(),robotPose.getY(),robotPose.getTheta(), 0.1, 0.1, 2.4
+                );
+//                if(robot.drivetrain.currentheading > 2*Math.PI/3 ){
+//                    robot.drivetrain.setControls(0.54,0,-0.38);
+//                }
+//                else{
+//                    robot.drivetrain.setTargetPoint(33,58,Math.PI/2, 0.2, 0.2, 0.4);
+//                }
+
 
                 if(robot.stacker.isArmOut() && !robot.stacker.isArmMoving()){
                     robot.letGo = true;
@@ -286,7 +294,7 @@ public class newPathBasedAuto extends LinearOpMode {
 //                    robot.cheesemode = true;
 //                }
 
-                if (time.seconds() > (toFoundation2Time + 0.5)) {
+                if (time.seconds() > (toFoundation2Time + 0.5) && robot.stacker.getArmPosition()<180) {
                     toFoundation2 = true;
                     Waypoint[] stone3PathWaypoints;
                     if(skystonePos == 1){
@@ -342,7 +350,7 @@ public class newPathBasedAuto extends LinearOpMode {
                 if(robot.drivetrain.y<70){
                     robot.depositAuto();
                 }
-                if (time.seconds() > (toFoundation3Time + 0.75)) {
+                if (time.seconds() > (toFoundation3Time + 0.75) && robot.stacker.getArmPosition()<180) {
                     toFoundation3 = true;
                     Waypoint[] stone4PathWaypoints;
                     if (skystonePos == 2) {
@@ -403,7 +411,7 @@ public class newPathBasedAuto extends LinearOpMode {
 //                if(robot.drivetrain.y>80 && robot.drivetrain.y<120){
 //                    robot.cheesemode = true;
 //                }
-                if (time.seconds() > (toFoundation4Time + 0.5)) {
+                if (time.seconds() > (toFoundation4Time + 0.5) && robot.stacker.getArmPosition()<180) {
                     toFoundation4 = true;
                     Waypoint[] stone5PathWaypoints;
                     if (skystonePos == 2 || skystonePos == 3) {
@@ -456,7 +464,7 @@ public class newPathBasedAuto extends LinearOpMode {
                 if(robot.drivetrain.y<70){
                     robot.depositAuto();
                 }
-                if (time.seconds() > (toFoundation5Time + 0.5)) {
+                if (time.seconds() > (toFoundation5Time + 0.5) && robot.stacker.getArmPosition()<180) {
                     toFoundation5 = true;
                     time.reset();
                 }

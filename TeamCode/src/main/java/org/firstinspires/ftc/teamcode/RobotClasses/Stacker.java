@@ -22,8 +22,8 @@ public class Stacker {
     private Servo stoneClamp;
 
     // Clamp Positions
-    private final double clampPos = 0.01;
-    private final double unClampPos = 0.7;
+    private final double clampPos = 0.15;
+    private final double unClampPos = 0.9;
 
     public boolean stoneClamped = false;
 
@@ -41,10 +41,10 @@ public class Stacker {
     // Encoder Positions
     private final int armOut = 500;
     private final int armDown = -30;
-    private final int armHome = 27;
+    private final int armHome = 35;
     private final int armIntermediatePos = 180;
     private final int armTolerance = 25;
-    private final int liftHome = 20;
+    private final int liftHome = 100;
     private final int liftTolerance = 10;
     private final int moveLiftUpHeight = 400;
 
@@ -131,13 +131,13 @@ public class Stacker {
         } else {
             setDepositControls(0.5, armHome);
         }
-        if (liftTicks > -50 && !setLiftPID) {
-            liftMotor.setPositionPIDFCoefficients(18);
-            setLiftPID = true;
-        } else if (setLiftPID && liftTicks <- 50) {
-            liftMotor.setPositionPIDFCoefficients(5);
-            setLiftPID = false;
-        }
+//        if (liftTicks > -50 && !setLiftPID) {
+//            liftMotor.setPositionPIDFCoefficients(18);
+//            setLiftPID = true;
+//        } else if (setLiftPID && liftTicks <- 50) {
+//            liftMotor.setPositionPIDFCoefficients(5);
+//            setLiftPID = false;
+//        }
         setLiftControls(1.0, liftHome);
     }
     public void goDown() {
@@ -159,10 +159,10 @@ public class Stacker {
         } else {
             setDepositControls(0.44, armIntermediatePos);
         }
-        setLiftControls(0.8, liftPos[currentStackHeight] - 300);
+        setLiftControls(1.0, liftPos[currentStackHeight] - 300);
     }
     public void depositAuto() {
-        setDepositControls(0.6, autoDepositPos);
+        setDepositControls(0.8, autoDepositPos);
     }
 
     // Arm State Methods
