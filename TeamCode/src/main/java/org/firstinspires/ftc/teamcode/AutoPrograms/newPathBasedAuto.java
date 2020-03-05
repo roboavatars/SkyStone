@@ -161,7 +161,7 @@ public class newPathBasedAuto extends LinearOpMode {
                 double currentTime = Math.min(skystone1Time, time.seconds());
                 Pose robotPose = skystone1Path.getRobotPose(currentTime);
                 robot.drivetrain.setTargetPoint(robotPose.getX(),robotPose.getY(),skystone1ThetaSpline.position(currentTime));
-                if(time.seconds()>0.5){
+                if (time.seconds() > 0.5) {
                     robot.grabber.releaseFoundation();
                 }
                 if (robot.stoneInRobot || time.seconds() > (skystone1Time + 1.5)) {
@@ -192,7 +192,7 @@ public class newPathBasedAuto extends LinearOpMode {
 //                if (robot.drivetrain.x>42 && time.seconds()>toFoundation1Time-0.8 && robot.drivetrain.y<40) {
 //                    robot.grabber.grabFoundation();
 //                }
-                if(time.seconds()>toFoundation1Time+0.1){
+                if (time.seconds() > toFoundation1Time + 0.1) {
                     robot.grabber.grabFoundation();
                 }
 //                if(robot.drivetrain.y>70 && robot.drivetrain.y<80){
@@ -203,7 +203,7 @@ public class newPathBasedAuto extends LinearOpMode {
                     robot.depositAuto();
                     Waypoint[] foundationPullWaypoints = new Waypoint[] {
                             new Waypoint(robot.drivetrain.x, robot.drivetrain.y, robot.drivetrain.currentheading, 5, 30,0, 0),
-                            new Waypoint(33, 30, Math.PI , 30, 30,0,0.75),
+                            new Waypoint(33, 30, Math.PI, 30, 30,0,0.75),
 //                            new Waypoint(27, 35, 3*Math.PI / 4, 40, 10,-2, 1.25),
                             new Waypoint(28, 65, Math.PI/2, 60, 10,0, foundationPullTime)
                     };
@@ -225,11 +225,11 @@ public class newPathBasedAuto extends LinearOpMode {
                 Pose robotPose = foundationPullPath.getRobotPose(currentTime);
                 robot.drivetrain.setTargetPoint(robotPose.getX(),robotPose.getY(),robotPose.getTheta(), 0.15, 0.15, 2.1);
 
-                if(robot.stacker.isArmOut() && !robot.stacker.isArmMoving()){
+                if (robot.stacker.isArmOut() && !robot.stacker.isArmMoving()) {
                     robot.letGo = true;
                 }
 
-                if (time.seconds() > foundationPullTime+1) {
+                if (time.seconds() > foundationPullTime + 1) {
                     robot.grabber.releaseFoundation();
                     foundationPull = true;
                     depositX = robot.drivetrain.x; depositY = robot.drivetrain.y; depositTheta = robot.drivetrain.currentheading;
@@ -259,7 +259,7 @@ public class newPathBasedAuto extends LinearOpMode {
                     robot.drivetrain.setTargetPoint(50,skystoneY-18, Math.PI/4 + 0.25);
                 }
 
-                if (time.seconds() > (skystone2Time + 2) || (robot.stoneInRobot && robot.drivetrain.y>72)) {
+                if (time.seconds() > (skystone2Time + 2) || (robot.stoneInRobot && robot.drivetrain.y > 72)) {
                     skystone2 = true;
                     Waypoint[] toFoundation2PathWaypoints = new Waypoint[] {
                             new Waypoint(robot.drivetrain.x, robot.drivetrain.y, robot.drivetrain.currentheading, -30, -100,0, 0),
@@ -279,7 +279,7 @@ public class newPathBasedAuto extends LinearOpMode {
                 Pose robotPose = toFoundation2Path.getRobotPose(currentTime);
                 robot.drivetrain.setTargetPoint(robotPose.getX(),robotPose.getY(),robotPose.getTheta()+Math.PI);
 
-                if(robot.drivetrain.y<72){
+                if (robot.drivetrain.y < 72) {
                     robot.depositAuto();
                 }
 //                if(robot.drivetrain.y>80 && robot.drivetrain.y<120){
@@ -289,14 +289,14 @@ public class newPathBasedAuto extends LinearOpMode {
                 if (time.seconds() > (toFoundation2Time + 0.5)) {
                     toFoundation2 = true;
                     Waypoint[] stone3PathWaypoints;
-                    if(skystonePos == 1){
+                    if (skystonePos == 1) {
                         stone3PathWaypoints = new Waypoint[] {
                                 new Waypoint(robot.drivetrain.x,robot.drivetrain.y, robot.drivetrain.currentheading, 10, 100,0, 0),
                                 new Waypoint(31, stoneLocations[skystonePos-1][0].getY() - 18, Math.PI / 3, 30, 10,-3, 1.25),
                                 new Waypoint(stoneLocations[skystonePos-1][0].getX(), stoneLocations[skystonePos-1][0].getY(), Math.PI/4-0.2, 10, -100,0, stone3Time)
                         };
                     }
-                    else{
+                    else {
                         stone3PathWaypoints = new Waypoint[] {
                                 new Waypoint(robot.drivetrain.x,robot.drivetrain.y, robot.drivetrain.currentheading, 10, 100,0, 0),
                                 new Waypoint(31, stoneLocations[skystonePos-1][0].getY() - 18, Math.PI / 3, 30, 10,-3, 1.25),
@@ -309,14 +309,16 @@ public class newPathBasedAuto extends LinearOpMode {
 
                 }
             }
-//             Get Third stone
+
+            // Get Third stone
             else if (!stone3) {
                 double currentTime = Math.min(stone3Time, time.seconds());
 
-                Pose robotPose = stone3Path.getRobotPose(currentTime);
-                robot.drivetrain.setTargetPoint(robotPose.getX(), robotPose.getY(), robotPose.getTheta());
-
-                if (time.seconds() > (stone3Time + 1.5) || (robot.stoneInRobot && robot.drivetrain.y>72)) {
+                if (time.seconds() < stone3Time) {
+                    Pose robotPose = stone3Path.getRobotPose(currentTime);
+                    robot.drivetrain.setTargetPoint(robotPose.getX(), robotPose.getY(), robotPose.getTheta());
+                }
+                else if (time.seconds() > (stone3Time + 1) || (robot.stoneInRobot && robot.drivetrain.y > 72)) {
                     stone3 = true;
                     Waypoint[] toFoundation3PathWaypoints = new Waypoint[] {
                             new Waypoint(robot.drivetrain.x, robot.drivetrain.y, robot.drivetrain.currentheading, -30, -100,0, 0),
@@ -327,19 +329,21 @@ public class newPathBasedAuto extends LinearOpMode {
 //                    robot.intake.setControls(0);
                     time.reset();
                 }
+                else {
+                    robot.drivetrain.setTargetPoint(robot.drivetrain.x + 1.5, robot.drivetrain.y + 1.5, robot.drivetrain.currentheading);
+                }
             }
-            //return to foundation 3
-            else if(!toFoundation3){
+
+            // Go to Foundation to Deposit Third Stone
+            else if (!toFoundation3) {
                 double currentTime = Math.min(toFoundation3Time, time.seconds());
-
-
 
                 Pose robotPose = toFoundation3Path.getRobotPose(currentTime);
                 robot.drivetrain.setTargetPoint(robotPose.getX(), robotPose.getY(), robotPose.getTheta()+Math.PI);
 //                if(robot.drivetrain.y>80 && robot.drivetrain.y<120){
 //                    robot.cheesemode = true;
 //                }
-                if(robot.drivetrain.y<70){
+                if (robot.drivetrain.y < 70) {
                     robot.depositAuto();
                 }
                 if (time.seconds() > (toFoundation3Time + 0.75)) {
@@ -371,14 +375,16 @@ public class newPathBasedAuto extends LinearOpMode {
                     time.reset();
                 }
             }
-            //Get fourth stone
-            else if(!stone4){
+
+            // Get Fourth Stone
+            else if (!stone4) {
                 double currentTime = Math.min(stone4Time, time.seconds());
 
-                Pose robotPose = stone4Path.getRobotPose(currentTime);
-                robot.drivetrain.setTargetPoint(robotPose.getX(), robotPose.getY(), robotPose.getTheta());
-
-                if (time.seconds() > (stone4Time + 0.5) || (robot.stoneInRobot && robot.drivetrain.y>72)) {
+                if (time.seconds() < stone4Time) {
+                    Pose robotPose = stone4Path.getRobotPose(currentTime);
+                    robot.drivetrain.setTargetPoint(robotPose.getX(), robotPose.getY(), robotPose.getTheta());
+                }
+                else if (time.seconds() > (stone4Time + 0.5) || (robot.stoneInRobot && robot.drivetrain.y > 72)) {
                     stone4 = true;
                     Waypoint[] toFoundation4PathWaypoints = new Waypoint[] {
                             new Waypoint(robot.drivetrain.x, robot.drivetrain.y, robot.drivetrain.currentheading, -30, -100,0, 0),
@@ -389,15 +395,25 @@ public class newPathBasedAuto extends LinearOpMode {
 //                    robot.intake.setControls(0);
                     time.reset();
                 }
+                else {
+                    if (skystonePos == 1) {
+                        robot.drivetrain.setTargetPoint(robot.drivetrain.x + 1.5, robot.drivetrain.y + 1.5, robot.drivetrain.currentheading);
+                    } else if (skystonePos == 2) {
+                        robot.drivetrain.setTargetPoint(robot.drivetrain.x + 1.5, robot.drivetrain.y + 0.5, robot.drivetrain.currentheading);
+                    } else {
+                        robot.drivetrain.setTargetPoint(robot.drivetrain.x + 1.5, robot.drivetrain.y + 0.5, robot.drivetrain.currentheading + 0.07);
+                    }
+                }
             }
-            //return to foundation 4
-            else if(!toFoundation4){
+
+            // Go to Foundation to Deposit Fourth Stone
+            else if (!toFoundation4) {
                 double currentTime = Math.min(toFoundation4Time, time.seconds());
 
                 Pose robotPose = toFoundation4Path.getRobotPose(currentTime);
                 robot.drivetrain.setTargetPoint(robotPose.getX(), robotPose.getY(), robotPose.getTheta()+Math.PI);
 
-                if(robot.drivetrain.y<70){
+                if (robot.drivetrain.y < 70) {
                     robot.depositAuto();
                 }
 //                if(robot.drivetrain.y>80 && robot.drivetrain.y<120){
@@ -425,14 +441,16 @@ public class newPathBasedAuto extends LinearOpMode {
                     time.reset();
                 }
             }
-            //Get fifth stone
-            else if(!stone5){
+
+            // Get Fifth Stone
+            else if (!stone5) {
                 double currentTime = Math.min(stone5Time, time.seconds());
 
-                Pose robotPose = stone5Path.getRobotPose(currentTime);
-                robot.drivetrain.setTargetPoint(robotPose.getX(), robotPose.getY(), robotPose.getTheta());
-
-                if (time.seconds() > (stone5Time + 0.5) || (robot.stoneInRobot && robot.drivetrain.y>72)) {
+                if (time.seconds() < stone5Time) {
+                    Pose robotPose = stone5Path.getRobotPose(currentTime);
+                    robot.drivetrain.setTargetPoint(robotPose.getX(), robotPose.getY(), robotPose.getTheta());
+                }
+                else if (time.seconds() > (stone5Time + 0.5) || (robot.stoneInRobot && robot.drivetrain.y > 72)) {
                     stone5 = true;
                     Waypoint[] toFoundation5PathWaypoints = new Waypoint[] {
                             new Waypoint(robot.drivetrain.x, robot.drivetrain.y, robot.drivetrain.currentheading, -30, -100,0, 0),
@@ -443,9 +461,15 @@ public class newPathBasedAuto extends LinearOpMode {
 //                    robot.intake.setControls(0);
                     time.reset();
                 }
+                if (skystonePos == 1) {
+                    robot.drivetrain.setTargetPoint(robot.drivetrain.x + 1.5, robot.drivetrain.y + 1.5, robot.drivetrain.currentheading);
+                } else {
+                    robot.drivetrain.setTargetPoint(robot.drivetrain.x + 1.5, robot.drivetrain.y + 0.5, robot.drivetrain.currentheading + 0.07);
+                }
             }
-            //return to foundation 5
-            else if(!toFoundation5){
+
+            // Go to Foundation to Deposit Fifth Stone
+            else if (!toFoundation5) {
                 double currentTime = Math.min(toFoundation5Time, time.seconds());
 
                 Pose robotPose = toFoundation5Path.getRobotPose(currentTime);
@@ -453,7 +477,7 @@ public class newPathBasedAuto extends LinearOpMode {
 //                if(robot.drivetrain.y>80 && robot.drivetrain.y<120){
 //                    robot.cheesemode = true;
 //                }
-                if(robot.drivetrain.y<70){
+                if (robot.drivetrain.y < 70) {
                     robot.depositAuto();
                 }
                 if (time.seconds() > (toFoundation5Time + 0.5)) {
