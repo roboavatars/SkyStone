@@ -26,21 +26,27 @@ public class FrameGrabber implements CvCameraViewListener2 {
 
     public FrameGrabber() {}
 
-    @Override public void onCameraViewStarted(int width, int height) {
+    @Override
+    public void onCameraViewStarted(int width, int height) {
         log("camera started");
 
-        // clear folder of images
+        // Clear Folder of Images
         File dir = new File("/sdcard/FIRST/input/");
         String[] children = dir.list();
-        if (children != null) {for (String child : children) {new File(dir, child).delete();}}
-        //
+        if (children != null) {
+            for (String child : children) {
+                new File(dir, child).delete();
+            }
+        }
     }
 
-    @Override public void onCameraViewStopped() {
+    @Override
+    public void onCameraViewStopped() {
         log("camera stopped");
     }
 
-    @Override public Mat onCameraFrame(CvCameraViewFrame cameraFrame) {
+    @Override
+    public Mat onCameraFrame(CvCameraViewFrame cameraFrame) {
         Mat inputFrame = cameraFrame.rgba();
         Mat recoloredFrame = new Mat();
         Imgproc.cvtColor(inputFrame, recoloredFrame, Imgproc.COLOR_BGR2RGB);
@@ -56,7 +62,7 @@ public class FrameGrabber implements CvCameraViewListener2 {
      * @return Most recent camera frame
      */
     public Mat getNextMat() {
-        //if (saveCount < 50) Imgcodecs.imwrite(outputPath + saveCount + ".jpg", curMat); saveCount++;
+        //if (saveCount < 2000) Imgcodecs.imwrite(outputPath + saveCount + ".jpg", curMat); saveCount++;
         return curMat;
     }
 
