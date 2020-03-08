@@ -3,16 +3,15 @@ package org.firstinspires.ftc.teamcode.RobotClasses;
 import android.util.Log;
 
 import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.teamcode.Splines.Waypoint;
 
 @SuppressWarnings("FieldCanBeLocal")
-//@Config
 public class Robot {
 
     // Subsystems
@@ -22,6 +21,8 @@ public class Robot {
     public FoundationGrabber grabber;
     public CapstoneDeposit capstoneDeposit;
     public Logger logger;
+    private Servo extendoServo;
+
 
     // State Booleans
     public boolean stoneInRobot = false;
@@ -31,7 +32,7 @@ public class Robot {
     private boolean liftedUp = false;
     public boolean intakeManual = false;
     private boolean stoneInTimeSaved = false;
-    //private boolean armDownTimeSaved = false;
+    public boolean holdingLastStone = false;
 
     public boolean yeetmode = false;
     public boolean cheesemode = false;
@@ -40,17 +41,19 @@ public class Robot {
     // Class constants
     private final int armTicksUpdatePeriod = 7;
     private final int loggerUpdatePeriod = 2;
-    public final double intakePower = 0.7;
+    public final double intakePower = 0.8;
     private final double armDownWaitTime = 200; //Milliseconds
-    private final double stonePushWaitTime = 700;
+    private final double stonePushWaitTime = 500;
 
     private int cycleCounter = 0;
     private double stoneInTime;
-    //private double armDownTime;
 
     // Velocity/Acceleration Stuff
     private double prevX, prevY, prevTh, xdot, ydot, w, prevxdot, prevydot, prevW, prevTime, xdotdot, ydotdot, a;
     public double startTime;
+
+    private double extendoExtendPos = 1;
+    private double extendoHomePos = 0;
 
     // OpMode Stuff
     private LinearOpMode op;
@@ -65,6 +68,9 @@ public class Robot {
         grabber = new FoundationGrabber(op);
         capstoneDeposit = new CapstoneDeposit(op);
         logger = new Logger();
+
+        extendoServo = op.hardwareMap.get(Servo.class, "extendoServo");
+        extendoServo.setPosition(extendoHomePos);
 
         this.op = op;
         dashboard = FtcDashboard.getInstance();
@@ -155,7 +161,7 @@ public class Robot {
             }
 
             // Check if We Should Unclamp and Move Lift Up
-            else if (tryingToDeposit && stacker.isArmOut() && !stacker.isArmMoving() && stacker.isDownStacked() && letGo) {
+            else if (tryingToDeposit && stacker.isArmOut() && !stacker.isArmMoving() && stacker.isDownStacked() && letGo && !holdingLastStone) {
                 stacker.unClampStone();
                 stacker.liftUp();
                 liftedUp = true;
@@ -182,34 +188,27 @@ public class Robot {
                 stacker.goHome();
                 intake.setControls(intakePower);
             }
+            // Clamp Stone Once Intaked
+            else if (stoneInRobot && stacker.isArmDown() && !tryingToDeposit && !stacker.stoneClamped) {
+                stacker.clampStone();
+            }
 
             // When Stone is Intaked Save Time for Clamping Delay
-            else if (stoneInRobot && stacker.isArmHome() && !tryingToDeposit && !stoneInTimeSaved /*&& !armDownTimeSaved*/) {
+            else if (stoneInRobot && !tryingToDeposit && stacker.isArmHome() && !stoneInTimeSaved) {
                 stoneInTime = System.currentTimeMillis();
                 stoneInTimeSaved = true;
                 intake.pushStoneIn();
             }
 
             // Move Arm to Clamping Position When Delay is Over
-            else if (stoneInRobot && stacker.isArmHome() && !tryingToDeposit && stoneInTimeSaved /*&& !armDownTimeSaved*/ && (System.currentTimeMillis()-stoneInTime)>armDownWaitTime) {
+            else if (stoneInRobot && stacker.isArmHome() && !tryingToDeposit && stoneInTimeSaved && (System.currentTimeMillis()-stoneInTime)>armDownWaitTime) {
                 stacker.goDown();
-                //stoneInTimeSaved = false;
-
-                //armDownTime = System.currentTimeMillis();
-                //armDownTimeSaved = true;
-            }
-
-            // Clamp Stone After Arm is Moved to Clamping Position
-            else if (stoneInRobot && stacker.isArmDown() && !stacker.stoneClamped && !tryingToDeposit) {
-                stacker.clampStone();
-                intake.setControls(0);
             }
 
             // Move Intake Servo Once Stone is Clamped
-            else if (stoneInRobot && stacker.isArmDown() && stacker.stoneClamped && !tryingToDeposit && stoneInTimeSaved && (System.currentTimeMillis()-stoneInTime)>stonePushWaitTime/*!stoneInTimeSaved && armDownTimeSaved && (System.currentTimeMillis()-armDownTime)>stonePushWaitTime*/) {
+            else if (stoneInRobot && stacker.isArmDown() && stacker.stoneClamped && !tryingToDeposit && stoneInTimeSaved && (System.currentTimeMillis()-stoneInTime)>stonePushWaitTime) {
                 intake.stoneServoHome();
                 stoneInTimeSaved = false;
-                //armDownTimeSaved = false;
             }
 
             // Check if We Should Deposit Stone
@@ -265,9 +264,13 @@ public class Robot {
         addPacket("arm", "home:" + stacker.isArmHome() + " down:" + stacker.isArmDown() + " out:" + stacker.isArmOut() + " deposit:" + tryingToDeposit);
         addPacket("update frequency(hz)", 1/timeDiff);
         addPacket("arm ticks" , stacker.getArmPosition());
-        addPacket("deltapod1: ", drivetrain.deltapod1);
-        addPacket("deltapod2: ", drivetrain.deltapod2);
-        addPacket("deltapod3: ", drivetrain.deltapod3);
+        addPacket("stone clamped", stacker.stoneClamped);
+        addPacket("pod 1: ", drivetrain.pod1);
+        addPacket("pod 2: ", drivetrain.pod2);
+        addPacket("pod 3: ", drivetrain.pod3);
+//        addPacket("deltapod1: ", drivetrain.deltapod1);
+//        addPacket("deltapod2: ", drivetrain.deltapod2);
+//        addPacket("deltapod3: ", drivetrain.deltapod3);
         sendPacket();
     }
 
@@ -281,6 +284,14 @@ public class Robot {
         if (!stacker.isArmOut() && stoneInRobot) {
             tryingToDeposit = true;
         }
+    }
+
+    public void extendExtendo() {
+        extendoServo.setPosition(extendoExtendPos);
+    }
+
+    public void extendoHome() {
+        extendoServo.setPosition(extendoHomePos);
     }
 
     public Waypoint currentRobotWaypoint(){

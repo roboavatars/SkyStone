@@ -67,9 +67,9 @@ public class MecanumDrivetrain {
 
     // Constants
     private final double xyTolerance = 1;
-    private final double thetaTolerance = Math.PI / 35;
-    public static double OdometryTrackWidth = 13.74;
-    public static double OdometryHorizontalOffset = 3.17;
+    private final double thetaTolerance = Math.PI/35;
+    public static double OdometryTrackWidth = 13.85;
+    private double OdometryHorizontalOffset = 3.165;
     private final double OdometryHeadingThreshold = Math.PI/8;
 
     public double deltapod1;
@@ -88,6 +88,13 @@ public class MecanumDrivetrain {
     private double lastFLPower = 0;
     private double lastBLPower = 0;
     public static double motorUpdateTolerance = 0.05;
+
+    public double pod1 = 0;
+    public double pod2 = 0;
+    public double pod3 = 0;
+
+
+    public boolean zerostrafeCorrection = false;
 
     // Constructor
     public MecanumDrivetrain(LinearOpMode opMode, double initialx, double initialy, double initialtheta, boolean isRedAuto) {
@@ -128,6 +135,10 @@ public class MecanumDrivetrain {
 
         isRed = isRedAuto;
 
+        if (!isRed) {
+            thetak = 0.95;
+        }
+
         opMode.telemetry.addLine("ExH Version: " + getConciseLynxFirmwareVersion(module));
         opMode.telemetry.update();
     }
@@ -160,11 +171,21 @@ public class MecanumDrivetrain {
     }
 
     public void setControls(double xdot, double ydot, double w){
-        double FRpower = ydot+xdot+w;
-        double BLpower = ydot+xdot-w;
-        double FLpower = -ydot+xdot-w;
-        double BRpower = -ydot+xdot+w;
-
+        double FRpower;
+        double BLpower;
+        double FLpower;
+        double BRpower;
+        if(!zerostrafeCorrection){
+            FRpower = ydot+xdot+w;
+            BLpower = ydot+xdot-w;
+            FLpower = -ydot+xdot-w;
+            BRpower = -ydot+xdot+w;
+        }else{
+            FRpower = xdot+w;
+            BLpower = xdot-w;
+            FLpower = xdot-w;
+            BRpower = xdot+w;
+        }
         double maxpower = Math.max(Math.abs(FRpower),Math.max(Math.abs(BLpower), Math.max(Math.abs(FLpower),Math.abs(BRpower))));
 
         if (maxpower > 1) {
@@ -244,46 +265,20 @@ public class MecanumDrivetrain {
 
     public void setTargetPointAuto(double xtarget, double ytarget, double thetatarget){
         if (!isRed) {
-            xtarget = 144 - xtarget;
+            xtarget = 142 - xtarget;
             thetatarget = (Math.PI) - thetatarget;
         }
-        // Make Sure thetatarget is Between 0 and 2pi
-        thetatarget = thetatarget % (Math.PI*2);
-        if(thetatarget<0){
-            thetatarget += Math.PI*2;
-        }
-        // Picking the Smaller Distance to Rotate
-        double thetacontrol = 0;
-        if(Math.abs(currentheading - thetatarget) > Math.PI){
-            thetacontrol = currentheading - thetatarget - 2*Math.PI;
-        } else {
-            thetacontrol = currentheading - thetatarget;
-        }
 
-        Log.w("auto", "Targets: " + xtarget + " " + ytarget + " " + thetatarget + ", Current Pos: " + x + " " + y + " " + currentheading);
-        setGlobalControls(-xk * (x-xtarget),-yk * (y-ytarget),-thetak * (thetacontrol));
+        setTargetPoint(xtarget,ytarget,thetatarget);
     }
 
     public void setTargetPointAuto(double xtarget, double ytarget, double thetatarget, double xK, double yK, double thetaK) {
         if (!isRed) {
-            xtarget = 144 - xtarget;
+            xtarget = 142 - xtarget;
             thetatarget = (Math.PI) - thetatarget;
         }
-        // Make Sure thetatarget is Between 0 and 2pi
-        thetatarget = thetatarget%(Math.PI*2);
-        if(thetatarget<0){
-            thetatarget += Math.PI*2;
-        }
-        // Picking the Smaller Distance to Rotate
-        double thetacontrol = 0;
-        if(Math.abs(currentheading - thetatarget) > Math.PI){
-            thetacontrol = currentheading - thetatarget - 2*Math.PI;
-        } else {
-            thetacontrol = currentheading - thetatarget;
-        }
 
-        Log.w("auto", "Targets: " + xtarget + " " + ytarget + " " + thetatarget + " (" + xK + " " + yK + " " + thetaK + "), Current Pos: " + x + " " + y + " " + currentheading);
-        setGlobalControls(-xK * (x - xtarget), -yK * (y - ytarget), -thetaK * (thetacontrol));
+        setTargetPoint(xtarget,ytarget,thetatarget,xK,yK,thetaK);
     }
 
     public void setGlobalControls(double xvelocity, double yvelocity, double w){
@@ -307,9 +302,9 @@ public class MecanumDrivetrain {
     public void updatePose(){
         try {
             LynxGetBulkInputDataResponse response = RevBulkData();
-            double pod1 = -response.getEncoder(3) * 0.00300622055 * 2;
-            double pod2 = response.getEncoder(0) * 0.00300622055 * 2;
-            double pod3 = -response.getEncoder(2) * 0.00300622055 * 2;
+            pod1 = -response.getEncoder(3) * 0.00300622055 * 2;
+            pod2 = response.getEncoder(0) * 0.00300622055 * 2 ;
+            pod3 = -response.getEncoder(2) * 0.00300622055 * 2;
 
             distance = response.getAnalogInput(0);
             stoneInRobot = distance > 150;

@@ -21,16 +21,17 @@ public class Teleop extends LinearOpMode {
     private boolean dpadDown = true;
     private boolean rightBumper = true;
     private boolean leftBumper = true;
+    private boolean extended = false;
 
     @Override
     public void runOpMode() {
-        /*double[] initialPosition = Logger.readPos();
+        double[] initialPosition = Logger.readPos();
         telemetry.addData("Starting Position", Arrays.toString(initialPosition)); telemetry.update();
-        robot = new Robot(this, initialPosition[0], initialPosition[1], initialPosition[2]);*/
-        robot = new Robot(this, 0, 0, 0, false);
+        robot = new Robot(this, initialPosition[0], initialPosition[1], initialPosition[2], false);
         robot.logger.startLogging();
         robot.stacker.unClampStone();
         robot.stacker.goHome();
+        robot.grabber.releaseFoundation();
 
         waitForStart();
 
@@ -66,8 +67,18 @@ public class Teleop extends LinearOpMode {
             if (gamepad2.a) {robot.capstoneDeposit.attachCapstone();}
             else {robot.capstoneDeposit.goHome();}
 
-            if(gamepad2.x){
+            // reclamp block
+            if (gamepad2.x) {
                 robot.cheesemode = true;
+            }
+
+            // extendo
+            if (gamepad1.x && extended) {
+                robot.extendoHome();
+                extended = false;
+            } else if (!extended && gamepad1.x) {
+                robot.extendExtendo();
+                extended = true;
             }
 
             // increase stack level
@@ -86,11 +97,25 @@ public class Teleop extends LinearOpMode {
                 dpadDown = true;
             }
 
-            // stacker/lift manual controls
+            // stacker manual controls
             if (gamepad2.right_trigger > 0){
                 robot.stacker.manualArmOffset += 2;
             } else if (gamepad2.left_trigger > 0){
                 robot.stacker.manualArmOffset -= 2;
+            }
+            // lift manual controls
+//            if(gamepad2.left_stick_y>0.5){
+//                robot.stacker.manualLiftOffset -= 5;
+//
+//            }else if(gamepad2.left_stick_y<-0.5){
+//                robot.stacker.manualLiftOffset += 5;
+//            }
+
+            if(gamepad2.y){
+                robot.holdingLastStone = true;
+            }
+            else{
+                robot.holdingLastStone = false;
             }
 
             // robot/field centric

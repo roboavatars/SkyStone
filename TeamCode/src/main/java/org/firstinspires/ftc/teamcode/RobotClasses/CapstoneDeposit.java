@@ -23,10 +23,10 @@ public class CapstoneDeposit {
     }
 
     public void attachCapstone() {
-        capstoneDeposit.setPosition(0.75);
+        capstoneDeposit.setPosition(1);
     }
 
     public void goHome(){
-        capstoneDeposit.setPosition(0.15);
+        capstoneDeposit.setPosition(0.09);
     }
 }

@@ -213,16 +213,16 @@ public class skyStoneDetector extends Thread {
 
                 if (isRed) {
                     ssXPos = darkAreas.get(0);
-                    if (ssXPos > 60 && ssXPos < 105) {ssPosValue = 1;} // left
+                    if (ssXPos > 50 && ssXPos < 105) {ssPosValue = 1;} // left
                     else if((ssXPos > 105 && ssXPos < 165)) {ssPosValue = 2;} // middle
-                    else if ((ssXPos > 10 && ssXPos < 60) || (ssXPos > 165 && ssXPos < 230)) {ssPosValue = 3;} // right
+                    else if ((ssXPos > 10 && ssXPos < 50) || (ssXPos > 165 && ssXPos < 230)) {ssPosValue = 3;} // right
                 } else {
                     if (darkAreas.size() > 1) {ssXPos = darkAreas.get(1);}
                     else {ssXPos = darkAreas.get(0);}
 
-                    if ((ssXPos > 25 && ssXPos < 50) || (ssXPos > 190 && ssXPos < 240)) {ssPosValue = 3;} // left
+                    if ((ssXPos > 25 && ssXPos < 50) || (ssXPos > 175 && ssXPos < 240)) {ssPosValue = 3;} // left
                     else if((ssXPos > 60 && ssXPos < 120)) {ssPosValue = 2;} // middle
-                    else if (ssXPos > 120 && ssXPos < 190) {ssPosValue = 1;} // right
+                    else if (ssXPos > 120 && ssXPos < 175) {ssPosValue = 1;} // right
                 }
 
             } else log("Cannot Determine SkyStone Position :-(");

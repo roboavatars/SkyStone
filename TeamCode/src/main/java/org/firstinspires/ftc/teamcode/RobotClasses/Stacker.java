@@ -30,8 +30,8 @@ public class Stacker {
     // Arm/Lift Deposit Positions
     // The Lower the Pos Value, The Higher the Arm
     private final int[] armPos = {1320, 1320, 1320, 1320, 635, 635, 635, 635, 635, 635, 635, 635, 635};
-    private final int[] liftPos = {-640, -1092, -1544, -1996, 0, -500, -1050, -1430, -1950, -2530, -3110, -3690, -4270};
-    private final int[] liftMin = {0, 0, 0, -500, 0, 0, -500, -900, -1400, -1800, -2380, -2960, -3540}; // min lift ticks to raise arm
+    private final int[] liftPos = {-540, -992, -1444, -1896, 0, -600, -1050, -1430, -1950, -2430, -2910, -3490, -4170};
+    private final int[] liftMin = {-100, -250, -600, -700, 0, -400, -850, -1100, -1600, -1950, -2480, -3160, -3740}; // min lift ticks to raise arm
     private int autoDepositPos = 950;
 
     public int currentStackHeight = 0;
@@ -49,6 +49,7 @@ public class Stacker {
     private final int moveLiftUpHeight = 400;
 
     public int manualArmOffset = 0;
+    public int manualLiftOffset = 0;
 
     // Velocity Variables (Ticks/Second)
     private double armVelocity = 0;
@@ -146,20 +147,20 @@ public class Stacker {
 
     // Set Lift Position Methods
     public void downStack() {
-        setLiftControls(1.0, liftPos[currentStackHeight]);
+        setLiftControls(1.0, liftPos[currentStackHeight] + manualLiftOffset);
     }
     public void liftUp(){
-        setLiftControls(1, liftPos[currentStackHeight] - moveLiftUpHeight);
+        setLiftControls(1, liftPos[currentStackHeight] - moveLiftUpHeight + manualLiftOffset);
     }
 
     // Depositing Methods
     public void deposit() {
         if (liftMin[currentStackHeight] > liftTicks) {
-            setDepositControls(0.44, armPos[currentStackHeight] + manualArmOffset);
+            setDepositControls(0.48, armPos[currentStackHeight] + manualArmOffset);
         } else {
-            setDepositControls(0.44, armIntermediatePos);
+            setDepositControls(0.48, armIntermediatePos);
         }
-        setLiftControls(1.0, liftPos[currentStackHeight] - 300);
+        setLiftControls(1.0, liftPos[currentStackHeight] - 300 + manualLiftOffset);
     }
     public void depositAuto() {
         setDepositControls(0.8, autoDepositPos);
@@ -167,13 +168,13 @@ public class Stacker {
 
     // Arm State Methods
     public boolean isArmHome() {
-        return Math.abs(getArmPosition() - armHome) < armTolerance;
+        return Math.abs(getArmPosition() - armHome-10) < armTolerance;
     }
     public boolean isArmOut() {
         return getArmPosition() > armOut;
     }
     public boolean isArmDown() {
-        return Math.abs(getArmPosition() + 30) < armTolerance && !isArmMoving();
+        return Math.abs(getArmPosition() + 20) < armTolerance && !isArmMoving();
     }
     public boolean atAutoDepositPos() {
         return Math.abs(getArmPosition() - autoDepositPos) < armTolerance;
@@ -187,10 +188,10 @@ public class Stacker {
         return Math.abs(getLiftPosition() - liftHome) < liftTolerance;
     }
     public boolean isDownStacked() {
-        return Math.abs(liftTicks - (liftPos[currentStackHeight])) < 100 && !isLiftMoving();
+        return Math.abs(liftTicks - (liftPos[currentStackHeight]) + manualLiftOffset) < 100 && !isLiftMoving();
     }
     public boolean isLiftUp() {
-        return Math.abs(getLiftPosition() - (liftPos[currentStackHeight] - moveLiftUpHeight)) < 40 && !isLiftMoving();
+        return Math.abs(getLiftPosition() - (liftPos[currentStackHeight] - moveLiftUpHeight + manualLiftOffset)) < 40 && !isLiftMoving();
     }
     public boolean isLiftMoving() {
         return Math.abs(liftVelocity) > liftVelocityTolerance;
@@ -209,16 +210,21 @@ public class Stacker {
 
     // Stone Clamp/Unclamp Methods
     public void clampStone() {
-        if (!stoneClamped) {
-            stoneClamp.setPosition(clampPos);
-            stoneClamped = true;
-        }
+//        if (!stoneClamped) {
+//            stoneClamp.setPosition(clampPos);
+//            stoneClamped = true;
+//        }
+        stoneClamp.setPosition(clampPos);
+        stoneClamped = true;
+
     }
     public void unClampStone() {
-        if (stoneClamped) {
-            stoneClamp.setPosition(unClampPos);
-            stoneClamped = false;
-        }
+//        if (stoneClamped) {
+//            stoneClamp.setPosition(unClampPos);
+//            stoneClamped = false;
+//        }
+        stoneClamp.setPosition(unClampPos);
+        stoneClamped = false;
     }
 
     // Encoder Tick Methods
