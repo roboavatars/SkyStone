@@ -136,7 +136,7 @@ public class MecanumDrivetrain {
         isRed = isRedAuto;
 
         if (!isRed) {
-            thetak = 0.95;
+            thetak = 1;
         }
 
         opMode.telemetry.addLine("ExH Version: " + getConciseLynxFirmwareVersion(module));

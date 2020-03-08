@@ -59,6 +59,8 @@ public class fiveBlockRed extends LinearOpMode {
         // After Start
         waitForStart();
 
+        double starttime = System.currentTimeMillis();
+
         // Skystone Position Variables
         int skystonePos = (int) detector.getPosition();
         double skystoneY;
@@ -114,7 +116,7 @@ public class fiveBlockRed extends LinearOpMode {
 
         // stone 3-5 locations
         Point2D[][] stoneLocations = {
-                {new Point2D(56, 97), new Point2D(75, 103), new Point2D(57, 118)},
+                {new Point2D(56, 97), new Point2D(85, 108), new Point2D(57, 118)},
                 {new Point2D(55,112), new Point2D(70,102), new Point2D(48,129)},
                 {new Point2D(57,104), new Point2D(48  ,124), new Point2D(48,129)}
         };
@@ -149,6 +151,8 @@ public class fiveBlockRed extends LinearOpMode {
 
         // Robot Move Loop
         while (opModeIsActive()) {
+
+            double timesincestart = System.currentTimeMillis()-starttime;
 
             // Update Robot's Location and States
             robot.update();
@@ -382,14 +386,32 @@ public class fiveBlockRed extends LinearOpMode {
                 robot.drivetrain.setTargetPointAuto(robotPose.getX(), robotPose.getY(), robotPose.getTheta());
 
                 if (time.seconds() > (stone4Time + 0.5) || (robot.stoneInRobot && robot.drivetrain.y > 72)) {
-                    stone4 = true;
-                    Waypoint[] toFoundation4PathWaypoints = new Waypoint[] {
-                            new Waypoint(robot.drivetrain.x, robot.drivetrain.y, robot.drivetrain.currentheading, -30, -100,0, 0),
-                            new Waypoint(31, stoneLocations[skystonePos-1][1].getY() -3, Math.PI / 2, -50, -10,0, 0.7),
-                            new Waypoint(33, 57, Math.PI / 2, -5, 50,0, toFoundation4Time)
-                    };
-                    toFoundation4Path = new Path(new ArrayList<>(Arrays.asList(toFoundation4PathWaypoints)));
-                    time.reset();
+                    if (timesincestart > 20000) {
+                        stone5 = true;
+                        toFoundation5 = true;
+                        stone4 = true;
+                        toFoundation4Time +=1;
+                        Waypoint[] toFoundation4PathWaypoints = new Waypoint[] {
+                                new Waypoint(robot.drivetrain.x, robot.drivetrain.y, robot.drivetrain.currentheading, -30, -100,0, 0),
+                                new Waypoint(31, stoneLocations[skystonePos-1][1].getY() -3, Math.PI / 2, -50, -10,0, 0.7),
+                                new Waypoint(33, 30, Math.PI / 2, -5, 50,0, toFoundation4Time)
+                        };
+                        toFoundation4Path = new Path(new ArrayList<>(Arrays.asList(toFoundation4PathWaypoints)));
+                        time.reset();
+
+                    }
+                    else{
+                        stone4 = true;
+                        Waypoint[] toFoundation4PathWaypoints = new Waypoint[] {
+                                new Waypoint(robot.drivetrain.x, robot.drivetrain.y, robot.drivetrain.currentheading, -30, -100,0, 0),
+                                new Waypoint(31, stoneLocations[skystonePos-1][1].getY() -3, Math.PI / 2, -50, -10,0, 0.7),
+                                new Waypoint(33, 57, Math.PI / 2, -5, 50,0, toFoundation4Time)
+                        };
+                        toFoundation4Path = new Path(new ArrayList<>(Arrays.asList(toFoundation4PathWaypoints)));
+                        time.reset();
+
+                    }
+
                 }
             }
 
@@ -408,22 +430,22 @@ public class fiveBlockRed extends LinearOpMode {
 //                }
                 if (time.seconds() > (toFoundation4Time + 0.5) && robot.stacker.getArmPosition() < 180 && !robot.stacker.stoneClamped) {
                     toFoundation4 = true;
-                    Waypoint[] stone5PathWaypoints;
-                    if (skystonePos == 2 || skystonePos == 3) {
-                        stone5PathWaypoints = new Waypoint[]{
-                                new Waypoint(robot.drivetrain.x, robot.drivetrain.y, robot.drivetrain.currentheading, 10, 100, 0, 0),
-                                new Waypoint(31, stoneLocations[skystonePos - 1][2].getY() - 26, Math.PI / 3, 30, 10, -3, 1.33),
-                                new Waypoint(stoneLocations[skystonePos - 1][2].getX(), stoneLocations[skystonePos - 1][2].getY(), Math.PI / 2, 10, -100, 0, stone5Time)
-                        };
-                    }
-                    else { //pos 1
-                        stone5PathWaypoints = new Waypoint[]{
-                                new Waypoint(robot.drivetrain.x, robot.drivetrain.y, robot.drivetrain.currentheading, 10, 100, 0, 0),
-                                new Waypoint(31, stoneLocations[skystonePos - 1][2].getY() - 20, Math.PI / 3, 30, 10, -3, 1.33),
-                                new Waypoint(stoneLocations[skystonePos - 1][2].getX(), stoneLocations[skystonePos - 1][2].getY(), Math.PI / 4, 10, -100, 0, stone5Time)
-                        };
-                    }
-                    stone5Path = new Path(new ArrayList<>(Arrays.asList(stone5PathWaypoints)));
+
+                        Waypoint[] stone5PathWaypoints;
+                        if (skystonePos == 2 || skystonePos == 3) {
+                            stone5PathWaypoints = new Waypoint[]{
+                                    new Waypoint(robot.drivetrain.x, robot.drivetrain.y, robot.drivetrain.currentheading, 10, 100, 0, 0),
+                                    new Waypoint(31, stoneLocations[skystonePos - 1][2].getY() - 26, Math.PI / 3, 30, 10, -3, 1.33),
+                                    new Waypoint(stoneLocations[skystonePos - 1][2].getX(), stoneLocations[skystonePos - 1][2].getY(), Math.PI / 2, 10, -100, 0, stone5Time)
+                            };
+                        } else { //pos 1
+                            stone5PathWaypoints = new Waypoint[]{
+                                    new Waypoint(robot.drivetrain.x, robot.drivetrain.y, robot.drivetrain.currentheading, 10, 100, 0, 0),
+                                    new Waypoint(31, stoneLocations[skystonePos - 1][2].getY() - 20, Math.PI / 3, 30, 10, -3, 1.33),
+                                    new Waypoint(stoneLocations[skystonePos - 1][2].getX(), stoneLocations[skystonePos - 1][2].getY(), Math.PI / 4, 10, -100, 0, stone5Time)
+                            };
+                        }
+                        stone5Path = new Path(new ArrayList<>(Arrays.asList(stone5PathWaypoints)));
 //                    robot.intake.setControls(0.7);
                     time.reset();
                 }

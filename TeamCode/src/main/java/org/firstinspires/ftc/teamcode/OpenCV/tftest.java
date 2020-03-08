@@ -13,7 +13,7 @@ import org.firstinspires.ftc.robotcore.internal.tfod.AnnotatedYuvRgbFrame;
 
 import java.util.List;
 
-@TeleOp(name = "TF Test")
+@TeleOp(name = "TF Test") @Disabled
 public class tftest extends LinearOpMode {
     private static final String TFOD_MODEL_ASSET = "Skystone.tflite";
     private static final String LABEL_FIRST_ELEMENT = "Stone";

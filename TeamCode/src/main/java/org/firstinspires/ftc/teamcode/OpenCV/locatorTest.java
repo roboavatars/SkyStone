@@ -3,12 +3,13 @@ package org.firstinspires.ftc.teamcode.OpenCV;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.RobotClasses.Robot;
 
-@Autonomous(name = "OpenCV2")
+@Autonomous(name = "OpenCV2") @Disabled
 public class locatorTest extends LinearOpMode {
 
     private Robot robot;
