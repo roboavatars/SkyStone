@@ -30,7 +30,7 @@ public class Stacker {
     // Arm/Lift Deposit Positions
     // The Lower the Pos Value, The Higher the Arm
     private final int[] armPos = {1320, 1320, 1320, 1320, 635, 635, 635, 635, 635, 635, 635, 635, 635};
-    private final int[] liftPos = {-540, -992, -1444, -1896, 0, -600, -1050, -1430, -1950, -2430, -2910, -3490, -4170};
+    private final int[] liftPos = {-540, -992, -1444, -1896, 0, -600, -1050, -1430, -1950, -2380, -2910, -3490, -4170};
     private final int[] liftMin = {-100, -250, -600, -700, 0, -400, -850, -1100, -1600, -1950, -2480, -3160, -3740}; // min lift ticks to raise arm
     private int autoDepositPos = 950;
 

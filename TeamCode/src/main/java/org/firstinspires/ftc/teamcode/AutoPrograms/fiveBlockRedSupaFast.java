@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.AutoPrograms;
 import android.util.Log;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -17,8 +18,9 @@ import org.firstinspires.ftc.teamcode.iLQR.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-@Autonomous(name = "5 block red")
-public class fiveBlockRed extends LinearOpMode {
+@Autonomous(name = "5 block red supa fast")
+@Disabled
+public class fiveBlockRedSupaFast extends LinearOpMode {
 
     private Robot robot;
     private skyStoneDetector detector = new skyStoneDetector(this);
@@ -81,11 +83,11 @@ public class fiveBlockRed extends LinearOpMode {
         double toFoundation1Time = 3.75;
         double foundationPullTime = 1.5;
         double skystone2Time = 1.5;
-        double toFoundation2Time = 1.75;
+        double toFoundation2Time = 1.5;
         double stone3Time = 1.75;
         double toFoundation3Time = 1.5;
-        double stone4Time = 1.75;
-        double toFoundation4Time = 2.25;
+        double stone4Time = 1.5;
+        double toFoundation4Time = 2;
         double stone5Time = 1.75;
         double toFoundation5Time = 2.25;
 
@@ -96,9 +98,9 @@ public class fiveBlockRed extends LinearOpMode {
             toFoundation2Time = 1.75;
             stone3Time = 1.65;
             toFoundation3Time = 1.75;
-            stone4Time = 2;
+            stone4Time = 1.75;
             toFoundation4Time = 1.5;
-            stone5Time = 2;
+            stone5Time = 1.75;
             toFoundation5Time = 2.25;
 
         } else if(skystonePos == 3) {
@@ -108,17 +110,17 @@ public class fiveBlockRed extends LinearOpMode {
             toFoundation2Time = 1.5;
             stone3Time = 1.25;
             toFoundation3Time = 1.5;
-            stone4Time = 1.75;
-            toFoundation4Time = 2.25;
-            stone5Time = 1.75;
-            toFoundation5Time = 2.25;
+            stone4Time = 1.5;
+            toFoundation4Time = 1.75;
+            stone5Time = 1.5;
+            toFoundation5Time = 2;
         }
 
         // stone 3-5 locations
         Point2D[][] stoneLocations = {
                 {new Point2D(56, 97), new Point2D(85, 108), new Point2D(57, 118)},
-                {new Point2D(55,112), new Point2D(70,102), new Point2D(48,129)},
-                {new Point2D(57,104), new Point2D(48  ,124), new Point2D(48,129)}
+                {new Point2D(56,112), new Point2D(70,102), new Point2D(49,129)},
+                {new Point2D(59,105), new Point2D(49  ,124), new Point2D(49,129)}
         };
 
         // stop detector
@@ -386,7 +388,7 @@ public class fiveBlockRed extends LinearOpMode {
                 robot.drivetrain.setTargetPointAuto(robotPose.getX(), robotPose.getY(), robotPose.getTheta());
 
                 if (time.seconds() > (stone4Time + 0.5) || (robot.stoneInRobot && robot.drivetrain.y > 72)) {
-                    if (timesincestart > 20000) {
+                    if (timesincestart > 24000) {
                         stone5 = true;
                         toFoundation5 = true;
                         stone4 = true;

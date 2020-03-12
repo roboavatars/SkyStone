@@ -67,7 +67,7 @@ public class fourBlockBlueNew extends LinearOpMode {
             skystoneY = 121;
         }
         else {
-            skystoneY = 110;
+            skystoneY = 111.5;
             skystonePos = 3; // if pos is -1
         }
 
@@ -107,7 +107,7 @@ public class fourBlockBlueNew extends LinearOpMode {
         // stone 3-5 locations
         Point2D[][] stoneLocations = {
                 {new Point2D(56,97), new Point2D(57,118)},
-                {new Point2D(55,112), new Point2D(47,129)},
+                {new Point2D(57,109), new Point2D(47,129)},
                 {new Point2D(47,120), new Point2D(47,129)}
         };
 
@@ -161,7 +161,7 @@ public class fourBlockBlueNew extends LinearOpMode {
                             new Waypoint(142 - robot.drivetrain.x, robot.drivetrain.y, Math.PI - robot.drivetrain.currentheading, -30, -100,0, 0),
                             new Waypoint(31, skystoneY - 25, Math.PI / 2.1, -50, -50,0, 1),
                             new Waypoint(28, 35, Math.PI / 2, -30, -30,0, 2),
-                            new Waypoint(55, 30, Math.PI, -25, 100,0, toFoundation1Time)
+                            new Waypoint(45, 30, Math.PI, -25, 100,0, toFoundation1Time)
                     };
                     toFoundation1Path = new Path(new ArrayList<>(Arrays.asList(toFoundation1PathWaypoints)));
 
@@ -179,7 +179,7 @@ public class fourBlockBlueNew extends LinearOpMode {
 //                if (robot.drivetrain.x>42 && time.seconds()>toFoundation1Time-0.8 && robot.drivetrain.y<40) {
 //                    robot.grabber.grabFoundation();
 //                }
-                if (time.seconds() > toFoundation1Time && robot.drivetrain.x < 94) {
+                if (time.seconds() > toFoundation1Time && robot.drivetrain.x < 107) {
                     robot.grabber.grabFoundation();
                 }
 //                if(robot.drivetrain.y>70 && robot.drivetrain.y<80){
@@ -307,7 +307,7 @@ public class fourBlockBlueNew extends LinearOpMode {
                     else { //case 3
                         stone3PathWaypoints = new Waypoint[]{
                                 new Waypoint(142 - robot.drivetrain.x, robot.drivetrain.y, Math.PI - robot.drivetrain.currentheading, 10, 100, 0, 0),
-                                new Waypoint(31, stoneLocations[skystonePos - 1][1].getY() - 18, Math.PI / 3, 30, 10, -3, 1.33),
+                                new Waypoint(31, stoneLocations[skystonePos - 1][1].getY() - 30, Math.PI / 3, 30, 10, -3, 1.0),
                                 new Waypoint(stoneLocations[skystonePos - 1][1].getX(), stoneLocations[skystonePos - 1][1].getY(), Math.PI/2, 10, -100, 0, stone3Time)
                         };
                     }
@@ -353,7 +353,7 @@ public class fourBlockBlueNew extends LinearOpMode {
                     if (skystonePos == 2 || skystonePos == 3) {
                         stone4PathWaypoints = new Waypoint[]{
                                 new Waypoint(142 - robot.drivetrain.x, robot.drivetrain.y, Math.PI - robot.drivetrain.currentheading, 10, 100, 0, 0),
-                                new Waypoint(31, stoneLocations[skystonePos - 1][1].getY() - 18, Math.PI / 3, 30, 10, -3, 1.33),
+                                new Waypoint(31, stoneLocations[skystonePos - 1][1].getY() - 26, Math.PI / 3, 30, 10, -3, 1.33),
                                 new Waypoint(stoneLocations[skystonePos - 1][1].getX(), stoneLocations[skystonePos - 1][1].getY(), Math.PI / 2, 10, -100, 0, stone4Time)
                         };
                     }
