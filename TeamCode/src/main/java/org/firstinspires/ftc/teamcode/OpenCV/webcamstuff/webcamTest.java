@@ -32,21 +32,17 @@ public class webcamTest extends LinearOpMode {
 
     OpenCvCamera webcam;
 
-    @Override public void runOpMode() {
-
-        // init, etc. maybe skystone detector if needed
+    @Override
+    public void runOpMode() {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam"), cameraMonitorViewId);
 
         webcam.openCameraDevice();
-
         webcam.setPipeline(new AutoStackPipeline());
         webcam.startStreaming(width, height);
         telemetry.addData("Status", "Ready"); telemetry.update();
 
         waitForStart();
-
-        // start stuff
 
         while (opModeIsActive() && !isStopRequested()) {
             telemetry.addData("Position", position);
@@ -57,18 +53,14 @@ public class webcamTest extends LinearOpMode {
             telemetry.addData("Overhead time ms", webcam.getOverheadTimeMs());
             telemetry.addData("Theoretical max FPS", webcam.getCurrentPipelineMaxFps());
             telemetry.update();
-
-            // get frames
-            // process frames
-            // display frames
         }
+
         webcam.stopStreaming();
         webcam.closeCameraDevice();
-
-        // stop detector
     }
 
     class AutoStackPipeline extends OpenCvPipeline {
+        // Variables
         Mat HSV = new Mat();
         Mat satUnfiltered = new Mat(width, height, CvType.CV_8UC1);
         Mat satFiltered = new Mat(width, height, CvType.CV_8UC1);
@@ -83,6 +75,7 @@ public class webcamTest extends LinearOpMode {
 
         @Override
         public Mat processFrame(Mat input) {
+            // Image Processing
             Imgproc.cvtColor(input, HSV, Imgproc.COLOR_RGB2HSV);
             Core.split(HSV, hsvTypes);
             satUnfiltered = hsvTypes.get(1);
@@ -90,27 +83,32 @@ public class webcamTest extends LinearOpMode {
             Imgproc.morphologyEx(satFiltered, openClose, Imgproc.MORPH_OPEN, new Mat());
             Imgproc.morphologyEx(openClose, openClose, Imgproc.MORPH_CLOSE, new Mat());
 
-            for (int col = 0; col < satFiltered.cols(); col++) {
-                verAvg = Core.mean(satFiltered.col(col)).val[0];
-                if (verAvg >= verLowThreshold && verAvg <= verHighThreshold){
-                    //verImage.col(col).setTo(satFiltered.col(col));
-                    verImage.col(col).setTo(new Scalar(255));
-                } else{
-                    verImage.col(col).setTo(new Scalar(0));
-                }
-            }
-            Imgproc.morphologyEx(verImage, verImage, Imgproc.MORPH_OPEN, new Mat());
+//            // Vertical Average
+//            for (int col = 0; col < satFiltered.cols(); col++) {
+//                verAvg = Core.mean(satFiltered.col(col)).val[0];
+//                if (verAvg >= verLowThreshold && verAvg <= verHighThreshold){
+//                    verImage.col(col).setTo(new Scalar(255));
+//                } else{
+//                    verImage.col(col).setTo(new Scalar(0));
+//                }
+//            }
+//            Imgproc.morphologyEx(verImage, verImage, Imgproc.MORPH_OPEN, new Mat());
 
+            // Horizontal Average
             for (int row = 0; row < satFiltered.rows(); row++) {
                 horAvg = Core.mean(satFiltered.row(row)).val[0];
-                if (horAvg >= horThreshold) horImage.row(row).setTo(new Scalar(255));
-                else horImage.row(row).setTo(new Scalar(0));
+                if (horAvg >= horThreshold) {
+                    horImage.row(row).setTo(new Scalar(255));
+                } else {
+                    horImage.row(row).setTo(new Scalar(0));
+                }
             }
             Imgproc.morphologyEx(horImage, horImage, Imgproc.MORPH_OPEN, new Mat());
 
+            // Find Left and Right Boundaries of Rows
             double left = 0, right = 0;
             double nextIntensity = new Scalar(horImage.get(0, 0)).val[0];
-            for (int c = 0; c < horImage.cols()-1; c++) {
+            for (int c = 0; c < horImage.cols() - 1; c++) {
                 curIntensity = nextIntensity;
                 nextIntensity = new Scalar(horImage.get(0, c+1)).val[0];
 
@@ -125,12 +123,12 @@ public class webcamTest extends LinearOpMode {
                 }
             }
 
+            // Find Row Relating to Stack
             double prevArea = 0;
             for (int a = 0; a < darkAreas.size(); a++) {
                 double curArea = darkAreas.get(a);
                 double areaDiff = Math.abs(curArea - prevArea);
 
-                //if (areaDiff < stoneLength) {
                 if (areaDiff < widthThreshold) {
                     darkAreas.remove(a);
                     a--;
@@ -138,7 +136,7 @@ public class webcamTest extends LinearOpMode {
                 prevArea = curArea;
             }
 
-            // save image
+            // Save Image
             Mat output = new Mat(width, height, CvType.CV_8UC3);
             input.copyTo(output, horImage);
             //Imgproc.line(output, new Point(darkAreas.get(0), 0), new Point(darkAreas.get(0), height - 1), new Scalar(0, 255, 0), 3);
