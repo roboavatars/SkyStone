@@ -26,7 +26,7 @@ public class Robot {
 
     // State Booleans
     public boolean stoneInRobot = false;
-    private boolean tryingToDeposit = false;
+    public boolean tryingToDeposit = false;
     private boolean downStacked = false;
     public boolean letGo = false;
     private boolean liftedUp = false;

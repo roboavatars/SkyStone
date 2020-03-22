@@ -30,8 +30,13 @@ public class Stacker {
     // Arm/Lift Deposit Positions
     // The Lower the Pos Value, The Higher the Arm
     private final int[] armPos = {1320, 1320, 1320, 1320, 635, 635, 635, 635, 635, 635, 635, 635, 635};
-    private final int[] liftPos = {-540, -992, -1444, -1896, 0, -600, -1050, -1430, -1950, -2380, -2910, -3490, -4170};
-    private final int[] liftMin = {-100, -250, -600, -700, 0, -400, -850, -1100, -1600, -1950, -2480, -3160, -3740}; // min lift ticks to raise arm
+    private final int[] liftPos = {-540, -992, -1444, -1896, 0, -550, -1050, -1430, -1900, -2390, -2800, -3170, -3470};
+    private final int[] liftMin = {-100, -250, -600, -1000, 0, -390, -850, -1100, -1600, -2150, -2650, -3030, -3740};
+
+//min lift ticks to raise arm
+//    private int[] armPos = {1020, 980, 860, 715, 635, 635, 635, 635, 635, 635, 635, 635, 635};
+//    private int[] liftPos = {0, 0, 0, 0, 0, -600, -1050, -1430, -1950, -2380, -2810, -3290, -3670};
+//    private int[] liftMin = {0, 0, 0, 0, 0, -400, -850, -1100, -1600, -1950, -2480, -3130, -3740};
     private int autoDepositPos = 950;
 
     public int currentStackHeight = 0;
@@ -46,7 +51,7 @@ public class Stacker {
     private final int armTolerance = 25;
     private final int liftHome = 100;
     private final int liftTolerance = 10;
-    private final int moveLiftUpHeight = 400;
+    private final int moveLiftUpHeight = 450;
 
     public int manualArmOffset = 0;
     public int manualLiftOffset = 0;
@@ -67,6 +72,7 @@ public class Stacker {
     private int liftLastTargetPos = 0;
     private double liftLastTargetPower = 0;
     private boolean setLiftPID = false;
+    private boolean autofirstblock = false;
 
     public Stacker(LinearOpMode op) {
         this.op = op;
@@ -81,17 +87,17 @@ public class Stacker {
         depositMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         
         liftMotor.setTargetPosition(0);
-        liftMotor.setTargetPositionTolerance(5);
+        liftMotor.setTargetPositionTolerance(4);
         liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        liftMotor.setVelocityPIDFCoefficients(2,0.5,0, 5);
+        liftMotor.setVelocityPIDFCoefficients(2,0.5,0, 15);
         liftMotor.setPositionPIDFCoefficients(18);
         //op.telemetry.addLine(depositMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION).toString());
 
         depositMotor.setTargetPosition(0);
         depositMotor.setTargetPositionTolerance(0);
         depositMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        depositMotor.setVelocityPIDFCoefficients(2,0.3,0,20);
-        depositMotor.setPositionPIDFCoefficients(18);
+        depositMotor.setVelocityPIDFCoefficients(2,0.3,0,25);
+        depositMotor.setPositionPIDFCoefficients(22);
         //op.telemetry.addLine(depositMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).toString());
 
         liftMotor.setPower(0);
@@ -150,15 +156,21 @@ public class Stacker {
         setLiftControls(1.0, liftPos[currentStackHeight] + manualLiftOffset);
     }
     public void liftUp(){
-        setLiftControls(1, liftPos[currentStackHeight] - moveLiftUpHeight + manualLiftOffset);
+        if(currentStackHeight>3){
+            setLiftControls(1, liftPos[currentStackHeight] - moveLiftUpHeight + manualLiftOffset);
+        }
+        else{
+            setLiftControls(1, liftPos[currentStackHeight] - (moveLiftUpHeight - 100) + manualLiftOffset);
+        }
+
     }
 
     // Depositing Methods
     public void deposit() {
         if (liftMin[currentStackHeight] > liftTicks) {
-            setDepositControls(0.48, armPos[currentStackHeight] + manualArmOffset);
+            setDepositControls(0.63, armPos[currentStackHeight] + manualArmOffset);
         } else {
-            setDepositControls(0.48, armIntermediatePos);
+            setDepositControls(0.63, armIntermediatePos);
         }
         setLiftControls(1.0, liftPos[currentStackHeight] - 300 + manualLiftOffset);
     }
@@ -188,10 +200,21 @@ public class Stacker {
         return Math.abs(getLiftPosition() - liftHome) < liftTolerance;
     }
     public boolean isDownStacked() {
-        return Math.abs(liftTicks - (liftPos[currentStackHeight]) + manualLiftOffset) < 100 && !isLiftMoving();
+        if(currentStackHeight>10){
+            return Math.abs(liftTicks - (liftPos[currentStackHeight]) + manualLiftOffset) < 25 && !isLiftMoving();
+        }
+        else{
+            return Math.abs(liftTicks - (liftPos[currentStackHeight]) + manualLiftOffset) < 100 && !isLiftMoving();
+        }
+
     }
     public boolean isLiftUp() {
-        return Math.abs(getLiftPosition() - (liftPos[currentStackHeight] - moveLiftUpHeight + manualLiftOffset)) < 40 && !isLiftMoving();
+        if(currentStackHeight>3){
+            return Math.abs(getLiftPosition() - (liftPos[currentStackHeight] - moveLiftUpHeight + manualLiftOffset)) < 80 && !isLiftMoving();
+        }else{
+            return Math.abs(getLiftPosition() - (liftPos[currentStackHeight] - (moveLiftUpHeight-100) + manualLiftOffset)) < 80 && !isLiftMoving();
+        }
+
     }
     public boolean isLiftMoving() {
         return Math.abs(liftVelocity) > liftVelocityTolerance;
@@ -252,6 +275,21 @@ public class Stacker {
         }
         return response;
     }
+//    public void AutoFirstBlockMode(){
+//        if(autofirstblock){
+//            armPos[0] = 1100;
+//            liftPos[0] = 0;
+//            liftMin[0] = 0;
+//            autofirstblock = false;
+//        }
+//        else{
+//            armPos[0] = 1320;
+//            liftPos[0] = -540;
+//            liftMin[0] = -100;
+//            autofirstblock = true;
+//
+//        }
+//    }
 
     public void update() {
         LynxGetBulkInputDataResponse response = RevBulkData();

@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.RobotClasses.Stacker;
 
-@TeleOp(name="Stacker Test") @SuppressWarnings("FieldCanBeLocal") @Disabled
+@TeleOp(name="Stacker Test") @SuppressWarnings("FieldCanBeLocal")
 public class StackerTest extends LinearOpMode {
 
     private Stacker stacker;
@@ -14,25 +14,24 @@ public class StackerTest extends LinearOpMode {
     @Override
     public void runOpMode() {
         stacker = new Stacker(this);
-        stacker.unClampStone();
+//        stacker.unClampStone();
         telemetry.update();
+        stacker.setDepositControls(0,0);
 
         waitForStart();
         boolean rightBumper = true;
 
         while(opModeIsActive()){
 
-            if(gamepad1.right_bumper && rightBumper){
-                rightBumper = false;
-            }
-            else if(!rightBumper && !gamepad1.right_bumper){
-                stacker.deposit();
-                rightBumper = true;
-            }
-
-            telemetry.addData("angle", stacker.getArmAngle());
-
+//            if(gamepad1.right_bumper && rightBumper){
+//                rightBumper = false;
+//            }
+//            else if(!rightBumper && !gamepad1.right_bumper){
+//                stacker.deposit();
+//                rightBumper = true;
+//            }
             stacker.update();
+            telemetry.addData("ticks: " , stacker.getArmPosition());
             telemetry.update();
         }
     }

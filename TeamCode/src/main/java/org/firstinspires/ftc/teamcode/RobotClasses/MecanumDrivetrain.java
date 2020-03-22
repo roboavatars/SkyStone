@@ -61,9 +61,9 @@ public class MecanumDrivetrain {
     private double lastpod3 = 0;
 
     // K Variables for Control of Linear System
-    private double xk = 0.11;
-    private double yk = 0.11;
-    private double thetak = 0.83;
+    private double xk = 0.15;
+    private double yk = 0.15;
+    private double thetak = 0.95;
 
     // Constants
     private final double xyTolerance = 1;

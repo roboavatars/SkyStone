@@ -27,7 +27,7 @@ public class Teleop extends LinearOpMode {
     public void runOpMode() {
         double[] initialPosition = Logger.readPos();
         telemetry.addData("Starting Position", Arrays.toString(initialPosition)); telemetry.update();
-        robot = new Robot(this, initialPosition[0], initialPosition[1], initialPosition[2], false);
+        robot = new Robot(this, initialPosition[0], initialPosition[1], Math.PI/2, true);
         robot.logger.startLogging();
         robot.stacker.unClampStone();
         robot.stacker.goHome();
@@ -119,9 +119,13 @@ public class Teleop extends LinearOpMode {
             }
 
             // robot/field centric
-            if (robotCentric) {
+            if (robotCentric && !robot.tryingToDeposit) {
                 robot.drivetrain.setControls(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x);
-            } else {
+            }
+            else if(robotCentric){
+                robot.drivetrain.setControls(-0.5*gamepad1.left_stick_y-0.05, -1*gamepad1.left_stick_x, -gamepad1.right_stick_x);
+            }
+            else {
                 robot.drivetrain.setGlobalControls(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x);
             }
 
