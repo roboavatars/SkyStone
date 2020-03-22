@@ -28,7 +28,7 @@ import java.util.List;
 @SuppressWarnings({"FieldCanBeLocal"}) @SuppressLint({"DefaultLocale","SdCardPath"})
 public class skyStoneDetector extends Thread {
 
-    // File Paths
+    // Variables
     private final static String basePath = "/sdcard/FIRST/procFiles/";
     private final static String inputPath = "/sdcard/FIRST/input/";
     private final static String satFilteredPath = basePath + "sFiltered";
@@ -39,6 +39,10 @@ public class skyStoneDetector extends Thread {
 
     private FrameGrabber frameGrabber;
     private final boolean usingCamera = true; // <<<----------------------
+    private final boolean debug = true;
+    private boolean active = false;
+
+    private final static double numberOfFrames = 200;
 
     private final int horThreshold = 90;
     private final int verThreshold = 215;
@@ -48,8 +52,6 @@ public class skyStoneDetector extends Thread {
     private int frameNum = 1;
     private double ssPos = -1;
     private double ssXPos = -1;
-
-    private boolean active = false;
     //private double stoneSum = 0;
     private double curStoneCount;
     private double stoneLength;
@@ -73,14 +75,18 @@ public class skyStoneDetector extends Thread {
     /**
      * Runs OpenCV Thread
      */
-    @Override public void run() {
+    @Override
+    public void run() {
         setName("OpenCV");
 
-        // clear folder of images
+        // Clear Folder of Images
         File dir = new File(basePath);
         String[] children = dir.list();
-        if (children != null) {for (String child : children) {new File(dir, child).delete();}}
-        //
+        if (children != null) {
+            for (String child : children) {
+                new File(dir, child).delete();
+            }
+        }
 
         if (usingCamera) {
             frameGrabber = FtcRobotControllerActivity.frameGrabber;
@@ -105,7 +111,8 @@ public class skyStoneDetector extends Thread {
         log(" ");
     }
 
-    @Override public void interrupt() {
+    @Override
+    public void interrupt() {
         FtcRobotControllerActivity.disableCameraView();
         super.interrupt();
     }
@@ -118,8 +125,7 @@ public class skyStoneDetector extends Thread {
      */
     private double detectSkyStone (Mat input) {
         double ssPosValue = -1;
-        //Imgcodecs.imwrite(inputPath + (frameNum % 200) + ".jpg", input);
-        //Imgcodecs.imwrite(inputPath + frameNum + ".jpg", input);
+        //if (debug) {Imgcodecs.imwrite(inputPath + (frameNum % numberOfFrames) + ".jpg", input);}
 
         // Convert to HSV (Saturation)
         Mat HSV = new Mat();
@@ -131,13 +137,13 @@ public class skyStoneDetector extends Thread {
         // Filter Saturation Image
         Mat satFiltered = new Mat();
         Core.inRange(satUnfiltered, new Scalar(190, 120, 0), new Scalar(255, 135, 10), satFiltered);
-        // Imgcodecs.imwrite(satFilteredPath + (frameNum % 200) + ".jpg", satFiltered);
+        //if (debug) {Imgcodecs.imwrite(satFilteredPath + (frameNum % numberOfFrames) + ".jpg", satFiltered);}
 
         // Remove extra noise in image
         Mat openClose = new Mat();
         Imgproc.morphologyEx(satFiltered, openClose, Imgproc.MORPH_OPEN, new Mat());
         Imgproc.morphologyEx(openClose, openClose, Imgproc.MORPH_CLOSE, new Mat());
-        //Imgcodecs.imwrite(openClosePath + (frameNum % 200) + ".jpg", openClose);
+        //if (debug) {Imgcodecs.imwrite(openClosePath + (frameNum % numberOfFrames) + ".jpg", openClose);}
 
         // Crop Image to where quarry row is
         double horAvg;
@@ -149,9 +155,9 @@ public class skyStoneDetector extends Thread {
 
         // Vertical Analysis
         if (!(SCropped.cols() == 0)) {
-            Imgcodecs.imwrite(croppedPath + (frameNum % 200) + ".jpg", SCropped);
+            Imgcodecs.imwrite(croppedPath + (frameNum % numberOfFrames) + ".jpg", SCropped);
 
-            // Makes image black(stone) and white(skyStone)
+            // Makes image black(skystone) and white(stone)
             //String preList = ""; // for printing pre-binary vertical averages
             //String postList = ""; // for printing post-binary vertical values
             double verAvg;
@@ -163,7 +169,7 @@ public class skyStoneDetector extends Thread {
                 verImage.col(col).setTo(new Scalar(verAvg)); //postList += verAvg + " ";
             }
             Imgproc.morphologyEx(verImage, verImage, Imgproc.MORPH_OPEN, new Mat());
-            Imgcodecs.imwrite(verViewPath + (frameNum % 200) + ".jpg", verImage);
+            if (debug) {Imgcodecs.imwrite(verViewPath + (frameNum % numberOfFrames) + ".jpg", verImage);}
 
             //log("pre-binary ver avg: " + preList);
             //log("post-binary ver val: " + postList);
