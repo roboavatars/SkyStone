@@ -10,23 +10,34 @@ public class Teleop extends LinearOpMode {
     // magic numbers/constants
     final double INTAKE_POWER = 1.0;
     final double SLIDES_POWER = 1.0;
-    final long TIME_TO_EXTEND = 500;
+    final int TARGET_POS = 500;
     final double INITIAL_DUMPER_POSITION = 0.0;
     final double DUMPED_POSITION = 1.0;
 
-    // hardware declarations
-    private DcMotor motorFrontLeft = hardwareMap.dcMotor.get("motorFrontLeft");
-    private DcMotor motorFrontRight = hardwareMap.dcMotor.get("motorFrontRight");
-    private DcMotor motorBackLeft = hardwareMap.dcMotor.get("motorBackLeft");
-    private DcMotor motorBackRight = hardwareMap.dcMotor.get("motorBackRight");
+    //motors and servo
+    private DcMotor motorFrontLeft;
+    private DcMotor motorFrontRight;
+    private DcMotor motorBackLeft;
+    private DcMotor motorBackRight;
 
-    private DcMotor intakeMotor = hardwareMap.dcMotor.get("intakeMotor");
+    private DcMotor intakeMotor;
 
-    private DcMotor slidesMotor = hardwareMap.dcMotor.get("slidesMotor");
-    private Servo dumperServo = hardwareMap.servo.get("dumperServo");
+    private DcMotor slidesMotor;
+    private Servo dumperServo;
 
     @Override
     public void runOpMode() {
+        // getting the hardware
+        motorFrontLeft = hardwareMap.dcMotor.get("motorFrontLeft");
+        motorFrontRight = hardwareMap.dcMotor.get("motorFrontRight");
+        motorBackLeft = hardwareMap.dcMotor.get("motorBackLeft");
+        motorBackRight = hardwareMap.dcMotor.get("motorBackRight");
+
+        intakeMotor = hardwareMap.dcMotor.get("intakeMotor");
+
+        slidesMotor = hardwareMap.dcMotor.get("slidesMotor");
+        dumperServo = hardwareMap.servo.get("dumperServo");
+
         // initializing the motors and servo
         motorFrontLeft.setDirection(DcMotor.Direction.REVERSE);
         motorBackLeft.setDirection(DcMotor.Direction.REVERSE);
@@ -56,20 +67,21 @@ public class Teleop extends LinearOpMode {
             motorBackLeft.setPower(vertical + horizontal + pivot);
 
             if (gamepad1.a) {
-                // starts intaking packing peanuts
+                // intakes packing peanuts
                 intakeMotor.setPower(INTAKE_POWER);
             }
-            if (gamepad1.b) {
+            if (!gamepad1.a) {
                 // stops intaking packing peanuts
                 intakeMotor.setPower(0.0);
             }
             if (gamepad1.right_bumper) {
                 // raises the slides
                 slidesMotor.setPower(SLIDES_POWER);
-                sleep(TIME_TO_EXTEND);
-                slidesMotor.setPower(0.0);
-                // dumps the balls
-                dumperServo.setPosition(DUMPED_POSITION);
+                slidesMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                slidesMotor.setTargetPosition(TARGET_POS);
+                slidesMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                slidesMotor.setTargetPosition(0);
+                slidesMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             }
         }
     }
